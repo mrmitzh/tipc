@@ -1,5 +1,37 @@
 #include "TIPUnificationTerms.h"
 
+
+std::string Term::type()
+{
+    return std::string("Term");
+}
+
+std::string Term::getType()
+{
+    return Term::type();
+}
+
+std::string Var::type()
+{
+    return std::string("Var");
+}
+
+std::string Var::getType()
+{
+    return Var::type();
+}
+
+std::string Cons::type()
+{
+    return std::string("Cons");
+}
+
+std::string Cons::getType()
+{
+    return Cons::type();
+}
+
+
 std::set<std::shared_ptr<Var>> Var::fv()
 {
     std::set<std::shared_ptr<Var>> set;
@@ -7,23 +39,6 @@ std::set<std::shared_ptr<Var>> Var::fv()
     set.insert(self);
     return set;
 }
-
-std::string Term::getType()
-{
-    return std::string("Term");
-}
-
-std::string Var::getType()
-{
-    return std::string("Var");
-}
-
-std::string Cons::getType()
-{
-    return std::string("Cons");
-}
-
-
 
 std::shared_ptr<Term> Var::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
 {

@@ -170,6 +170,108 @@ std::string AccessExpr::get_type()
   return AccessExpr::type();
 }
 
+void NumberExpr::accept(TIPAstVisitor& visitor) 
+{
+  visitor.visitNumExpr(this);
+}
+
+void VariableExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitVarExpr(this);
+}
+
+void BinaryExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitBinaryExpr(this);
+}
+
+void FunAppExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitFunAppExpr(this);
+}
+
+void InputExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitInputExpr(this);
+}
+
+void AllocExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitAllocExpr(this);
+}
+
+void RefExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitRefExpr(this);
+}
+
+void DeRefExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitDeRefExpr(this);
+}
+
+void NullExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitNullExpr(this);
+}
+
+void FieldExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitFieldExpr(this);
+}
+
+void RecordExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitRecordExpr(this);
+}
+
+void AccessExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitAccessExpr(this);
+}
+
+void DeclStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitDeclaration(this);
+}
+
+void BlockStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitBlockStmt(this);
+}
+
+void AssignStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitAssignmentStmt(this);
+}
+
+void WhileStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitWhileStmt(this);
+}
+
+void IfStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitIfStmt(this);
+}
+
+void OutputStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitOutputStmt(this);
+}
+
+void ErrorStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitErrorStmt(this);
+}
+
+void ReturnStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitReturnStmt(this);
+}
+
+
+
 std::string Program::print(std::string i, bool pl = false) {
   indent = i;      // initialize namespace global for indent stride
   printLines = pl; // print line numbers

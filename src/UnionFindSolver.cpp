@@ -15,16 +15,16 @@ void UnionFindSolver::unify(std::shared_ptr<Term> t1,std::shared_ptr<Term> t2)
     auto type_of_t1 = t1->getType();
     auto type_of_t2 = t2->getType();
 
-    if(type_of_t1 == "Var" && type_of_t2 == "Var")
+    if(type_of_t1 == Var::type() && type_of_t2 == Var::type())
     {
         makeUnion(t1,t2);
-    }else if(type_of_t1 == "Var" && type_of_t2 == "Term")
+    }else if(type_of_t1 == Var::type() && type_of_t2 == Term::type())
     {
         makeUnion(t1,t2);
-    }else if(type_of_t1 == "Term" && type_of_t2 == "Var")
+    }else if(type_of_t1 == Term::type() && type_of_t2 == Var::type())
     {
         makeUnion(t2,t1);
-    }else if(type_of_t1 == "Cons" && type_of_t2 == "Cons")
+    }else if(type_of_t1 == Cons::type() && type_of_t2 == Cons::type())
     {
         makeUnion(t1,t2);
         auto cast_t1 = std::dynamic_pointer_cast<Cons>(t1);

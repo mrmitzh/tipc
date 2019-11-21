@@ -4,8 +4,7 @@
 
 class TipType {};
 
-template<typename T>
-class TipTypeOps:public TermOPs<TipType>
+class TipTypeOps:public TermOps
 {
     
 };
