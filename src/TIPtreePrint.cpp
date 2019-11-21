@@ -15,6 +15,161 @@ std::string indentation() {
   return indStr;
 }
 
+std::string Node::get_type()
+{
+  return "";
+}
+
+std::string NumberExpr::type()
+{
+  return "NumberExpr";
+}
+
+std::string NumberExpr::get_type()
+{
+  return NumberExpr::type();
+}
+
+std::string InputExpr::type()
+{
+    return "InputExpr";
+}
+
+std::string InputExpr::get_type()
+{
+  return InputExpr::type();
+}
+
+std::string IfStmt::type()
+{
+  return "IfStmt";
+}
+
+std::string IfStmt::get_type()
+{
+  return IfStmt::type();
+}
+
+std::string OutputStmt::type()
+{
+  return "OutputStmt";
+}
+
+std::string OutputStmt::get_type()
+{
+  return OutputStmt::type();
+}
+
+std::string WhileStmt::type()
+{
+  return "WhileStmt";
+}
+
+std::string WhileStmt::get_type()
+{
+  return WhileStmt::type();
+}
+
+std::string AssignStmt::type()
+{
+  return "AssignStmt";
+}
+
+std::string AssignStmt::get_type()
+{
+  return AssignStmt::type();
+}
+
+std::string BinaryExpr::type()
+{
+  return "BinaryExpr";
+}
+
+std::string BinaryExpr::get_type()
+{
+  return BinaryExpr::type();
+}
+
+std::string RefExpr::type()
+{
+  return "RefExpr";
+}
+
+std::string RefExpr::get_type()
+{
+  return RefExpr::type();
+}
+
+std::string DeRefExpr::type()
+{
+  return "DeRefExpr";
+}
+
+std::string DeRefExpr::get_type()
+{
+  return DeRefExpr::type();
+}
+
+std::string AllocExpr::type()
+{
+  return "AllocExpr";
+}
+
+std::string AllocExpr::get_type()
+{
+  return AllocExpr::type();
+}
+
+std::string NullExpr::type()
+{
+  return "NullExpr";
+}
+
+std::string NullExpr::get_type()
+{
+  return NullExpr::type();
+}
+
+std::string FunAppExpr::type()
+{
+  return "FunAppExpr";
+}
+
+std::string FunAppExpr::get_type()
+{
+  return FunAppExpr::type();
+}
+
+std::string ReturnStmt::type()
+{
+  return "ReturnStmt";
+}
+
+std::string ReturnStmt::get_type()
+{
+  return ReturnStmt::type();
+}
+
+std::string RecordExpr::type()
+{
+  return "RecordExpr";
+}
+
+std::string RecordExpr::get_type()
+{
+  return RecordExpr::type();
+}
+
+std::string AccessExpr::type()
+{
+  return "AccessExpr";
+}
+
+std::string AccessExpr::get_type()
+{
+  return AccessExpr::type();
+}
+
 std::string Program::print(std::string i, bool pl = false) {
   indent = i;      // initialize namespace global for indent stride
   printLines = pl; // print line numbers

@@ -26,6 +26,7 @@ public:
   virtual ~Node() = default;
   virtual llvm::Value *codegen() = 0;
   virtual std::string print() = 0;
+  virtual std::string get_type();
 };
 
 /******************* Expression AST Nodes *********************/
@@ -45,6 +46,8 @@ public:
   NumberExpr(int VAL) : VAL(VAL) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 /// VariableExpr - class for referencing a variable
@@ -55,6 +58,7 @@ public:
   VariableExpr(const std::string &NAME) : NAME(NAME) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string get_type() override;
   // Getter to distinguish LHS of assigment for codegen
   std::string getName() { return NAME; };
 };
@@ -70,6 +74,8 @@ public:
       : OP(OP), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 /// FunAppExpr - class for function calls.
@@ -81,6 +87,8 @@ public:
   FunAppExpr(std::unique_ptr<Expr> FUN,
              std::vector<std::unique_ptr<Expr>> ACTUALS)
       : FUN(std::move(FUN)), ACTUALS(std::move(ACTUALS)) {}
+  static std::string type();
+  std::string get_type() override;
   llvm::Value *codegen() override;
   std::string print() override;
 };
@@ -92,6 +100,8 @@ public:
   InputExpr() {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type override;
 };
 
 // AllocExpr - class for alloc expression
@@ -102,6 +112,8 @@ public:
   AllocExpr(std::unique_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 // RefExpr - class for referencing the address of a variable
@@ -112,6 +124,8 @@ public:
   RefExpr(const std::string &NAME) : NAME(NAME) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 // DeRefExpr - class for dereferencing a pointer expression
@@ -122,6 +136,8 @@ public:
   DeRefExpr(std::unique_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 /// NullExpr - class for a null expression
@@ -131,6 +147,8 @@ public:
   NullExpr() {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 // FieldExpr - class for the field of a structure
@@ -154,6 +172,8 @@ public:
       : FIELDS(std::move(FIELDS)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 // AccessExpr - class for a record field access
@@ -166,6 +186,8 @@ public:
       : RECORD(std::move(RECORD)), FIELD(FIELD) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 /******************* Statement AST Nodes *********************/
@@ -209,6 +231,8 @@ public:
       : LHS(std::move(LHS)), RHS(std::move(RHS)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 // WhileStmt - class for a while loop
@@ -221,6 +245,8 @@ public:
       : COND(std::move(COND)), BODY(std::move(BODY)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 /// IfStmt - class for if-then-else
@@ -234,6 +260,8 @@ public:
       : COND(std::move(COND)), THEN(std::move(THEN)), ELSE(std::move(ELSE)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 /// OutputStmt - class for a output statement
@@ -244,6 +272,8 @@ public:
   OutputStmt(std::unique_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 /// ErrorStmt - class for a error statement
@@ -264,6 +294,8 @@ public:
   ReturnStmt(std::unique_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
 };
 
 /******************* Program and Function Nodes *********************/

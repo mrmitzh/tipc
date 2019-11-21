@@ -1,40 +1,39 @@
 #pragma once
 #include <map>
 #include <memory>
+#include <vector>
 #include <set>
+#include <string>
 
-template<typename T>
 class Var;
 
-template<typename T>
 class Term
 {
 public:
-    virtual ~Term() {}
-    virtual std::set<std::shared_ptr<Var<T>>> fv() = 0;
-    virtual std::shared_ptr<Term<T>> subst(std::shared_ptr<Var<T>> v,std::shared_ptr<Term<T>> t) = 0;
+    virtual ~Term() = default;
+    virtual std::set<std::shared_ptr<Var>> fv() = 0;
+    virtual std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) = 0;
+    virtual std::string getType();
 };
 
 
-template<typename T>
-class Var: public Term<T>
+class Var: public Term
 {
 public:
-    virtual std::set<std::shared_ptr<Var<T>>> fv();
-    virtual std::shared_ptr<Term<T>> subst(std::shared_ptr<Var<T>> v,std::shared_ptr<Term<T>> t);
+    virtual std::set<std::shared_ptr<Var>> fv();
+    virtual std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t);
+    virtual std::string getType();
 };
 
-template<typename T>
-class Cons: public Term<T>
+class Cons: public Term
 {
 public:
-
-};
-
-template<typename T>
-class TermOPs
-{
-
+    std::vector<std::shared_ptr<Term>> args;
+    int arity();
+    bool doMatch(std::shared_ptr<Term> t);
+    virtual std::set<std::shared_ptr<Var>> fv();
+    virtual std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t);
+    virtual std::string getType();
 };
 
 
