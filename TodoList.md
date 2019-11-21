@@ -12,3 +12,6 @@ for every
 
 Can do later:
 1. solving the record ... 
+
+
+Before Compile: Don't forget to change the CMake File.
