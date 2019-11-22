@@ -30,6 +30,16 @@ std::string NumberExpr::get_type()
   return NumberExpr::type();
 }
 
+std::string VariableExpr::type()
+{
+  return "VariableExpr";
+}
+
+std::string VariableExpr::get_type()
+{
+  return VariableExpr::type();
+}
+
 std::string InputExpr::type()
 {
     return "InputExpr";

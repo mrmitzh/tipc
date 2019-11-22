@@ -51,6 +51,16 @@ int Cons::arity()
     return args.size();
 }
 
+std::set<std::shared_ptr<Var>> Cons::fv()
+{
+
+}
+
+std::shared_ptr<Term> Cons::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
+{
+
+}
+
 bool doMatch(std::shared_ptr<Term> t)
 {
     // TODO: check using typeid is ture in this case

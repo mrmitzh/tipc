@@ -13,13 +13,14 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "TIPAstVisitor.h"
 
 /******************************************************************
  * Abstract Syntax Tree for TIP
  *****************************************************************/
 
 namespace TIPtree {
+
+class TIPAstVisitor;
 
 // Node - this is a base class for all tree nodes
 class Node {
@@ -61,6 +62,7 @@ public:
   VariableExpr(const std::string &NAME) : NAME(NAME) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
   std::string get_type() override;
   // Getter to distinguish LHS of assigment for codegen
   std::string getName() { return NAME; };
@@ -107,7 +109,7 @@ public:
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
-  std::string get_type override;
+  std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
 };
 
@@ -360,5 +362,33 @@ public:
   std::unique_ptr<llvm::Module> codegen(std::string programName);
   std::string print(std::string i, bool pl);
 };
+
+
+class TIPAstVisitor
+{
+public:
+  virtual ~TIPAstVisitor() = default;
+  virtual void  visitNumExpr(NumberExpr* root) = 0;
+  virtual void  visitVarExpr(VariableExpr* root) = 0;
+  virtual void  visitBinaryExpr(BinaryExpr* root) = 0;
+  virtual void  visitFunAppExpr(FunAppExpr* root) = 0;
+  virtual void  visitInputExpr(InputExpr* root) = 0;
+  virtual void  visitAllocExpr(AllocExpr* root) = 0;
+  virtual void  visitRefExpr(RefExpr* root) = 0;
+  virtual void  visitDeRefExpr(DeRefExpr* root) = 0;
+  virtual void  visitNullExpr(NullExpr* root) = 0;
+  virtual void  visitFieldExpr(FieldExpr* root) = 0;
+  virtual void  visitRecordExpr(RecordExpr* root) = 0;
+  virtual void  visitAccessExpr(AccessExpr* root) = 0;
+  virtual void  visitDeclaration(DeclStmt* root) = 0;
+  virtual void  visitBlockStmt(BlockStmt* root) = 0;
+  virtual void  visitAssignmentStmt(AssignStmt* root) = 0;
+  virtual void  visitWhileStmt(WhileStmt* root) = 0;
+  virtual void  visitIfStmt(IfStmt* root) = 0;
+  virtual void  visitOutputStmt(OutputStmt* root) = 0;
+  virtual void  visitErrorStmt(ErrorStmt* root) = 0;
+  virtual void  visitReturnStmt(ReturnStmt* root) = 0;
+};
+
 
 } // namespace TIPtree

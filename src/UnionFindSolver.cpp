@@ -29,7 +29,7 @@ void UnionFindSolver::unify(std::shared_ptr<Term> t1,std::shared_ptr<Term> t2)
         makeUnion(t1,t2);
         auto cast_t1 = std::dynamic_pointer_cast<Cons>(t1);
         auto cast_t2 = std::dynamic_pointer_cast<Cons>(t2);
-        for(int i = 0; i < std::min(cast_t1->arity,cast_t2->arity); i++)
+        for(int i = 0; i < std::min(cast_t1->arity(),cast_t2->arity()); i++)
         {
             makeUnion(cast_t1->args[i],cast_t2->args[i]);
         }
