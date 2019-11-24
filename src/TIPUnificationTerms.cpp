@@ -62,13 +62,13 @@ std::shared_ptr<Term> Var::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
 
 int Cons::arity()
 {
-    return args.size();
+    return args().size();
 }
 
 std::set<std::shared_ptr<Var>> Cons::fv()
 {
     std::set<std::shared_ptr<Var>> result;
-    for(const auto& arg:args)
+    for(const auto& arg:args())
     {
         auto temp = arg->fv();
         result.insert(temp.begin(),temp.end());
