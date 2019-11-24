@@ -31,15 +31,22 @@ std::string Cons::getType()
     return Cons::type();
 }
 
-
-std::set<std::unique_ptr<Var>> Var::fv()
+std::string Mu::type()
 {
-    std::set<std::unique_ptr<Var>> set;
-    // set.insert(llvm::make_unique<Var>(*this));
-    return set;
+    return std::string("Mu");
 }
 
-std::unique_ptr<Term> Var::subst(std::unique_ptr<Var> v,std::unique_ptr<Term> t)
+std::string Mu::getType()
+{
+    return Mu::type();
+}
+
+std::set<std::shared_ptr<Var>> Var::fv()
+{
+    // TODO: write the correct version
+}
+
+std::shared_ptr<Term> Var::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
 {
     // TODO: write the correct version
 }
@@ -50,19 +57,74 @@ int Cons::arity()
     return args.size();
 }
 
-std::set<std::unique_ptr<Var>> Cons::fv()
+std::set<std::shared_ptr<Var>> Cons::fv()
 {
-
+    std::set<std::shared_ptr<Var>> result;
+    for(const auto& arg:args)
+    {
+        auto temp = arg->fv();
+        result.insert(temp.begin(),temp.end());
+    }
+    return result;
 }
 
-std::unique_ptr<Term> Cons::subst(std::unique_ptr<Var> v,std::unique_ptr<Term> t)
-{
 
+bool Cons::doMatch(std::shared_ptr<Term> t)
+{    
+    return getType() == t->getType() && arity() == std::dynamic_pointer_cast<Cons>(t)->arity();
 }
 
-bool doMatch(std::unique_ptr<Term> t)
+
+std::set<std::shared_ptr<Var>> Mu::fv()
 {
-    // TODO: check using typeid is ture in this case
-    
-    return false;
+    auto result = t->fv();
+    result.erase(v);
+    return result;
+}
+
+
+std::shared_ptr<Term> TermOps::close(std::shared_ptr<Term> t,std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> env)
+{
+    std::unordered_set<std::shared_ptr<Var>> visited;
+    return closeRec(t,env,visited);
+}
+
+std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> env, std::unordered_set<std::shared_ptr<Var>>& visited)
+{
+    if(t->getType() == Var::type())
+    {
+        auto v = std::dynamic_pointer_cast<Var>(t);
+        if(visited.find(v) == visited.end() && env[v] != v)
+        {
+            visited.insert(v);
+            auto cterm = closeRec(env[v],env,visited);
+            visited.erase(v);
+            auto newV = makeAlpha(v);
+            
+            auto cterm_fv = cterm->fv();
+            if(cterm_fv.find(newV) != cterm_fv.end())
+            {
+                return makeMu(newV,cterm->subst(v,newV));
+            }else
+            {
+                return cterm;
+            }
+        }else
+        {
+            return makeAlpha(v);
+        }
+    }else if(t->getType() == Cons::type())
+    {
+        auto c = std::dynamic_pointer_cast<Cons>(t);
+        auto c_fv = c->fv();
+        for(auto& v:c_fv)
+        {
+            t->subst(v,closeRec(v,env,visited));
+        }
+        return t;
+    }else if(t->getType() == Mu::type())
+    {
+        auto m = std::dynamic_pointer_cast<Mu>(t);
+        return makeMu(m->v,closeRec(m->t,env,visited));
+    }
 }

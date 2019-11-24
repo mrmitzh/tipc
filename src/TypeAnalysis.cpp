@@ -104,11 +104,6 @@ void  CollectRefNodeInfo::visitReturnStmt(ReturnStmt* root)
 
 void  CollectRefNodeInfo::visit(Node* root)
 {
-
-}
-
-void  CollectRefNodeInfo::visit(Node* root)
-{
   return root->accept(this);
 }
 
@@ -123,6 +118,46 @@ void  CollectRefNodeInfo::collect(const std::unique_ptr<TIPtree::Program>& progr
       visit(body.get());
     }
   }
+}
+
+// CollectInferResult
+
+void  CollectInferResult::visitNumExpr(NumberExpr* root) 
+{
+  auto tipTypeOps = llvm::make_unique<TipTypeOps>();
+  
+}
+void  CollectInferResult::visitVarExpr(VariableExpr* root) {}
+void  CollectInferResult::visitBinaryExpr(BinaryExpr* root) {}
+void  CollectInferResult::visitFunAppExpr(FunAppExpr* root) {}
+void  CollectInferResult::visitInputExpr(InputExpr* root) {}
+void  CollectInferResult::visitAllocExpr(AllocExpr* root) {}
+void  CollectInferResult::visitRefExpr(RefExpr* root) {}
+void  CollectInferResult::visitDeRefExpr(DeRefExpr* root) {}
+void  CollectInferResult::visitNullExpr(NullExpr* root) {}
+void  CollectInferResult::visitFieldExpr(FieldExpr* root) {}
+void  CollectInferResult::visitRecordExpr(RecordExpr* root) {}
+void  CollectInferResult::visitAccessExpr(AccessExpr* root) {}
+void  CollectInferResult::visitDeclaration(DeclStmt* root) 
+{
+
+}
+void  CollectInferResult::visitBlockStmt(BlockStmt* root) {}
+void  CollectInferResult::visitAssignmentStmt(AssignStmt* root) {}
+void  CollectInferResult::visitWhileStmt(WhileStmt* root) {}
+void  CollectInferResult::visitIfStmt(IfStmt* root) {}
+void  CollectInferResult::visitOutputStmt(OutputStmt* root) {}
+void  CollectInferResult::visitErrorStmt(ErrorStmt* root) {}
+void  CollectInferResult::visitReturnStmt(ReturnStmt* root) {}
+
+void  CollectInferResult::visit(Node* root) 
+{
+  root->accept(this);
+}
+
+std::unordered_map<Node*,std::unique_ptr<TipType>> CollectInferResult::getInferResult()
+{
+
 }
 
 
@@ -247,7 +282,7 @@ void  TypeAnalysis::visit(Node* root)
 
 
 
-TypeAnalysis::result_type TypeAnalysis::analysis(const std::unique_ptr<TIPtree::Program>& program)
+std::unordered_map<std::unique_ptr<Var>,std::unique_ptr<Term>> TypeAnalysis::analysis(const std::unique_ptr<TIPtree::Program>& program)
 {
   // step1 generate constraint
   for(const auto& function:program->FUNCTIONS)
