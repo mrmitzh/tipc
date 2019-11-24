@@ -67,5 +67,7 @@ add_executable(tipc
                TIPtreePrint.cpp
                TIPUnificationTerms.cpp
                UnionFindSolver.cpp
+               TypeAnalysis.cpp
+               TIPtype.cpp
                ${ANTLR_TIPGrammar_CXX_OUTPUTS})
 target_link_libraries(tipc antlr4_static ${llvm_libs})

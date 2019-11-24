@@ -180,104 +180,104 @@ std::string AccessExpr::get_type()
   return AccessExpr::type();
 }
 
-void NumberExpr::accept(TIPAstVisitor& visitor) 
+void NumberExpr::accept(TIPAstVisitor* visitor) 
 {
-  visitor.visitNumExpr(this);
+  visitor->visitNumExpr(this);
 }
 
-void VariableExpr::accept(TIPAstVisitor& visitor)
+void VariableExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitVarExpr(this);
+  visitor->visitVarExpr(this);
 }
 
-void BinaryExpr::accept(TIPAstVisitor& visitor)
+void BinaryExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitBinaryExpr(this);
+  visitor->visitBinaryExpr(this);
 }
 
-void FunAppExpr::accept(TIPAstVisitor& visitor)
+void FunAppExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitFunAppExpr(this);
+  visitor->visitFunAppExpr(this);
 }
 
-void InputExpr::accept(TIPAstVisitor& visitor)
+void InputExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitInputExpr(this);
+  visitor->visitInputExpr(this);
 }
 
-void AllocExpr::accept(TIPAstVisitor& visitor)
+void AllocExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitAllocExpr(this);
+  visitor->visitAllocExpr(this);
 }
 
-void RefExpr::accept(TIPAstVisitor& visitor)
+void RefExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitRefExpr(this);
+  visitor->visitRefExpr(this);
 }
 
-void DeRefExpr::accept(TIPAstVisitor& visitor)
+void DeRefExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitDeRefExpr(this);
+  visitor->visitDeRefExpr(this);
 }
 
-void NullExpr::accept(TIPAstVisitor& visitor)
+void NullExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitNullExpr(this);
+  visitor->visitNullExpr(this);
 }
 
-void FieldExpr::accept(TIPAstVisitor& visitor)
+void FieldExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitFieldExpr(this);
+  visitor->visitFieldExpr(this);
 }
 
-void RecordExpr::accept(TIPAstVisitor& visitor)
+void RecordExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitRecordExpr(this);
+  visitor->visitRecordExpr(this);
 }
 
-void AccessExpr::accept(TIPAstVisitor& visitor)
+void AccessExpr::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitAccessExpr(this);
+  visitor->visitAccessExpr(this);
 }
 
-void DeclStmt::accept(TIPAstVisitor& visitor)
+void DeclStmt::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitDeclaration(this);
+  visitor->visitDeclaration(this);
 }
 
-void BlockStmt::accept(TIPAstVisitor& visitor)
+void BlockStmt::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitBlockStmt(this);
+  visitor->visitBlockStmt(this);
 }
 
-void AssignStmt::accept(TIPAstVisitor& visitor)
+void AssignStmt::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitAssignmentStmt(this);
+  visitor->visitAssignmentStmt(this);
 }
 
-void WhileStmt::accept(TIPAstVisitor& visitor)
+void WhileStmt::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitWhileStmt(this);
+  visitor->visitWhileStmt(this);
 }
 
-void IfStmt::accept(TIPAstVisitor& visitor)
+void IfStmt::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitIfStmt(this);
+  visitor->visitIfStmt(this);
 }
 
-void OutputStmt::accept(TIPAstVisitor& visitor)
+void OutputStmt::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitOutputStmt(this);
+  visitor->visitOutputStmt(this);
 }
 
-void ErrorStmt::accept(TIPAstVisitor& visitor)
+void ErrorStmt::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitErrorStmt(this);
+  visitor->visitErrorStmt(this);
 }
 
-void ReturnStmt::accept(TIPAstVisitor& visitor)
+void ReturnStmt::accept(TIPAstVisitor* visitor)
 {
-  visitor.visitReturnStmt(this);
+  visitor->visitReturnStmt(this);
 }
 
 
