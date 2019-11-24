@@ -27,4 +27,12 @@ public:
     TipRef(std::unique_ptr<Term> of);
 };
 
-// How to implement TipAlpha???
+class TipMu:public TipType, public Mu, public std::enable_shared_from_this<TipMu>
+{
+private:
+    std::shared_ptr<Var> v;
+    std::shared_ptr<Term> t;
+public:
+    TipMu(std::shared_ptr<Var> v,std::shared_ptr<Term> t);
+    std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
+};

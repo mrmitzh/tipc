@@ -21,9 +21,11 @@ public:
 };
 
 
-class Var: public Term
+class Var: public Term, public std::enable_shared_from_this<Var>
 {
 public:
+    Var() = default;
+    ~Var() = default;
     std::set<std::shared_ptr<Var>> fv() override;
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
     static std::string type();

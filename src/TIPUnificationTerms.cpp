@@ -43,12 +43,20 @@ std::string Mu::getType()
 
 std::set<std::shared_ptr<Var>> Var::fv()
 {
-    // TODO: write the correct version
+    std::set<std::shared_ptr<Var>> set;
+    set.insert(shared_from_this());
+    return set;
 }
 
 std::shared_ptr<Term> Var::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
 {
-    // TODO: write the correct version
+    if(v == shared_from_this())
+    {
+        return t;
+    }else
+    {
+        return shared_from_this();
+    }
 }
 
 
