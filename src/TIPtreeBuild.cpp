@@ -49,11 +49,11 @@ std::string TIPtreeBuild::opString(int op) {
  * We use multiple variables here since downcasting of unique smart pointers
  * is not supported.
  */
-static std::unique_ptr<Stmt> visitedStmt = nullptr;
-static std::unique_ptr<DeclStmt> visitedDeclStmt = nullptr;
-static std::unique_ptr<Expr> visitedExpr = nullptr;
-static std::unique_ptr<FieldExpr> visitedFieldExpr = nullptr;
-static std::unique_ptr<Function> visitedFunction = nullptr;
+static std::shared_ptr<Stmt> visitedStmt = nullptr;
+static std::shared_ptr<DeclStmt> visitedDeclStmt = nullptr;
+static std::shared_ptr<Expr> visitedExpr = nullptr;
+static std::shared_ptr<FieldExpr> visitedFieldExpr = nullptr;
+static std::shared_ptr<Function> visitedFunction = nullptr;
 
 /**********************************************************************
  * These methods override selected methods in the TIPBaseVisitor.
@@ -88,9 +88,9 @@ static std::unique_ptr<Function> visitedFunction = nullptr;
  * that interact with LLVM and are thus constrained to C++ 11.
  */
 
-std::unique_ptr<TIPtree::Program>
+std::shared_ptr<TIPtree::Program>
 TIPtreeBuild::build(TIPParser::ProgramContext *ctx) {
-  std::vector<std::unique_ptr<Function>> pFunctions;
+  std::vector<std::shared_ptr<Function>> pFunctions;
   for (auto fn : ctx->function()) {
     visit(fn);
     pFunctions.push_back(std::move(visitedFunction));
@@ -101,8 +101,8 @@ TIPtreeBuild::build(TIPParser::ProgramContext *ctx) {
 Any TIPtreeBuild::visitFunction(TIPParser::FunctionContext *ctx) {
   std::string fName; // always initialized in the "count == 0" case
   std::vector<std::string> fParams;
-  std::vector<std::unique_ptr<DeclStmt>> fDecls;
-  std::vector<std::unique_ptr<Stmt>> fBody;
+  std::vector<std::shared_ptr<DeclStmt>> fDecls;
+  std::vector<std::shared_ptr<Stmt>> fBody;
   int fLine;
 
   /*
@@ -162,10 +162,10 @@ Any TIPtreeBuild::visitAdditiveExpr(TIPParser::AdditiveExprContext *ctx) {
   std::string op = opString(ctx->op->getType());
 
   visit(ctx->expr(0));
-  std::unique_ptr<Expr> lhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> lhs = std::move(visitedExpr);
 
   visit(ctx->expr(1));
-  std::unique_ptr<Expr> rhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> rhs = std::move(visitedExpr);
 
   visitedExpr =
       llvm::make_unique<BinaryExpr>(op, std::move(lhs), std::move(rhs));
@@ -176,10 +176,10 @@ Any TIPtreeBuild::visitRelationalExpr(TIPParser::RelationalExprContext *ctx) {
   std::string op = opString(ctx->op->getType());
 
   visit(ctx->expr(0));
-  std::unique_ptr<Expr> lhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> lhs = std::move(visitedExpr);
 
   visit(ctx->expr(1));
-  std::unique_ptr<Expr> rhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> rhs = std::move(visitedExpr);
 
   visitedExpr =
       llvm::make_unique<BinaryExpr>(op, std::move(lhs), std::move(rhs));
@@ -191,10 +191,10 @@ Any TIPtreeBuild::visitMultiplicativeExpr(
   std::string op = opString(ctx->op->getType());
 
   visit(ctx->expr(0));
-  std::unique_ptr<Expr> lhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> lhs = std::move(visitedExpr);
 
   visit(ctx->expr(1));
-  std::unique_ptr<Expr> rhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> rhs = std::move(visitedExpr);
 
   visitedExpr =
       llvm::make_unique<BinaryExpr>(op, std::move(lhs), std::move(rhs));
@@ -205,10 +205,10 @@ Any TIPtreeBuild::visitEqualityExpr(TIPParser::EqualityExprContext *ctx) {
   std::string op = opString(ctx->op->getType());
 
   visit(ctx->expr(0));
-  std::unique_ptr<Expr> lhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> lhs = std::move(visitedExpr);
 
   visit(ctx->expr(1));
-  std::unique_ptr<Expr> rhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> rhs = std::move(visitedExpr);
 
   visitedExpr =
       llvm::make_unique<BinaryExpr>(op, std::move(lhs), std::move(rhs));
@@ -239,8 +239,8 @@ Any TIPtreeBuild::visitInputExpr(TIPParser::InputExprContext *ctx) {
 }
 
 Any TIPtreeBuild::visitFunAppExpr(TIPParser::FunAppExprContext *ctx) {
-  std::unique_ptr<Expr> fExpr = nullptr;
-  std::vector<std::unique_ptr<Expr>> fArgs;
+  std::shared_ptr<Expr> fExpr = nullptr;
+  std::vector<std::shared_ptr<Expr>> fArgs;
 
   // function determined by name or computed expression
   if (ctx->IDENTIFIER() != nullptr) {
@@ -288,7 +288,7 @@ Any TIPtreeBuild::visitNullExpr(TIPParser::NullExprContext *ctx) {
 }
 
 Any TIPtreeBuild::visitRecordExpr(TIPParser::RecordExprContext *ctx) {
-  std::vector<std::unique_ptr<FieldExpr>> rFields;
+  std::vector<std::shared_ptr<FieldExpr>> rFields;
   for (auto fn : ctx->fieldExpr()) {
     visit(fn);
     rFields.push_back(std::move(visitedFieldExpr));
@@ -307,7 +307,7 @@ Any TIPtreeBuild::visitFieldExpr(TIPParser::FieldExprContext *ctx) {
 }
 
 Any TIPtreeBuild::visitAccessExpr(TIPParser::AccessExprContext *ctx) {
-  std::unique_ptr<Expr> rExpr = nullptr;
+  std::shared_ptr<Expr> rExpr = nullptr;
   std::string fName; // will be initialized below based on record expr
 
   // If the base of the access is an identifier, then there will be two
@@ -359,15 +359,15 @@ Any TIPtreeBuild::visitDeclaration(TIPParser::DeclarationContext *ctx) {
 
 Any TIPtreeBuild::visitAssignmentStmt(TIPParser::AssignmentStmtContext *ctx) {
   visit(ctx->assignableExpr());
-  std::unique_ptr<Expr> lhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> lhs = std::move(visitedExpr);
   visit(ctx->expr());
-  std::unique_ptr<Expr> rhs = std::move(visitedExpr);
+  std::shared_ptr<Expr> rhs = std::move(visitedExpr);
   visitedStmt = llvm::make_unique<AssignStmt>(std::move(lhs), std::move(rhs));
   return "";
 }
 
 Any TIPtreeBuild::visitBlockStmt(TIPParser::BlockStmtContext *ctx) {
-  std::vector<std::unique_ptr<Stmt>> bStmts;
+  std::vector<std::shared_ptr<Stmt>> bStmts;
   for (auto s : ctx->statement()) {
     visit(s);
     bStmts.push_back(std::move(visitedStmt));
@@ -378,10 +378,10 @@ Any TIPtreeBuild::visitBlockStmt(TIPParser::BlockStmtContext *ctx) {
 
 Any TIPtreeBuild::visitWhileStmt(TIPParser::WhileStmtContext *ctx) {
   visit(ctx->expr());
-  std::unique_ptr<Expr> cond = std::move(visitedExpr);
+  std::shared_ptr<Expr> cond = std::move(visitedExpr);
 
   visit(ctx->statement());
-  std::unique_ptr<Stmt> body = std::move(visitedStmt);
+  std::shared_ptr<Stmt> body = std::move(visitedStmt);
 
   visitedStmt = llvm::make_unique<WhileStmt>(std::move(cond), std::move(body));
   return "";
@@ -389,13 +389,13 @@ Any TIPtreeBuild::visitWhileStmt(TIPParser::WhileStmtContext *ctx) {
 
 Any TIPtreeBuild::visitIfStmt(TIPParser::IfStmtContext *ctx) {
   visit(ctx->expr());
-  std::unique_ptr<Expr> cond = std::move(visitedExpr);
+  std::shared_ptr<Expr> cond = std::move(visitedExpr);
 
   visit(ctx->statement(0));
-  std::unique_ptr<Stmt> thenBody = std::move(visitedStmt);
+  std::shared_ptr<Stmt> thenBody = std::move(visitedStmt);
 
   // else is optional
-  std::unique_ptr<Stmt> elseBody = nullptr;
+  std::shared_ptr<Stmt> elseBody = nullptr;
   if (ctx->statement().size() == 2) {
     visit(ctx->statement(1));
     elseBody = std::move(visitedStmt);

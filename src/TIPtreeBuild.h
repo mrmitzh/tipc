@@ -15,7 +15,7 @@ private:
 
 public:
   TIPtreeBuild(TIPParser *parser);
-  std::unique_ptr<TIPtree::Program> build(TIPParser::ProgramContext *ctx);
+  std::shared_ptr<TIPtree::Program> build(TIPParser::ProgramContext *ctx);
   Any visitFunction(TIPParser::FunctionContext *ctx) override;
   Any visitNegNumber(TIPParser::NegNumberContext *ctx) override;
   Any visitAdditiveExpr(TIPParser::AdditiveExprContext *ctx) override;

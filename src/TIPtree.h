@@ -73,10 +73,10 @@ public:
 class BinaryExpr : public Expr {
 public:
   std::string OP;
-  std::unique_ptr<Expr> LHS, RHS;
+  std::shared_ptr<Expr> LHS, RHS;
 
-  BinaryExpr(const std::string &OP, std::unique_ptr<Expr> LHS,
-             std::unique_ptr<Expr> RHS)
+  BinaryExpr(const std::string &OP, std::shared_ptr<Expr> LHS,
+             std::shared_ptr<Expr> RHS)
       : OP(OP), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
   llvm::Value *codegen() override;
   std::string print() override;
@@ -88,11 +88,11 @@ public:
 /// FunAppExpr - class for function calls.
 class FunAppExpr : public Expr {
 public:
-  std::unique_ptr<Expr> FUN;
-  std::vector<std::unique_ptr<Expr>> ACTUALS;
+  std::shared_ptr<Expr> FUN;
+  std::vector<std::shared_ptr<Expr>> ACTUALS;
 
-  FunAppExpr(std::unique_ptr<Expr> FUN,
-             std::vector<std::unique_ptr<Expr>> ACTUALS)
+  FunAppExpr(std::shared_ptr<Expr> FUN,
+             std::vector<std::shared_ptr<Expr>> ACTUALS)
       : FUN(std::move(FUN)), ACTUALS(std::move(ACTUALS)) {}
   static std::string type();
   std::string get_type() override;
@@ -116,9 +116,9 @@ public:
 // AllocExpr - class for alloc expression
 class AllocExpr : public Expr {
 public:
-  std::unique_ptr<Expr> ARG;
+  std::shared_ptr<Expr> ARG;
 
-  AllocExpr(std::unique_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  AllocExpr(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
@@ -144,9 +144,9 @@ public:
 // DeRefExpr - class for dereferencing a pointer expression
 class DeRefExpr : public Expr {
 public:
-  std::unique_ptr<Expr> ARG;
+  std::shared_ptr<Expr> ARG;
 
-  DeRefExpr(std::unique_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  DeRefExpr(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
@@ -170,9 +170,9 @@ public:
 class FieldExpr : public Expr {
 public:
   std::string FIELD;
-  std::unique_ptr<Expr> INIT;
+  std::shared_ptr<Expr> INIT;
 
-  FieldExpr(const std::string &FIELD, std::unique_ptr<Expr> INIT)
+  FieldExpr(const std::string &FIELD, std::shared_ptr<Expr> INIT)
       : FIELD(FIELD), INIT(std::move(INIT)) {}
   llvm::Value *codegen() override;
   std::string print() override;
@@ -182,9 +182,9 @@ public:
 // RecordExpr - class for defining a record
 class RecordExpr : public Expr {
 public:
-  std::vector<std::unique_ptr<FieldExpr>> FIELDS;
+  std::vector<std::shared_ptr<FieldExpr>> FIELDS;
 
-  RecordExpr(std::vector<std::unique_ptr<FieldExpr>> FIELDS)
+  RecordExpr(std::vector<std::shared_ptr<FieldExpr>> FIELDS)
       : FIELDS(std::move(FIELDS)) {}
   llvm::Value *codegen() override;
   std::string print() override;
@@ -196,10 +196,10 @@ public:
 // AccessExpr - class for a record field access
 class AccessExpr : public Expr {
 public:
-  std::unique_ptr<Expr> RECORD;
+  std::shared_ptr<Expr> RECORD;
   std::string FIELD;
 
-  AccessExpr(std::unique_ptr<Expr> RECORD, const std::string &FIELD)
+  AccessExpr(std::shared_ptr<Expr> RECORD, const std::string &FIELD)
       : RECORD(std::move(RECORD)), FIELD(FIELD) {}
   llvm::Value *codegen() override;
   std::string print() override;
@@ -233,9 +233,9 @@ public:
 // BlockStmt - class for block of statements
 class BlockStmt : public Stmt {
 public:
-  std::vector<std::unique_ptr<Stmt>> STMTS;
+  std::vector<std::shared_ptr<Stmt>> STMTS;
 
-  BlockStmt(std::vector<std::unique_ptr<Stmt>> STMTS)
+  BlockStmt(std::vector<std::shared_ptr<Stmt>> STMTS)
       : STMTS(std::move(STMTS)) {}
   llvm::Value *codegen() override;
   std::string print() override;
@@ -245,9 +245,9 @@ public:
 // AssignStmt - class for assignment
 class AssignStmt : public Stmt {
 public:
-  std::unique_ptr<Expr> LHS, RHS;
+  std::shared_ptr<Expr> LHS, RHS;
 
-  AssignStmt(std::unique_ptr<Expr> LHS, std::unique_ptr<Expr> RHS)
+  AssignStmt(std::shared_ptr<Expr> LHS, std::shared_ptr<Expr> RHS)
       : LHS(std::move(LHS)), RHS(std::move(RHS)) {}
   llvm::Value *codegen() override;
   std::string print() override;
@@ -259,10 +259,10 @@ public:
 // WhileStmt - class for a while loop
 class WhileStmt : public Stmt {
 public:
-  std::unique_ptr<Expr> COND;
-  std::unique_ptr<Stmt> BODY;
+  std::shared_ptr<Expr> COND;
+  std::shared_ptr<Stmt> BODY;
 
-  WhileStmt(std::unique_ptr<Expr> COND, std::unique_ptr<Stmt> BODY)
+  WhileStmt(std::shared_ptr<Expr> COND, std::shared_ptr<Stmt> BODY)
       : COND(std::move(COND)), BODY(std::move(BODY)) {}
   llvm::Value *codegen() override;
   std::string print() override;
@@ -274,11 +274,11 @@ public:
 /// IfStmt - class for if-then-else
 class IfStmt : public Stmt {
 public:
-  std::unique_ptr<Expr> COND;
-  std::unique_ptr<Stmt> THEN, ELSE;
+  std::shared_ptr<Expr> COND;
+  std::shared_ptr<Stmt> THEN, ELSE;
 
-  IfStmt(std::unique_ptr<Expr> COND, std::unique_ptr<Stmt> THEN,
-         std::unique_ptr<Stmt> ELSE)
+  IfStmt(std::shared_ptr<Expr> COND, std::shared_ptr<Stmt> THEN,
+         std::shared_ptr<Stmt> ELSE)
       : COND(std::move(COND)), THEN(std::move(THEN)), ELSE(std::move(ELSE)) {}
   llvm::Value *codegen() override;
   std::string print() override;
@@ -290,9 +290,9 @@ public:
 /// OutputStmt - class for a output statement
 class OutputStmt : public Stmt {
 public:
-  std::unique_ptr<Expr> ARG;
+  std::shared_ptr<Expr> ARG;
 
-  OutputStmt(std::unique_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  OutputStmt(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
@@ -303,9 +303,9 @@ public:
 /// ErrorStmt - class for a error statement
 class ErrorStmt : public Stmt {
 public:
-  std::unique_ptr<Expr> ARG;
+  std::shared_ptr<Expr> ARG;
 
-  ErrorStmt(std::unique_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  ErrorStmt(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
   void accept(TIPAstVisitor* visitor) override;
@@ -314,9 +314,9 @@ public:
 /// ReturnStmt - class for a return statement
 class ReturnStmt : public Stmt {
 public:
-  std::unique_ptr<Expr> ARG;
+  std::shared_ptr<Expr> ARG;
 
-  ReturnStmt(std::unique_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  ReturnStmt(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
@@ -331,13 +331,13 @@ class Function {
 public:
   std::string NAME;
   std::vector<std::string> FORMALS;
-  std::vector<std::unique_ptr<DeclStmt>> DECLS;
-  std::vector<std::unique_ptr<Stmt>> BODY;
+  std::vector<std::shared_ptr<DeclStmt>> DECLS;
+  std::vector<std::shared_ptr<Stmt>> BODY;
   int LINE; // line on which function definition occurs
 
   Function(const std::string &NAME, std::vector<std::string> FORMALS,
-           std::vector<std::unique_ptr<DeclStmt>> DECLS,
-           std::vector<std::unique_ptr<Stmt>> BODY, int LINE)
+           std::vector<std::shared_ptr<DeclStmt>> DECLS,
+           std::vector<std::shared_ptr<Stmt>> BODY, int LINE)
       : NAME(NAME), FORMALS(std::move(FORMALS)), DECLS(std::move(DECLS)),
         BODY(std::move(BODY)), LINE(LINE) {}
   llvm::Function *codegen();
@@ -357,8 +357,8 @@ public:
 // Program - just a list of functions
 class Program {
 public:
-  std::vector<std::unique_ptr<Function>> FUNCTIONS;
-  Program(std::vector<std::unique_ptr<Function>> FUNCTIONS)
+  std::vector<std::shared_ptr<Function>> FUNCTIONS;
+  Program(std::vector<std::shared_ptr<Function>> FUNCTIONS)
       : FUNCTIONS(std::move(FUNCTIONS)) {}
   std::unique_ptr<llvm::Module> codegen(std::string programName);
   std::string print(std::string i, bool pl);
