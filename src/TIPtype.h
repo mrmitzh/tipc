@@ -82,9 +82,8 @@ public:
 
 class TipVar:public TipType, public Var
 {
-private:
-    Node* astNode;
 public:
+    Node* astNode;
     TipVar(Node* astNode);
     ~TipVar() = default;
     static std::string type();
@@ -93,8 +92,10 @@ public:
 
 class TipAlpha: public TipType, public Var
 {
+private:
+    uint64_t address;
 public:
-    TipAlpha() {};
+    TipAlpha(uint64_t address);
     ~TipAlpha() = default;
     static std::string type();
     std::string getType() override;

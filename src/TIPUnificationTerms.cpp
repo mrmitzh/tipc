@@ -65,6 +65,11 @@ int Cons::arity()
     return args().size();
 }
 
+std::vector<std::shared_ptr<Term>> Cons::args()
+{
+    return std::vector<std::shared_ptr<Term>>{};
+}
+
 std::set<std::shared_ptr<Var>> Cons::fv()
 {
     std::set<std::shared_ptr<Var>> result;
