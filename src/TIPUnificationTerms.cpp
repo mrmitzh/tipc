@@ -125,11 +125,12 @@ std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_m
     {
         auto c = std::dynamic_pointer_cast<Cons>(t);
         auto c_fv = c->fv();
+        auto acc = t;
         for(auto& v:c_fv)
         {
-            t->subst(v,closeRec(v,env,visited));
+            acc->subst(v,closeRec(v,env,visited));
         }
-        return t;
+        return acc;
     }else if(t->getType() == Mu::type())
     {
         auto m = std::dynamic_pointer_cast<Mu>(t);

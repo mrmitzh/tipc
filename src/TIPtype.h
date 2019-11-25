@@ -1,6 +1,10 @@
 #pragma once
 
+#include "TIPtree.h"
 #include "TIPUnificationTerms.h"
+
+
+using namespace TIPtree;
 
 class TipType
 {
@@ -12,6 +16,10 @@ public:
 };
 
 class TipMu;
+
+class TipVar;
+
+class TipAlpha;
 
 class TipTypeOps: public TermOps
 {
@@ -59,6 +67,39 @@ public:
     std::string getType() override;
 };
 
+class TipRecord:public TipType, public Cons
+{
+private:
+    std::vector<std::shared_ptr<Term>> args;
+    std::vector<std::string> allFieldNames;
+public:
+    TipRecord(std::vector<std::shared_ptr<Term>> args,std::vector<std::string> allFieldNames);
+    ~TipRecord() = default;
+    static std::string type();
+    std::string getType() override;
+    std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
+};
+
+class TipVar:public TipType, public Var
+{
+private:
+    Node* astNode;
+public:
+    TipVar(Node* astNode);
+    ~TipVar() = default;
+    static std::string type();
+    std::string getType() override;
+};
+
+class TipAlpha: public TipType, public Var
+{
+public:
+    TipAlpha() {};
+    ~TipAlpha() = default;
+    static std::string type();
+    std::string getType() override;
+};
+
 class TipMu:public TipType, public Mu, public std::enable_shared_from_this<TipMu>
 {
 private:
@@ -70,3 +111,5 @@ public:
     static std::string type();
     std::string getType() override;
 };
+
+

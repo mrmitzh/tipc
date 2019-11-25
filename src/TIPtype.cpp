@@ -51,9 +51,46 @@ std::string TipMu::getType()
     return TipMu::type();
 }
 
+std::string TipVar::type()
+{
+    return "TipVar";
+}
+
+std::string TipVar::getType()
+{
+    return TipVar::type();
+}
+
+std::string TipRecord::type()
+{
+    return "TipRecord";
+}
+
+std::string TipRecord::getType()
+{
+    return TipRecord::type();
+}
+
+std::string TipAlpha::type()
+{
+    return "TipAlpha";
+}
+
+std::string TipAlpha::getType()
+{
+    return TipAlpha::type();
+}
+
+
 std::shared_ptr<Var> TipTypeOps::makeAlpha(std::shared_ptr<Var> x)
 {
+    if(x->getType() == TipVar::type())
+    {
 
+    }else if(x->getType() == TipAlpha::type())
+    {
+       return std::dynamic_pointer_cast<TipAlpha>(x); 
+    }
 }
 
 std::shared_ptr<Mu> TipTypeOps::makeMu(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
@@ -108,13 +145,24 @@ std::shared_ptr<Term> TipRef::subst(std::shared_ptr<Var> v,std::shared_ptr<Term>
     return std::make_shared<TipRef>(of->subst(v,t));
 }
 
+TipRecord::TipRecord(std::vector<std::shared_ptr<Term>> args,std::vector<std::string> allFieldNames)
+    :args(args),allFieldNames(allFieldNames)
+{}
+
+std::shared_ptr<Term> TipRecord::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
+{
+    std::vector<std::shared_ptr<Term>> new_args;
+    for(const auto& arg:args)
+    {
+        new_args.push_back(arg->subst(v,t));
+    }
+    return std::make_shared<TipRecord>(new_args,allFieldNames);
+}
 
 
 TipMu::TipMu(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
-{
-    this->v = v;
-    this->t = t;
-}
+    :v(v),t(t)
+{}
 
 std::shared_ptr<Term> TipMu::subst(std::shared_ptr<Var> sv,std::shared_ptr<Term> to)
 {
