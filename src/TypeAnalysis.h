@@ -35,13 +35,13 @@ public:
   virtual void  visitErrorStmt(ErrorStmt* root) override;
   virtual void  visitReturnStmt(ReturnStmt* root) override;
   virtual void  visit(Node* root) override;
-  void collect(const std::unique_ptr<TIPtree::Program>& program);
+  void collect(const std::shared_ptr<TIPtree::Program>& program);
 };
 
 class CollectInferResult:public TIPAstVisitor
 {
 private:
-  std::unordered_map<Node*,std::unique_ptr<TipType>> infer;
+  std::unordered_map<Node*,std::shared_ptr<TipType>> infer;
 public:
   CollectInferResult() = default;
   ~CollectInferResult() = default;
@@ -67,7 +67,7 @@ public:
   virtual void  visitReturnStmt(ReturnStmt* root) override;
   virtual void  visit(Node* root) override;
 
-  std::unordered_map<Node*,std::unique_ptr<TipType>> getInferResult(); 
+  std::unordered_map<Node*,std::shared_ptr<TipType>> getInferResult(); 
 };
 
 class TypeAnalysis:public TIPAstVisitor
@@ -75,8 +75,9 @@ class TypeAnalysis:public TIPAstVisitor
 private:
   UnionFindSolver solver;
   CollectRefNodeInfo info_collector;
+  bool visitingFromMain = false;
 public:
-  using result_type = std::unordered_map<Node*,std::unique_ptr<TipType>>;
+  using result_type = std::unordered_map<Node*,std::shared_ptr<TipType>>;
   TypeAnalysis() = default;
   ~TypeAnalysis() = default;
   virtual void  visitNumExpr(NumberExpr* root) override;
@@ -101,7 +102,7 @@ public:
   virtual void  visitReturnStmt(ReturnStmt* root) override;
   virtual void  visit(Node* root) override;
 
-  std::unordered_map<std::unique_ptr<Var>,std::unique_ptr<Term>> analysis(const std::unique_ptr<TIPtree::Program>& program);
+  std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> analysis(const std::shared_ptr<TIPtree::Program>& program);
 
-  std::unique_ptr<Var> ast2typevar(Node* root);
+  std::shared_ptr<Var> ast2typevar(Node* root);
 };

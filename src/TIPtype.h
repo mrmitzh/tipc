@@ -83,8 +83,8 @@ public:
 class TipVar:public TipType, public Var
 {
 public:
-    Node* astNode;
-    TipVar(Node* astNode);
+    std::shared_ptr<Node> astNode;
+    TipVar(std::shared_ptr<Node> astNode) :astNode(astNode) {};
     ~TipVar() = default;
     static std::string type();
     std::string getType() override;

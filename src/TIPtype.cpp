@@ -87,7 +87,7 @@ std::shared_ptr<Var> TipTypeOps::makeAlpha(std::shared_ptr<Var> x)
     if(x->getType() == TipVar::type())
     {
         auto tipVar = std::dynamic_pointer_cast<TipVar>(x);
-        return std::make_shared<TipAlpha>(reinterpret_cast<uint64_t>(tipVar->astNode));
+        return std::make_shared<TipAlpha>(reinterpret_cast<uint64_t>(tipVar->astNode.get()));
     }else if(x->getType() == TipAlpha::type())
     {
        return std::dynamic_pointer_cast<TipAlpha>(x); 
