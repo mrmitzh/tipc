@@ -13,6 +13,7 @@ public:
     virtual ~TipType() = default;
     static std::string type();
     virtual std::string getType() = 0;
+    virtual std::string toString();
 };
 
 class TipMu;
@@ -38,6 +39,7 @@ public:
     std::string getType() override;
     std::vector<std::shared_ptr<Term>> args() override;
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
+    std::string toString() override;
 };
 
 class TipFunction:public TipType, public Cons
@@ -52,6 +54,7 @@ public:
     std::string getType() override;
     std::vector<std::shared_ptr<Term>> args() override;
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
+    std::string toString() override;
 };
 
 
@@ -65,6 +68,7 @@ public:
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
     static std::string type();
     std::string getType() override;
+    std::string toString() override;
 };
 
 class TipRecord:public TipType, public Cons
@@ -78,6 +82,7 @@ public:
     static std::string type();
     std::string getType() override;
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
+    std::string toString() override;
 };
 
 class TipVar:public TipType, public Var
@@ -88,6 +93,7 @@ public:
     ~TipVar() = default;
     static std::string type();
     std::string getType() override;
+    std::string toString() override;
 };
 
 class TipAlpha: public TipType, public Var
@@ -99,6 +105,7 @@ public:
     ~TipAlpha() = default;
     static std::string type();
     std::string getType() override;
+    std::string toString() override;
 };
 
 class TipMu:public TipType, public Mu, public std::enable_shared_from_this<TipMu>

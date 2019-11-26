@@ -18,6 +18,7 @@ public:
     virtual std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) {};
     static std::string type();
     virtual std::string getType();
+    virtual std::string toString();
 };
 
 
@@ -30,6 +31,7 @@ public:
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
     static std::string type();
     std::string getType() override;
+    std::string toString() override;
 };
 
 class Cons: public Term
@@ -41,6 +43,7 @@ public:
     std::set<std::shared_ptr<Var>> fv() override;
     static std::string type();
     std::string getType() override;
+    std::string toString() override;
 };
 
 class Mu: public Term
@@ -53,6 +56,7 @@ public:
 
     static std::string type();
     std::string getType() override;
+    std::string toString() override;
 };
 
 class TermOps

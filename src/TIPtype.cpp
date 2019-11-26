@@ -11,6 +11,11 @@ std::string TipType::getType()
     return TipType::type();
 }
 
+std::string TipType::toString()
+{
+    return "TipType";
+}
+
 std::string TipInt::type()
 {
     return "TipInt";
@@ -19,6 +24,11 @@ std::string TipInt::type()
 std::string TipInt::getType()
 {
     return TipInt::type();
+}
+
+std::string TipInt::toString()
+{
+    return "int";
 }
 
 std::string TipFunction::type()
@@ -31,6 +41,19 @@ std::string TipFunction::getType()
     return TipFunction::type();
 }
 
+std::string TipFunction::toString()
+{
+    std::string params_str;
+    for(int i=0; i<params.size(); i++){
+        params_str += params[i]->toString();
+        if(i!=params.size()-1){
+            params_str += ",";
+        }
+    }
+    std::string ret_str = ret->toString();
+    return "("+params_str+") -> "+ret_str;
+}
+
 std::string TipRef::type()
 {
     return "TipRef";
@@ -39,6 +62,11 @@ std::string TipRef::type()
 std::string TipRef::getType()
 {
     return TipRef::type();
+}
+
+std::string TipRef::toString()
+{
+    return "&"+of->toString();
 }
 
 std::string TipMu::type()
@@ -61,6 +89,11 @@ std::string TipVar::getType()
     return TipVar::type();
 }
 
+std::string TipVar::toString()
+{
+    return "[["+astNode->print()+"]]";
+}
+
 std::string TipRecord::type()
 {
     return "TipRecord";
@@ -71,6 +104,20 @@ std::string TipRecord::getType()
     return TipRecord::type();
 }
 
+std::string TipRecord::toString()
+{
+    std::string rec_str;
+    for(int i = 0; i < allFieldNames.size(); i++)
+    {
+        rec_str += allFieldNames[i] + ":" + args[i]->toString();
+        if(i!=allFieldNames.size()){
+            rec_str += ",";
+        }
+    }
+    return rec_str;
+}
+
+
 std::string TipAlpha::type()
 {
     return "TipAlpha";
@@ -79,6 +126,11 @@ std::string TipAlpha::type()
 std::string TipAlpha::getType()
 {
     return TipAlpha::type();
+}
+
+std::string TipAlpha::toString()
+{
+    return "\u03B1<"+std::to_string(address)+">";
 }
 
 

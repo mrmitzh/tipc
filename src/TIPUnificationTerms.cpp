@@ -11,6 +11,11 @@ std::string Term::getType()
     return Term::type();
 }
 
+std::string Term::toString()
+{
+    return "Term";
+}
+
 std::string Var::type()
 {
     return std::string("Var");
@@ -19,6 +24,11 @@ std::string Var::type()
 std::string Var::getType()
 {
     return Var::type();
+}
+
+std::string Var::toString()
+{
+    return "Var";
 }
 
 std::string Cons::type()
@@ -31,6 +41,11 @@ std::string Cons::getType()
     return Cons::type();
 }
 
+std::string Cons::toString()
+{
+    return "Cons";
+}
+
 std::string Mu::type()
 {
     return std::string("Mu");
@@ -39,6 +54,11 @@ std::string Mu::type()
 std::string Mu::getType()
 {
     return Mu::type();
+}
+
+std::string Mu::toString()
+{
+    return "\u03bc"+v->toString()+"."+t->toString();
 }
 
 std::set<std::shared_ptr<Var>> Var::fv()
