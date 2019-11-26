@@ -76,6 +76,7 @@ private:
   UnionFindSolver solver;
   CollectRefNodeInfo info_collector;
   bool visitingFromMain = false;
+  std::vector<std::string> allFieldNames;
 public:
   using result_type = std::unordered_map<Node*,std::shared_ptr<TipType>>;
   TypeAnalysis() = default;

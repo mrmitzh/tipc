@@ -184,11 +184,20 @@ void  TypeAnalysis::visitBinaryExpr(BinaryExpr* root)
     solver.makeUnion(ast2typevar(root->RHS.get()),std::make_shared<TipInt>());
     solver.makeUnion(ast2typevar(root),std::make_shared<TipInt>());
   }
+  visit(root->LHS.get());
+  visit(root->RHS.get());
 }
 
 void  TypeAnalysis::visitFunAppExpr(FunAppExpr* root)
 {
 
+
+  // visit children
+  visit(root->FUN.get());
+  for(const auto& actual:root->ACTUALS)
+  {
+    visit(actual.get());
+  }
 }
 
 void  TypeAnalysis::visitInputExpr(InputExpr* root)
@@ -199,43 +208,86 @@ void  TypeAnalysis::visitInputExpr(InputExpr* root)
 void  TypeAnalysis::visitAllocExpr(AllocExpr* root)
 {
   solver.makeUnion(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->ARG.get())));
+  visit(root->ARG.get());
 }
 
 void  TypeAnalysis::visitRefExpr(RefExpr* root)
 {
-
+  solver.makeUnion(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->reference_node.get())));
+  // visit children 
+  // must run the other analysis first ! 
+  visit(root->reference_node.get());
 }
 
 void  TypeAnalysis::visitDeRefExpr(DeRefExpr* root)
 {
-
+  solver.makeUnion(ast2typevar(root->ARG.get()),std::make_shared<TipRef>(ast2typevar(root)));
+  // visit children
+  visit(root->ARG.get());
 }
 
 void  TypeAnalysis::visitNullExpr(NullExpr* root)
 {
-
+  solver.makeUnion(ast2typevar(root),std::make_shared<TipRef>(std::make_shared<TipAlpha>(root)));  
 }
+
 void  TypeAnalysis::visitFieldExpr(FieldExpr* root)
 {
-
+  visit(root->INIT.get());
 }
+
 void  TypeAnalysis::visitRecordExpr(RecordExpr* root)
 {
-
+  std::unordered_map<std::string,std::shared_ptr<Term>> a;
+  for(const auto& b:root->FIELDS)
+  {
+    a[b->FIELD] = ast2typevar(b->INIT.get());
+  }
+  for(const auto& field:allFieldNames)
+  {
+    if(a.find(field) != a.end())
+    {
+      solver.makeUnion(ast2typevar(root),a[field]);
+    }else
+    {
+      solver.makeUnion(ast2typevar(root),std::make_shared<TipAlpha>(root,field));
+    }
+  }
+  //visit children
+  for(const auto& field:root->FIELDS)
+  {
+    visit(field->INIT.get());
+  }
 }
 
 void  TypeAnalysis::visitAccessExpr(AccessExpr* root)
 {
+  std::vector<std::shared_ptr<Term>> new_args;
+  for(const auto& fieldName:allFieldNames)
+  {
+    if(fieldName == root->FIELD)
+    {
+      // TODO reduce make_shared
+      auto temp = std::shared_ptr<AccessExpr>(root);
+      new_args.push_back(std::make_shared<TipVar>(std::static_pointer_cast<Node>(temp)));
+    }else
+    {
+      new_args.push_back(std::make_shared<TipAlpha>(root,fieldName));
+    }
+  }
+  // solver.makeUnion(ast2typevar(root->RECORD),std::make_shared<TipRecord>(new_args,allFieldNames));
 
+  // visit(root->RECORD.get());  
 }
 
 void  TypeAnalysis::visitDeclaration(DeclStmt* root)
 {
-
+  
 }
 
 void  TypeAnalysis::visitBlockStmt(BlockStmt* root)
 {
+  // visit children
   for(const auto& statement:root->STMTS)
   {
     visit(statement.get());
@@ -245,17 +297,24 @@ void  TypeAnalysis::visitBlockStmt(BlockStmt* root)
 void  TypeAnalysis::visitAssignmentStmt(AssignStmt* root)
 {
   solver.makeUnion(ast2typevar(root->LHS.get()),ast2typevar(root->RHS.get()));
+  // visit children
+  // visit RHS first
+  visit(root->RHS.get());
+  visit(root->LHS.get());
 }
 
 void  TypeAnalysis::visitWhileStmt(WhileStmt* root)
 {
   solver.makeUnion(ast2typevar(root->COND.get()),std::make_shared<TipInt>());
+  visit(root->COND.get());
   visit(root->BODY.get());
 }
 
 void  TypeAnalysis::visitIfStmt(IfStmt* root)
 {
   solver.makeUnion(ast2typevar(root->COND.get()),std::make_shared<TipInt>());
+  // visit children
+  visit(root->COND.get());
   visit(root->THEN.get());
   visit(root->ELSE.get());
 }
@@ -263,16 +322,20 @@ void  TypeAnalysis::visitIfStmt(IfStmt* root)
 void  TypeAnalysis::visitOutputStmt(OutputStmt* root)
 {
   solver.makeUnion(ast2typevar(root->ARG.get()),std::make_shared<TipInt>());
+  // visit children
+  visit(root->ARG.get());
 }
 
 void  TypeAnalysis::visitErrorStmt(ErrorStmt* root)
 {
-  // EMPTY
+  // visit children
+  visit(root->ARG.get());
 }
 
 void  TypeAnalysis::visitReturnStmt(ReturnStmt* root)
 {
-  // EMPTY
+  // visit children
+  visit(root->ARG.get());
 }
 
 void  TypeAnalysis::visit(Node* root)
@@ -304,20 +367,23 @@ std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> TypeAnalysis::ana
       {
           std::cerr << "The statement of main is empty" << "\n";        
       }
+    }else
+    {
+      //TODO: for other function type 
+
     }
+    //TODO: deal with function type
 
     for(const auto& body:function->BODY)
     {
       visit(body.get());
     }
   }
-  
-  // 
 }
 
 
 std::shared_ptr<Var> TypeAnalysis::ast2typevar(Node* root)
 {
- //TODO: write useful statement on ast2typevar
-
+  //TODO: write useful statement on ast2typevar
+  return std::make_shared<TipVar>(std::shared_ptr<Node>(root));
 }

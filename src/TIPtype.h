@@ -100,8 +100,9 @@ class TipAlpha: public TipType, public Var
 {
 private:
     uint64_t address;
+    std::string fieldName;
 public:
-    TipAlpha(uint64_t address);
+    TipAlpha(Node* root,std::string fieldName = "");
     ~TipAlpha() = default;
     static std::string type();
     std::string getType() override;

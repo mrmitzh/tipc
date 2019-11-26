@@ -131,9 +131,9 @@ class RefExpr : public Expr {
 public:
   std::string NAME;
   // currently only used for Type analysis. 
-  Node* reference_node;
+  std::shared_ptr<Node> reference_node;
 
-  RefExpr(const std::string &NAME) : NAME(NAME),reference_node(nullptr) {}
+  RefExpr(const std::string &NAME) : NAME(NAME),reference_node(std::shared_ptr<Node>()) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
