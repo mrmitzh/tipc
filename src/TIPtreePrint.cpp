@@ -180,6 +180,17 @@ std::string AccessExpr::get_type()
   return AccessExpr::type();
 }
 
+std::string Function::type()
+{
+  return "Function";
+}
+
+std::string Function::get_type()
+{
+  return Function::type();
+}
+
+
 void NumberExpr::accept(TIPAstVisitor* visitor) 
 {
   visitor->visitNumExpr(this);
@@ -279,6 +290,12 @@ void ReturnStmt::accept(TIPAstVisitor* visitor)
 {
   visitor->visitReturnStmt(this);
 }
+
+void Function::accept(TIPAstVisitor* visitor)
+{
+  visitor->visitFunction(this);
+}
+
 
 
 

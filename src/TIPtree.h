@@ -327,7 +327,7 @@ public:
 /******************* Program and Function Nodes *********************/
 
 // Function - signature, local declarations, and a body
-class Function {
+class Function: public Node{
 public:
   std::string NAME;
   std::vector<std::string> FORMALS;
@@ -340,8 +340,11 @@ public:
            std::vector<std::shared_ptr<Stmt>> BODY, int LINE)
       : NAME(NAME), FORMALS(std::move(FORMALS)), DECLS(std::move(DECLS)),
         BODY(std::move(BODY)), LINE(LINE) {}
-  llvm::Function *codegen();
-  std::string print();
+  llvm::Function *codegen() override;
+  std::string print() override;
+  static std::string type();
+  std::string get_type() override;
+  void accept(TIPAstVisitor* visitor) override;
 
   /*
    * These getters are needed because we perform two passes over
@@ -369,28 +372,33 @@ class TIPAstVisitor
 {
 public:
   virtual ~TIPAstVisitor() = default;
-  virtual void  visitNumExpr(NumberExpr* root) = 0;
-  virtual void  visitVarExpr(VariableExpr* root) = 0;
-  virtual void  visitBinaryExpr(BinaryExpr* root) = 0;
-  virtual void  visitFunAppExpr(FunAppExpr* root) = 0;
-  virtual void  visitInputExpr(InputExpr* root) = 0;
-  virtual void  visitAllocExpr(AllocExpr* root) = 0;
-  virtual void  visitRefExpr(RefExpr* root) = 0;
-  virtual void  visitDeRefExpr(DeRefExpr* root) = 0;
-  virtual void  visitNullExpr(NullExpr* root) = 0;
-  virtual void  visitFieldExpr(FieldExpr* root) = 0;
-  virtual void  visitRecordExpr(RecordExpr* root) = 0;
-  virtual void  visitAccessExpr(AccessExpr* root) = 0;
-  virtual void  visitDeclaration(DeclStmt* root) = 0;
-  virtual void  visitBlockStmt(BlockStmt* root) = 0;
-  virtual void  visitAssignmentStmt(AssignStmt* root) = 0;
-  virtual void  visitWhileStmt(WhileStmt* root) = 0;
-  virtual void  visitIfStmt(IfStmt* root) = 0;
-  virtual void  visitOutputStmt(OutputStmt* root) = 0;
-  virtual void  visitErrorStmt(ErrorStmt* root) = 0;
-  virtual void  visitReturnStmt(ReturnStmt* root) = 0;
-  virtual void  visit(Node* root) = 0;
+  virtual void  visitNumExpr(std::shared_ptr<NumberExpr> root);
+  virtual void  visitVarExpr(std::shared_ptr<VariableExpr> root);
+  virtual void  visitBinaryExpr(std::shared_ptr<BinaryExpr> root);
+  virtual void  visitFunAppExpr(std::shared_ptr<FunAppExpr> root);
+  virtual void  visitInputExpr(std::shared_ptr<InputExpr> root);
+  virtual void  visitAllocExpr(std::shared_ptr<AllocExpr> root);
+  virtual void  visitRefExpr(std::shared_ptr<RefExpr> root);
+  virtual void  visitDeRefExpr(std::shared_ptr<DeRefExpr> root);
+  virtual void  visitNullExpr(std::shared_ptr<NullExpr> root);
+  virtual void  visitFieldExpr(std::shared_ptr<FieldExpr> root);
+  virtual void  visitRecordExpr(std::shared_ptr<RecordExpr> root);
+  virtual void  visitAccessExpr(std::shared_ptr<AccessExpr> root);
+  virtual void  visitDeclaration(std::shared_ptr<DeclStmt> root);
+  virtual void  visitBlockStmt(std::shared_ptr<BlockStmt> root);
+  virtual void  visitAssignmentStmt(std::shared_ptr<AssignStmt> root);
+  virtual void  visitWhileStmt(std::shared_ptr<WhileStmt> root);
+  virtual void  visitIfStmt(std::shared_ptr<IfStmt> root);
+  virtual void  visitOutputStmt(std::shared_ptr<OutputStmt> root);
+  virtual void  visitErrorStmt(std::shared_ptr<ErrorStmt> root);
+  virtual void  visitReturnStmt(std::shared_ptr<ReturnStmt> root);
+  virtual void  visitFunction(std::shared_ptr<Function> root);
+  virtual void  visit(std::shared_ptr<Node> root);
+
+protected:
+  void  visitChildren(std::shared_ptr<Node> root);
 };
+
 
 
 } // namespace TIPtree
