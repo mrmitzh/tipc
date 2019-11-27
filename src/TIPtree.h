@@ -42,7 +42,8 @@ public:
 };
 
 // NumberExpr - Expression class for numeric literals
-class NumberExpr : public Expr {
+class NumberExpr : public Expr, public std::enable_shared_from_this<NumberExpr>
+{
 public:
   int VAL;
 
@@ -55,7 +56,8 @@ public:
 };
 
 /// VariableExpr - class for referencing a variable
-class VariableExpr : public Expr {
+class VariableExpr : public Expr, public std::enable_shared_from_this<VariableExpr>
+{
 public:
   std::string NAME;
 
@@ -70,7 +72,8 @@ public:
 };
 
 /// BinaryExpr - class for a binary operator.
-class BinaryExpr : public Expr {
+class BinaryExpr : public Expr, public std::enable_shared_from_this<BinaryExpr>
+{
 public:
   std::string OP;
   std::shared_ptr<Expr> LHS, RHS;
@@ -86,7 +89,8 @@ public:
 };
 
 /// FunAppExpr - class for function calls.
-class FunAppExpr : public Expr {
+class FunAppExpr : public Expr, public std::enable_shared_from_this<FunAppExpr>
+{
 public:
   std::shared_ptr<Expr> FUN;
   std::vector<std::shared_ptr<Expr>> ACTUALS;
@@ -102,7 +106,8 @@ public:
 };
 
 /// InputExpr - class for input expression
-class InputExpr : public Expr {
+class InputExpr : public Expr, public std::enable_shared_from_this<InputExpr>
+{
 
 public:
   InputExpr() {}
@@ -114,7 +119,8 @@ public:
 };
 
 // AllocExpr - class for alloc expression
-class AllocExpr : public Expr {
+class AllocExpr : public Expr, public std::enable_shared_from_this<AllocExpr>
+{
 public:
   std::shared_ptr<Expr> ARG;
 
@@ -127,7 +133,8 @@ public:
 };
 
 // RefExpr - class for referencing the address of a variable
-class RefExpr : public Expr {
+class RefExpr : public Expr, public std::enable_shared_from_this<RefExpr>
+{
 public:
   std::string NAME;
   // currently only used for Type analysis. 
@@ -142,7 +149,8 @@ public:
 };
 
 // DeRefExpr - class for dereferencing a pointer expression
-class DeRefExpr : public Expr {
+class DeRefExpr : public Expr, public std::enable_shared_from_this<DeRefExpr>
+{
 public:
   std::shared_ptr<Expr> ARG;
 
@@ -155,7 +163,8 @@ public:
 };
 
 /// NullExpr - class for a null expression
-class NullExpr : public Expr {
+class NullExpr : public Expr, public std::enable_shared_from_this<NullExpr>
+{
 
 public:
   NullExpr() {}
@@ -167,7 +176,8 @@ public:
 };
 
 // FieldExpr - class for the field of a structure
-class FieldExpr : public Expr {
+class FieldExpr : public Expr, public std::enable_shared_from_this<FieldExpr>
+{
 public:
   std::string FIELD;
   std::shared_ptr<Expr> INIT;
@@ -175,12 +185,15 @@ public:
   FieldExpr(const std::string &FIELD, std::shared_ptr<Expr> INIT)
       : FIELD(FIELD), INIT(std::move(INIT)) {}
   llvm::Value *codegen() override;
+  static std::string type();
+  std::string get_type() override;
   std::string print() override;
   void accept(TIPAstVisitor* visitor) override;
 };
 
 // RecordExpr - class for defining a record
-class RecordExpr : public Expr {
+class RecordExpr : public Expr, public std::enable_shared_from_this<RecordExpr>
+{
 public:
   std::vector<std::shared_ptr<FieldExpr>> FIELDS;
 
@@ -194,7 +207,8 @@ public:
 };
 
 // AccessExpr - class for a record field access
-class AccessExpr : public Expr {
+class AccessExpr : public Expr, public std::enable_shared_from_this<AccessExpr>
+{
 public:
   std::shared_ptr<Expr> RECORD;
   std::string FIELD;
@@ -218,7 +232,8 @@ public:
 };
 
 // DeclStmt - class for declaration
-class DeclStmt : public Stmt {
+class DeclStmt : public Stmt, public std::enable_shared_from_this<DeclStmt>
+{
 public:
   std::vector<std::string> VARS;
   int LINE; // line on which decl statement occurs
@@ -226,12 +241,15 @@ public:
   DeclStmt(std::vector<std::string> VARS, int LINE)
       : VARS(std::move(VARS)), LINE(LINE) {}
   llvm::Value *codegen() override;
+  static std::string type();
+  std::string get_type() override;
   std::string print() override;
   void accept(TIPAstVisitor* visitor) override;
 };
 
 // BlockStmt - class for block of statements
-class BlockStmt : public Stmt {
+class BlockStmt : public Stmt, public std::enable_shared_from_this<BlockStmt>
+{
 public:
   std::vector<std::shared_ptr<Stmt>> STMTS;
 
@@ -239,11 +257,14 @@ public:
       : STMTS(std::move(STMTS)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
   void accept(TIPAstVisitor* visitor) override;
 };
 
 // AssignStmt - class for assignment
-class AssignStmt : public Stmt {
+class AssignStmt : public Stmt, public std::enable_shared_from_this<AssignStmt>
+{
 public:
   std::shared_ptr<Expr> LHS, RHS;
 
@@ -257,7 +278,8 @@ public:
 };
 
 // WhileStmt - class for a while loop
-class WhileStmt : public Stmt {
+class WhileStmt : public Stmt, public std::enable_shared_from_this<WhileStmt>
+{
 public:
   std::shared_ptr<Expr> COND;
   std::shared_ptr<Stmt> BODY;
@@ -272,7 +294,8 @@ public:
 };
 
 /// IfStmt - class for if-then-else
-class IfStmt : public Stmt {
+class IfStmt : public Stmt, public std::enable_shared_from_this<IfStmt>
+{
 public:
   std::shared_ptr<Expr> COND;
   std::shared_ptr<Stmt> THEN, ELSE;
@@ -288,7 +311,8 @@ public:
 };
 
 /// OutputStmt - class for a output statement
-class OutputStmt : public Stmt {
+class OutputStmt : public Stmt, public std::enable_shared_from_this<OutputStmt>
+{
 public:
   std::shared_ptr<Expr> ARG;
 
@@ -301,18 +325,22 @@ public:
 };
 
 /// ErrorStmt - class for a error statement
-class ErrorStmt : public Stmt {
+class ErrorStmt : public Stmt, public std::enable_shared_from_this<ErrorStmt>
+{
 public:
   std::shared_ptr<Expr> ARG;
 
   ErrorStmt(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  static std::string type();
+  std::string get_type() override;
   void accept(TIPAstVisitor* visitor) override;
 };
 
 /// ReturnStmt - class for a return statement
-class ReturnStmt : public Stmt {
+class ReturnStmt : public Stmt, public std::enable_shared_from_this<ReturnStmt>
+{
 public:
   std::shared_ptr<Expr> ARG;
 
@@ -327,7 +355,8 @@ public:
 /******************* Program and Function Nodes *********************/
 
 // Function - signature, local declarations, and a body
-class Function: public Node{
+class Function: public Expr, public std::enable_shared_from_this<Function>
+{
 public:
   std::string NAME;
   std::vector<std::string> FORMALS;
@@ -394,7 +423,6 @@ public:
   virtual void  visitReturnStmt(std::shared_ptr<ReturnStmt> root);
   virtual void  visitFunction(std::shared_ptr<Function> root);
   virtual void  visit(std::shared_ptr<Node> root);
-
 protected:
   void  visitChildren(std::shared_ptr<Node> root);
 };

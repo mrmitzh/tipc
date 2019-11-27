@@ -1,5 +1,6 @@
 #include "TIPtree.h"
 
+using namespace TIPtree;
 
 void  TIPAstVisitor::visitNumExpr(std::shared_ptr<NumberExpr> root)
 {
@@ -153,7 +154,7 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
   }else if(root->get_type() == RecordExpr::type())
   {
     auto recordExpr = std::dynamic_pointer_cast<RecordExpr>(root);
-    for(auto field:recordExpr->FIELD)
+    for(auto field:recordExpr->FIELDS)
     {
       visit(field);
     }
@@ -191,7 +192,7 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
   }else if(root->get_type() == ErrorStmt::type())
   {
     auto errorStmt = std::dynamic_pointer_cast<ErrorStmt>(root);
-    visit(errStmt->ARG);
+    visit(errorStmt->ARG);
   }else if(root->get_type() == ReturnStmt::type())
   {
     auto returnStmt = std::dynamic_pointer_cast<ReturnStmt>(root);
@@ -205,7 +206,7 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
     }
     for(auto statement:function->BODY)
     {
-      visit(statement)
+      visit(statement);
     }
   }
 }
