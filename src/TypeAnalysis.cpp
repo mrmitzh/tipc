@@ -164,7 +164,7 @@ std::unordered_map<Node*,std::shared_ptr<TipType>> CollectInferResult::getInferR
 // Type Analysis
 void TypeAnalysis::visitNumExpr(NumberExpr* root)
 {
-  solver.makeUnion(ast2typevar(root),std::make_shared<TipInt>());
+  solver.unify(ast2typevar(root),std::make_shared<TipInt>());
 }
 
 void  TypeAnalysis::visitVarExpr(VariableExpr* root)
@@ -176,13 +176,13 @@ void  TypeAnalysis::visitBinaryExpr(BinaryExpr* root)
 {
   if(root->OP == "==")
   {
-    solver.makeUnion(ast2typevar(root->LHS.get()),ast2typevar(root->RHS.get()));
-    solver.makeUnion(ast2typevar(root),std::make_shared<TipInt>());
+    solver.unify(ast2typevar(root->LHS.get()),ast2typevar(root->RHS.get()));
+    solver.unify(ast2typevar(root),std::make_shared<TipInt>());
   }else
   {
-    solver.makeUnion(ast2typevar(root->LHS.get()),std::make_shared<TipInt>());
-    solver.makeUnion(ast2typevar(root->RHS.get()),std::make_shared<TipInt>());
-    solver.makeUnion(ast2typevar(root),std::make_shared<TipInt>());
+    solver.unify(ast2typevar(root->LHS.get()),std::make_shared<TipInt>());
+    solver.unify(ast2typevar(root->RHS.get()),std::make_shared<TipInt>());
+    solver.unify(ast2typevar(root),std::make_shared<TipInt>());
   }
   visit(root->LHS.get());
   visit(root->RHS.get());
@@ -202,18 +202,18 @@ void  TypeAnalysis::visitFunAppExpr(FunAppExpr* root)
 
 void  TypeAnalysis::visitInputExpr(InputExpr* root)
 {
-  solver.makeUnion(ast2typevar(root),std::make_shared<TipInt>());
+  solver.unify(ast2typevar(root),std::make_shared<TipInt>());
 }
 
 void  TypeAnalysis::visitAllocExpr(AllocExpr* root)
 {
-  solver.makeUnion(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->ARG.get())));
+  solver.unify(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->ARG.get())));
   visit(root->ARG.get());
 }
 
 void  TypeAnalysis::visitRefExpr(RefExpr* root)
 {
-  solver.makeUnion(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->reference_node.get())));
+  solver.unify(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->reference_node.get())));
   // visit children 
   // must run the other analysis first ! 
   visit(root->reference_node.get());
@@ -221,14 +221,14 @@ void  TypeAnalysis::visitRefExpr(RefExpr* root)
 
 void  TypeAnalysis::visitDeRefExpr(DeRefExpr* root)
 {
-  solver.makeUnion(ast2typevar(root->ARG.get()),std::make_shared<TipRef>(ast2typevar(root)));
+  solver.unify(ast2typevar(root->ARG.get()),std::make_shared<TipRef>(ast2typevar(root)));
   // visit children
   visit(root->ARG.get());
 }
 
 void  TypeAnalysis::visitNullExpr(NullExpr* root)
 {
-  solver.makeUnion(ast2typevar(root),std::make_shared<TipRef>(std::make_shared<TipAlpha>(root)));  
+  solver.unify(ast2typevar(root),std::make_shared<TipRef>(std::make_shared<TipAlpha>(root)));  
 }
 
 void  TypeAnalysis::visitFieldExpr(FieldExpr* root)
@@ -247,10 +247,10 @@ void  TypeAnalysis::visitRecordExpr(RecordExpr* root)
   {
     if(a.find(field) != a.end())
     {
-      solver.makeUnion(ast2typevar(root),a[field]);
+      solver.unify(ast2typevar(root),a[field]);
     }else
     {
-      solver.makeUnion(ast2typevar(root),std::make_shared<TipAlpha>(root,field));
+      solver.unify(ast2typevar(root),std::make_shared<TipAlpha>(root,field));
     }
   }
   //visit children
@@ -267,7 +267,7 @@ void  TypeAnalysis::visitAccessExpr(AccessExpr* root)
   {
     if(fieldName == root->FIELD)
     {
-      // TODO reduce make_shared
+      // TODO: reduce make_shared
       auto temp = std::shared_ptr<AccessExpr>(root);
       new_args.push_back(std::make_shared<TipVar>(std::static_pointer_cast<Node>(temp)));
     }else
@@ -275,7 +275,7 @@ void  TypeAnalysis::visitAccessExpr(AccessExpr* root)
       new_args.push_back(std::make_shared<TipAlpha>(root,fieldName));
     }
   }
-  // solver.makeUnion(ast2typevar(root->RECORD),std::make_shared<TipRecord>(new_args,allFieldNames));
+  // solver.unify(ast2typevar(root->RECORD),std::make_shared<TipRecord>(new_args,allFieldNames));
 
   // visit(root->RECORD.get());  
 }
@@ -296,7 +296,7 @@ void  TypeAnalysis::visitBlockStmt(BlockStmt* root)
 
 void  TypeAnalysis::visitAssignmentStmt(AssignStmt* root)
 {
-  solver.makeUnion(ast2typevar(root->LHS.get()),ast2typevar(root->RHS.get()));
+  solver.unify(ast2typevar(root->LHS.get()),ast2typevar(root->RHS.get()));
   // visit children
   // visit RHS first
   visit(root->RHS.get());
@@ -305,14 +305,14 @@ void  TypeAnalysis::visitAssignmentStmt(AssignStmt* root)
 
 void  TypeAnalysis::visitWhileStmt(WhileStmt* root)
 {
-  solver.makeUnion(ast2typevar(root->COND.get()),std::make_shared<TipInt>());
+  solver.unify(ast2typevar(root->COND.get()),std::make_shared<TipInt>());
   visit(root->COND.get());
   visit(root->BODY.get());
 }
 
 void  TypeAnalysis::visitIfStmt(IfStmt* root)
 {
-  solver.makeUnion(ast2typevar(root->COND.get()),std::make_shared<TipInt>());
+  solver.unify(ast2typevar(root->COND.get()),std::make_shared<TipInt>());
   // visit children
   visit(root->COND.get());
   visit(root->THEN.get());
@@ -321,7 +321,7 @@ void  TypeAnalysis::visitIfStmt(IfStmt* root)
 
 void  TypeAnalysis::visitOutputStmt(OutputStmt* root)
 {
-  solver.makeUnion(ast2typevar(root->ARG.get()),std::make_shared<TipInt>());
+  solver.unify(ast2typevar(root->ARG.get()),std::make_shared<TipInt>());
   // visit children
   visit(root->ARG.get());
 }
@@ -343,8 +343,6 @@ void  TypeAnalysis::visit(Node* root)
   return root->accept(this);
 }
 
-
-
 std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> TypeAnalysis::analysis(const std::shared_ptr<TIPtree::Program>& program)
 {
   // step1 generate constraint
@@ -358,7 +356,7 @@ std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> TypeAnalysis::ana
         const auto& back = function->BODY.back();
         if(back->get_type() == ReturnStmt::type())
         {
-          solver.makeUnion(ast2typevar(back.get()),std::make_shared<TipInt>());
+          solver.unify(ast2typevar(back.get()),std::make_shared<TipInt>());
         }else
         {
           std::cerr << "The last statement of main is not return statement" << "\n";
