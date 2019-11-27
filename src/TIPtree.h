@@ -359,12 +359,12 @@ class Function: public Expr, public std::enable_shared_from_this<Function>
 {
 public:
   std::string NAME;
-  std::vector<std::string> FORMALS;
+  std::vector<std::shared_ptr<DeclStmt>> FORMALS;
   std::vector<std::shared_ptr<DeclStmt>> DECLS;
   std::vector<std::shared_ptr<Stmt>> BODY;
   int LINE; // line on which function definition occurs
 
-  Function(const std::string &NAME, std::vector<std::string> FORMALS,
+  Function(const std::string &NAME, std::vector<std::shared_ptr<DeclStmt>> FORMALS,
            std::vector<std::shared_ptr<DeclStmt>> DECLS,
            std::vector<std::shared_ptr<Stmt>> BODY, int LINE)
       : NAME(NAME), FORMALS(std::move(FORMALS)), DECLS(std::move(DECLS)),
@@ -383,7 +383,7 @@ public:
    * The getters support first pass.
    */
   std::string getName() { return NAME; };
-  std::vector<std::string> getFormals() { return FORMALS; };
+  std::vector<std::shared_ptr<DeclStmt>> getFormals() { return FORMALS; };
 };
 
 // Program - just a list of functions

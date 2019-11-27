@@ -100,7 +100,7 @@ TIPtreeBuild::build(TIPParser::ProgramContext *ctx) {
 
 Any TIPtreeBuild::visitFunction(TIPParser::FunctionContext *ctx) {
   std::string fName; // always initialized in the "count == 0" case
-  std::vector<std::string> fParams;
+  std::vector<std::shared_ptr<DeclStmt>> fParams;
   std::vector<std::shared_ptr<DeclStmt>> fDecls;
   std::vector<std::shared_ptr<Stmt>> fBody;
   int fLine;
