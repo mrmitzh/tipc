@@ -139,7 +139,7 @@ std::shared_ptr<Var> TipTypeOps::makeAlpha(std::shared_ptr<Var> x)
     if(x->getType() == TipVar::type())
     {
         auto tipVar = std::dynamic_pointer_cast<TipVar>(x);
-        return std::make_shared<TipAlpha>(tipVar->astNode.get());
+        return std::make_shared<TipAlpha>(tipVar->astNode);
     }else if(x->getType() == TipAlpha::type())
     {
        return std::dynamic_pointer_cast<TipAlpha>(x); 
@@ -207,9 +207,11 @@ std::shared_ptr<Term> TipRecord::subst(std::shared_ptr<Var> v,std::shared_ptr<Te
 
 
 
-TipAlpha::TipAlpha(Node* root,std::string fieldName)
-    :address(reinterpret_cast<uint64_t>(root)),fieldName(fieldName)
-{}
+TipAlpha::TipAlpha(std::shared_ptr<Node> root,std::string fieldName)
+    :pointer(root),fieldName(fieldName)
+{
+    address = reinterpret_cast<uint64_t>(pointer.get());
+}
 
 
 TipMu::TipMu(std::shared_ptr<Var> v,std::shared_ptr<Term> t)

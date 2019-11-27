@@ -98,8 +98,9 @@ class TipAlpha: public TipType, public Var
 private:
     uint64_t address;
     std::string fieldName;
+    std::shared_ptr<Node> pointer;
 public:
-    TipAlpha(Node* root,std::string fieldName = "");
+    TipAlpha(std::shared_ptr<Node> root,std::string fieldName = "");
     ~TipAlpha() = default;
     static std::string type();
     std::string getType() override;

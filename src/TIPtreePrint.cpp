@@ -180,105 +180,161 @@ std::string AccessExpr::get_type()
   return AccessExpr::type();
 }
 
-void NumberExpr::accept(TIPAstVisitor* visitor) 
+std::string Function::type()
 {
-  visitor->visitNumExpr(this);
+  return "Function";
 }
 
-void VariableExpr::accept(TIPAstVisitor* visitor)
+std::string Function::get_type()
 {
-  visitor->visitVarExpr(this);
+  return Function::type();
 }
 
-void BinaryExpr::accept(TIPAstVisitor* visitor)
+std::string FieldExpr::type()
 {
-  visitor->visitBinaryExpr(this);
+  return "FieldExpr";
 }
 
-void FunAppExpr::accept(TIPAstVisitor* visitor)
+std::string FieldExpr::get_type()
 {
-  visitor->visitFunAppExpr(this);
+  return FieldExpr::type();
 }
 
-void InputExpr::accept(TIPAstVisitor* visitor)
+std::string DeclStmt::type()
 {
-  visitor->visitInputExpr(this);
+  return "Declstmt";
 }
 
-void AllocExpr::accept(TIPAstVisitor* visitor)
+std::string DeclStmt::get_type()
 {
-  visitor->visitAllocExpr(this);
+  return DeclStmt::type();
 }
 
-void RefExpr::accept(TIPAstVisitor* visitor)
+std::string BlockStmt::type()
 {
-  visitor->visitRefExpr(this);
+  return "BlockStmt";
 }
 
-void DeRefExpr::accept(TIPAstVisitor* visitor)
+std::string BlockStmt::get_type()
 {
-  visitor->visitDeRefExpr(this);
+  return BlockStmt::type();
 }
 
-void NullExpr::accept(TIPAstVisitor* visitor)
+std::string ErrorStmt::type()
 {
-  visitor->visitNullExpr(this);
+  return "ErrorStmt";
 }
 
-void FieldExpr::accept(TIPAstVisitor* visitor)
+std::string ErrorStmt::get_type()
 {
-  visitor->visitFieldExpr(this);
+  return ErrorStmt::type();
 }
 
-void RecordExpr::accept(TIPAstVisitor* visitor)
+void NumberExpr::accept(TIPAstVisitor& visitor) 
 {
-  visitor->visitRecordExpr(this);
+  visitor.visitNumExpr(shared_from_this());
 }
 
-void AccessExpr::accept(TIPAstVisitor* visitor)
+void VariableExpr::accept(TIPAstVisitor& visitor)
 {
-  visitor->visitAccessExpr(this);
+  visitor.visitVarExpr(shared_from_this());
 }
 
-void DeclStmt::accept(TIPAstVisitor* visitor)
+void BinaryExpr::accept(TIPAstVisitor& visitor)
 {
-  visitor->visitDeclaration(this);
+  visitor.visitBinaryExpr(shared_from_this());
 }
 
-void BlockStmt::accept(TIPAstVisitor* visitor)
+void FunAppExpr::accept(TIPAstVisitor& visitor)
 {
-  visitor->visitBlockStmt(this);
+  visitor.visitFunAppExpr(shared_from_this());
 }
 
-void AssignStmt::accept(TIPAstVisitor* visitor)
+void InputExpr::accept(TIPAstVisitor& visitor)
 {
-  visitor->visitAssignmentStmt(this);
+  visitor.visitInputExpr(shared_from_this());
 }
 
-void WhileStmt::accept(TIPAstVisitor* visitor)
+void AllocExpr::accept(TIPAstVisitor& visitor)
 {
-  visitor->visitWhileStmt(this);
+  visitor.visitAllocExpr(shared_from_this());
 }
 
-void IfStmt::accept(TIPAstVisitor* visitor)
+void RefExpr::accept(TIPAstVisitor& visitor)
 {
-  visitor->visitIfStmt(this);
+  visitor.visitRefExpr(shared_from_this());
 }
 
-void OutputStmt::accept(TIPAstVisitor* visitor)
+void DeRefExpr::accept(TIPAstVisitor& visitor)
 {
-  visitor->visitOutputStmt(this);
+  visitor.visitDeRefExpr(shared_from_this());
 }
 
-void ErrorStmt::accept(TIPAstVisitor* visitor)
+void NullExpr::accept(TIPAstVisitor& visitor)
 {
-  visitor->visitErrorStmt(this);
+  visitor.visitNullExpr(shared_from_this());
 }
 
-void ReturnStmt::accept(TIPAstVisitor* visitor)
+void FieldExpr::accept(TIPAstVisitor& visitor)
 {
-  visitor->visitReturnStmt(this);
+  visitor.visitFieldExpr(shared_from_this());
 }
+
+void RecordExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitRecordExpr(shared_from_this());
+}
+
+void AccessExpr::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitAccessExpr(shared_from_this());
+}
+
+void DeclStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitDeclaration(shared_from_this());
+}
+
+void BlockStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitBlockStmt(shared_from_this());
+}
+
+void AssignStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitAssignmentStmt(shared_from_this());
+}
+
+void WhileStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitWhileStmt(shared_from_this());
+}
+
+void IfStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitIfStmt(shared_from_this());
+}
+
+void OutputStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitOutputStmt(shared_from_this());
+}
+
+void ErrorStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitErrorStmt(shared_from_this());
+}
+
+void ReturnStmt::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitReturnStmt(shared_from_this());
+}
+
+void Function::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitFunction(shared_from_this());
+}
+
 
 
 
