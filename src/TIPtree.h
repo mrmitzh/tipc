@@ -29,7 +29,7 @@ public:
   virtual llvm::Value *codegen() = 0;
   virtual std::string print() = 0;
   virtual std::string get_type();
-  virtual void accept(TIPAstVisitor* visitor) = 0;
+  virtual void accept(TIPAstVisitor& visitor) = 0;
 };
 
 /******************* Expression AST Nodes *********************/
@@ -52,7 +52,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /// VariableExpr - class for referencing a variable
@@ -68,7 +68,7 @@ public:
   std::string get_type() override;
   // Getter to distinguish LHS of assigment for codegen
   std::string getName() { return NAME; };
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /// BinaryExpr - class for a binary operator.
@@ -85,7 +85,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /// FunAppExpr - class for function calls.
@@ -102,7 +102,7 @@ public:
   std::string get_type() override;
   llvm::Value *codegen() override;
   std::string print() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /// InputExpr - class for input expression
@@ -115,7 +115,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 // AllocExpr - class for alloc expression
@@ -129,7 +129,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 // RefExpr - class for referencing the address of a variable
@@ -145,7 +145,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 // DeRefExpr - class for dereferencing a pointer expression
@@ -159,7 +159,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /// NullExpr - class for a null expression
@@ -172,7 +172,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 // FieldExpr - class for the field of a structure
@@ -188,7 +188,7 @@ public:
   static std::string type();
   std::string get_type() override;
   std::string print() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 // RecordExpr - class for defining a record
@@ -203,7 +203,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 // AccessExpr - class for a record field access
@@ -219,7 +219,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /******************* Statement AST Nodes *********************/
@@ -244,7 +244,7 @@ public:
   static std::string type();
   std::string get_type() override;
   std::string print() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 // BlockStmt - class for block of statements
@@ -259,7 +259,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 // AssignStmt - class for assignment
@@ -274,7 +274,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 // WhileStmt - class for a while loop
@@ -290,7 +290,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /// IfStmt - class for if-then-else
@@ -307,7 +307,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /// OutputStmt - class for a output statement
@@ -321,7 +321,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /// ErrorStmt - class for a error statement
@@ -335,7 +335,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /// ReturnStmt - class for a return statement
@@ -349,7 +349,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 };
 
 /******************* Program and Function Nodes *********************/
@@ -373,7 +373,7 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
-  void accept(TIPAstVisitor* visitor) override;
+  void accept(TIPAstVisitor& visitor) override;
 
   /*
    * These getters are needed because we perform two passes over

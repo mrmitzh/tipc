@@ -170,7 +170,7 @@ void  TypeAnalysis::visitReturnStmt(std::shared_ptr<ReturnStmt> root)
 
 void  TypeAnalysis::visit(std::shared_ptr<Node> root)
 {
-  root->accept(this);
+  root->accept(*this);
 }
 
 // std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> TypeAnalysis::analysis(const std::shared_ptr<TIPtree::Program>& program)

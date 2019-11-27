@@ -109,7 +109,7 @@ void  TIPAstVisitor::visitFunction(std::shared_ptr<Function> root)
 
 void  TIPAstVisitor::visit(std::shared_ptr<Node> root)
 {
-    root->accept(this);
+    root->accept(*this);
 }
 
 
