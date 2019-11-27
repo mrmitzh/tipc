@@ -33,11 +33,10 @@ public:
 class TipInt:public TipType, public Cons, public std::enable_shared_from_this<TipInt>
 {
 public:
-    TipInt() = default;
+    TipInt();
     ~TipInt() = default;
     static std::string type();
     std::string getType() override;
-    std::vector<std::shared_ptr<Term>> args() override;
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
     std::string toString() override;
 };
@@ -52,7 +51,6 @@ public:
     ~TipFunction() = default;
     static std::string type();
     std::string getType() override;
-    std::vector<std::shared_ptr<Term>> args() override;
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
     std::string toString() override;
 };
@@ -64,7 +62,6 @@ private:
     std::shared_ptr<Term> of;
 public:
     TipRef(std::shared_ptr<Term> of);
-    std::vector<std::shared_ptr<Term>> args() override;
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
     static std::string type();
     std::string getType() override;

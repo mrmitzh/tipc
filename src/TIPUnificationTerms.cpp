@@ -3,7 +3,7 @@
 
 std::string Term::type()
 {
-    return std::string("Term");
+    return "Term";
 }
 
 std::string Term::getType()
@@ -18,7 +18,7 @@ std::string Term::toString()
 
 std::string Var::type()
 {
-    return std::string("Var");
+    return "Var";
 }
 
 std::string Var::getType()
@@ -82,18 +82,14 @@ std::shared_ptr<Term> Var::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
 
 int Cons::arity()
 {
-    return args().size();
+    return args.size();
 }
 
-std::vector<std::shared_ptr<Term>> Cons::args()
-{
-    return std::vector<std::shared_ptr<Term>>{};
-}
 
 std::set<std::shared_ptr<Var>> Cons::fv()
 {
     std::set<std::shared_ptr<Var>> result;
-    for(const auto& arg:args())
+    for(const auto& arg:args)
     {
         auto temp = arg->fv();
         result.insert(temp.begin(),temp.end());

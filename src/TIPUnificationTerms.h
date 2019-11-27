@@ -37,7 +37,7 @@ public:
 class Cons: public Term
 {
 public:
-    virtual std::vector<std::shared_ptr<Term>> args();
+    std::vector<std::shared_ptr<Term>> args;
     int arity();
     bool doMatch(std::shared_ptr<Term> t);
     std::set<std::shared_ptr<Var>> fv() override;

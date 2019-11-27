@@ -151,10 +151,9 @@ std::shared_ptr<Mu> TipTypeOps::makeMu(std::shared_ptr<Var> v,std::shared_ptr<Te
     return std::make_shared<TipMu>(v,t);
 }
 
-
-std::vector<std::shared_ptr<Term>> TipInt::args()
+TipInt::TipInt()
 {
-    return std::vector<std::shared_ptr<Term>>{};
+    args.clear();
 }
 
 std::shared_ptr<Term> TipInt::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
@@ -164,14 +163,11 @@ std::shared_ptr<Term> TipInt::subst(std::shared_ptr<Var> v,std::shared_ptr<Term>
 
 TipFunction::TipFunction(std::vector<std::shared_ptr<Term>> params,std::shared_ptr<Term> ret)
     :params(params),ret(ret)
-{}
-
-std::vector<std::shared_ptr<Term>> TipFunction::args()
 {
-    auto copy = params;
-    copy.insert(copy.begin(),ret);
-    return copy;
+    args = params;
+    args.insert(args.begin(),ret);
 }
+
 
 std::shared_ptr<Term> TipFunction::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
 {
@@ -185,11 +181,9 @@ std::shared_ptr<Term> TipFunction::subst(std::shared_ptr<Var> v,std::shared_ptr<
 
 TipRef::TipRef(std::shared_ptr<Term> of)
     :of(of)
-{}
-
-std::vector<std::shared_ptr<Term>> TipRef::args()
 {
-    return std::vector<std::shared_ptr<Term>>{of};
+    args.clear();
+    args.push_back(of);
 }
 
 std::shared_ptr<Term> TipRef::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)

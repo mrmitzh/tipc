@@ -37,8 +37,8 @@ void UnionFindSolver::unify(std::shared_ptr<Term> t1,std::shared_ptr<Term> t2)
         if(f1->doMatch(f2))
         {
             makeUnion(f1,f2);
-            auto arg1 = f1->args();
-            auto arg2 = f2->args();
+            auto arg1 = f1->args;
+            auto arg2 = f2->args;
             for(int i = 0; i < f1->arity();i++)
             {
                 makeUnion(arg1[i],arg2[i]);
