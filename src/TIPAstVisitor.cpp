@@ -142,7 +142,7 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
   }else if(root->get_type() == RefExpr::type())
   {
     auto refExpr = std::dynamic_pointer_cast<RefExpr>(root);
-    visit(refExpr->reference_node);
+    visit(refExpr->ARG);
   }else if(root->get_type() == DeRefExpr::type())
   {
     auto deRef = std::dynamic_pointer_cast<DeRefExpr>(root);

@@ -89,9 +89,8 @@ void  TypeAnalysis::visitAllocExpr(std::shared_ptr<AllocExpr> root)
 
 void  TypeAnalysis::visitRefExpr(std::shared_ptr<RefExpr> root)
 {
-  solver.unify(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->reference_node)));
+  solver.unify(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->ARG)));
   // visit children 
-  // must run the other analysis first ! 
   visitChildren(root);
 }
 

@@ -137,10 +137,9 @@ class RefExpr : public Expr, public std::enable_shared_from_this<RefExpr>
 {
 public:
   std::string NAME;
-  // currently only used for Type analysis. 
-  std::shared_ptr<Node> reference_node;
+  std::shared_ptr<Node> ARG;
 
-  RefExpr(const std::string &NAME) : NAME(NAME),reference_node(std::shared_ptr<Node>()) {}
+  RefExpr(const std::string &NAME, std::shared_ptr<Expr> ARG) : NAME(NAME),ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
