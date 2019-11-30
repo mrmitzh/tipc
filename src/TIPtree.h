@@ -395,7 +395,7 @@ public:
 /******************* Program and Function Nodes *********************/
 
 // Function - signature, local declarations, and a body
-class Function: public Expr, public std::enable_shared_from_this<Function>
+class Function: public Declaration, public std::enable_shared_from_this<Function>
 {
 public:
   std::string NAME;
