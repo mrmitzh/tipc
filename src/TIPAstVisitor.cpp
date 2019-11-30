@@ -107,6 +107,16 @@ void  TIPAstVisitor::visitFunction(std::shared_ptr<Function> root)
     visitChildren(root);
 }
 
+void  TIPAstVisitor::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root)
+{
+    visitChildren(root);
+}
+
+void  TIPAstVisitor::visitIdentifier(std::shared_ptr<Identifier> root)
+{
+    visitChildren(root);
+}
+
 void  TIPAstVisitor::visit(std::shared_ptr<Node> root)
 {
     root->accept(*this);
@@ -119,7 +129,9 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
     root->get_type() == VariableExpr::type() || 
     root->get_type() == InputExpr::type() ||
     root->get_type() == NullExpr::type() ||
-    root->get_type() == DeclStmt::type())
+    root->get_type() == DeclStmt::type() ||
+    root->get_type() == IdentifierDeclaration::type() ||
+    root->get_type() == Identifier::type())
   {
     //EMPTY
   }else if(root->get_type() == BinaryExpr::type())
@@ -142,7 +154,7 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
   }else if(root->get_type() == RefExpr::type())
   {
     auto refExpr = std::dynamic_pointer_cast<RefExpr>(root);
-    visit(refExpr->reference_node);
+    visit(refExpr->ARG);
   }else if(root->get_type() == DeRefExpr::type())
   {
     auto deRef = std::dynamic_pointer_cast<DeRefExpr>(root);

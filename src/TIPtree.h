@@ -31,6 +31,26 @@ public:
   virtual std::string get_type();
   virtual void accept(TIPAstVisitor& visitor) = 0;
 };
+/******************* Declaration AST Nodes *********************/
+class Declaration: public Node
+{
+public:
+  ~Declaration() = default;
+};
+
+class IdentifierDeclaration: public Declaration, public std::enable_shared_from_this<IdentifierDeclaration>
+{
+public:
+  std::string value;
+  int line;
+  IdentifierDeclaration(std::string value,int line):value(value),line(line){};
+  ~IdentifierDeclaration() = default;
+  static std::string type();
+  std::string get_type() override;
+  llvm::Value *codegen() override {};
+  std::string print() override {};
+  void accept(TIPAstVisitor& visitor) override;
+};
 
 /******************* Expression AST Nodes *********************/
 
@@ -137,10 +157,9 @@ class RefExpr : public Expr, public std::enable_shared_from_this<RefExpr>
 {
 public:
   std::string NAME;
-  // currently only used for Type analysis. 
-  std::shared_ptr<Node> reference_node;
+  std::shared_ptr<Expr> ARG;
 
-  RefExpr(const std::string &NAME) : NAME(NAME),reference_node(std::shared_ptr<Node>()) {}
+  RefExpr(const std::string &NAME, std::shared_ptr<Expr> ARG) : NAME(NAME),ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
@@ -222,6 +241,21 @@ public:
   void accept(TIPAstVisitor& visitor) override;
 };
 
+// Identifier
+class Identifier: public Expr, public std::enable_shared_from_this<Identifier>
+{
+public:
+  std::string value;
+  int line;
+  Identifier(std::string value,int line):value(value),line(line){};
+  ~Identifier() = default;
+  static std::string type();
+  std::string get_type() override;
+  llvm::Value *codegen() override {};
+  std::string print() override {};
+  void accept(TIPAstVisitor& visitor) override;
+};
+
 /******************* Statement AST Nodes *********************/
 
 // Stmt - Base class for all statement nodes.
@@ -236,10 +270,16 @@ class DeclStmt : public Stmt, public std::enable_shared_from_this<DeclStmt>
 {
 public:
   std::vector<std::string> VARS;
+  std::vector<std::shared_ptr<IdentifierDeclaration>> dummyVars;
   int LINE; // line on which decl statement occurs
 
   DeclStmt(std::vector<std::string> VARS, int LINE)
-      : VARS(std::move(VARS)), LINE(LINE) {}
+      : VARS(std::move(VARS)), LINE(LINE) {
+        for(const auto& arg:VARS)
+        {
+          dummyVars.push_back(std::make_shared<IdentifierDeclaration>(arg,LINE));
+        }
+      }
   llvm::Value *codegen() override;
   static std::string type();
   std::string get_type() override;
@@ -355,10 +395,11 @@ public:
 /******************* Program and Function Nodes *********************/
 
 // Function - signature, local declarations, and a body
-class Function: public Expr, public std::enable_shared_from_this<Function>
+class Function: public Declaration, public std::enable_shared_from_this<Function>
 {
 public:
   std::string NAME;
+  std::vector<std::shared_ptr<IdentifierDeclaration>> dummyFORMALS;
   std::vector<std::shared_ptr<DeclStmt>> FORMALS;
   std::vector<std::shared_ptr<DeclStmt>> DECLS;
   std::vector<std::shared_ptr<Stmt>> BODY;
@@ -368,7 +409,13 @@ public:
            std::vector<std::shared_ptr<DeclStmt>> DECLS,
            std::vector<std::shared_ptr<Stmt>> BODY, int LINE)
       : NAME(NAME), FORMALS(std::move(FORMALS)), DECLS(std::move(DECLS)),
-        BODY(std::move(BODY)), LINE(LINE) {}
+        BODY(std::move(BODY)), LINE(LINE) 
+        {
+          for(const auto& arg:FORMALS)
+          {
+            dummyFORMALS.push_back(std::make_shared<IdentifierDeclaration>(arg,LINE));
+          }
+        }
   llvm::Function *codegen() override;
   std::string print() override;
   static std::string type();
@@ -422,6 +469,8 @@ public:
   virtual void  visitErrorStmt(std::shared_ptr<ErrorStmt> root);
   virtual void  visitReturnStmt(std::shared_ptr<ReturnStmt> root);
   virtual void  visitFunction(std::shared_ptr<Function> root);
+  virtual void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root);
+  virtual void  visitIdentifier(std::shared_ptr<Identifier> root);
   virtual void  visit(std::shared_ptr<Node> root);
 protected:
   void  visitChildren(std::shared_ptr<Node> root);

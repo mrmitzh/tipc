@@ -1,6 +1,43 @@
 #include "TypeAnalysis.h"
 
+void CollectAppearingFields::calculateResult(std::shared_ptr<TIPtree::Program> program)
+{
+  for(auto function:program->FUNCTIONS)
+  {
+    visit(function);
+  }
+}
 
+std::vector<std::string> CollectAppearingFields::getCalculatedResult()
+{
+  std::vector<std::string> result;
+  for(const auto& str:fields)
+  {
+    result.push_back(str);
+  }
+  std::sort(result.begin(),result.end());
+  return result;
+}
+
+void CollectAppearingFields::visitAccessExpr(std::shared_ptr<AccessExpr> root)
+{
+  fields.insert(root->FIELD);
+  visitChildren(root);
+}
+
+void CollectAppearingFields::visitRecordExpr(std::shared_ptr<RecordExpr> root)
+{
+  std::vector<std::string> new_fields;
+  for(auto field:root->FIELDS)
+  {
+    new_fields.push_back(field->FIELD);
+  }
+  for(const auto& str:new_fields)
+  {
+    fields.insert(str);
+  }
+  visitChildren(root);
+}
 
 
 // Type Analysis
@@ -32,8 +69,12 @@ void  TypeAnalysis::visitBinaryExpr(std::shared_ptr<BinaryExpr> root)
 
 void  TypeAnalysis::visitFunAppExpr(std::shared_ptr<FunAppExpr> root)
 {
-
-
+    std::vector<std::shared_ptr<Term>> params;
+    for(auto arg:root->ACTUALS)
+    {
+      params.push_back(ast2typevar(arg));
+    }
+    solver.unify(ast2typevar(root->FUN),std::make_shared<TipFunction>(params,ast2typevar(root)));
   // visit children
   visitChildren(root);
 }
@@ -52,9 +93,8 @@ void  TypeAnalysis::visitAllocExpr(std::shared_ptr<AllocExpr> root)
 
 void  TypeAnalysis::visitRefExpr(std::shared_ptr<RefExpr> root)
 {
-  solver.unify(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->reference_node)));
+  solver.unify(ast2typevar(root),std::make_shared<TipRef>(ast2typevar(root->ARG)));
   // visit children 
-  // must run the other analysis first ! 
   visitChildren(root);
 }
 
@@ -104,15 +144,13 @@ void  TypeAnalysis::visitAccessExpr(std::shared_ptr<AccessExpr> root)
   {
     if(fieldName == root->FIELD)
     {
-      // TODO: reduce make_shared
-      auto temp = std::shared_ptr<AccessExpr>(root);
-      new_args.push_back(std::make_shared<TipVar>(std::static_pointer_cast<Node>(temp)));
+      new_args.push_back(std::make_shared<TipVar>(root));
     }else
     {
       new_args.push_back(std::make_shared<TipAlpha>(root,fieldName));
     }
   }
-  // solver.unify(ast2typevar(root->RECORD),std::make_shared<TipRecord>(new_args,allFieldNames));
+  solver.unify(ast2typevar(root->RECORD),std::make_shared<TipRecord>(new_args,allFieldNames));
 
   visitChildren(root);
 }
@@ -132,7 +170,6 @@ void  TypeAnalysis::visitAssignmentStmt(std::shared_ptr<AssignStmt> root)
 {
   solver.unify(ast2typevar(root->LHS),ast2typevar(root->RHS));
   // visit children
-  // visit RHS first
   visitChildren(root);
 }
 
@@ -168,50 +205,55 @@ void  TypeAnalysis::visitReturnStmt(std::shared_ptr<ReturnStmt> root)
   visitChildren(root);
 }
 
+void  TypeAnalysis::visitFunction(std::shared_ptr<Function> root)
+{
+  if(root->NAME == "main")
+  {
+    if(!root->BODY.empty())
+    {
+      auto retStmt = root->BODY.back();
+      solver.unify(ast2typevar(retStmt),std::make_shared<TipInt>());
+      for(auto arg:root->dummyFORMALS)
+      {
+        solver.unify(ast2typevar(arg),std::make_shared<TipInt>());
+      }
+    }
+  }
+  auto retStmt = root->BODY.back();
+  std::vector<std::shared_ptr<Term>> params;
+  for(auto arg:root->dummyFORMALS)
+  {
+    params.push_back(ast2typevar(arg));
+  }
+  solver.unify(ast2typevar(root),std::make_shared<TipFunction>(params,ast2typevar(retStmt)));
+  visitChildren(root);
+}
+
 void  TypeAnalysis::visit(std::shared_ptr<Node> root)
 {
   root->accept(*this);
 }
 
-// std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> TypeAnalysis::analysis(const std::shared_ptr<TIPtree::Program>& program)
-// {
-  // step1 generate constraint
-  // for(const auto& function:program->FUNCTIONS)
-  // {
-  //   if(function->NAME == "main")
-  //   {
-  //     // TODO: unify arugment for FORMALS in Main.. 
-  //     if(!function->BODY.empty())
-  //     {
-  //       const auto& back = function->BODY.back();
-  //       if(back->get_type() == ReturnStmt::type())
-  //       {
-  //         solver.unify(ast2typevar(back.get()),std::make_shared<TipInt>());
-  //       }else
-  //       {
-  //         std::cerr << "The last statement of main is not return statement" << "\n";
-  //       }
-  //     }else
-  //     {
-  //         std::cerr << "The statement of main is empty" << "\n";        
-  //     }
-  //   }else
-  //   {
-  //     //TODO: for other function type 
+std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis::analysis(std::shared_ptr<TIPtree::Program> program)
+{
+  CollectAppearingFields collectAppearingFields;
+  collectAppearingFields.calculateResult(program);
+  allFieldNames = collectAppearingFields.getCalculatedResult();
 
-  //   }
-  //   //TODO: deal with function type
+  // dfs to generate constrains
+  for(auto function:program->FUNCTIONS)
+  {
+    visit(function);
+  }
 
-  //   for(const auto& body:function->BODY)
-  //   {
-  //     visit(body.get());
-  //   }
-  // }
-// }
+  // TODO: collect constains 
+
+
+
+}
 
 
 std::shared_ptr<Var> TypeAnalysis::ast2typevar(std::shared_ptr<Node> root)
 {
-  //TODO: write useful statement on ast2typevar
   return std::make_shared<TipVar>(root);
 }

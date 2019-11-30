@@ -230,6 +230,28 @@ std::string ErrorStmt::get_type()
   return ErrorStmt::type();
 }
 
+std::string IdentifierDeclaration::type()
+{
+  return "IdentifierDeclaration";
+}
+
+std::string IdentifierDeclaration::get_type()
+{
+  return IdentifierDeclaration::type();
+}
+
+
+std::string Identifier::type()
+{
+  return "Identifier";
+}
+
+std::string Identifier::get_type()
+{
+  return Identifier::type();
+}
+
+
 void NumberExpr::accept(TIPAstVisitor& visitor) 
 {
   visitor.visitNumExpr(shared_from_this());
@@ -335,7 +357,15 @@ void Function::accept(TIPAstVisitor& visitor)
   visitor.visitFunction(shared_from_this());
 }
 
+void IdentifierDeclaration::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitIdentifierDeclaration(shared_from_this());
+}
 
+void Identifier::accept(TIPAstVisitor& visitor)
+{
+  visitor.visitIdentifier(shared_from_this());
+}
 
 
 std::string Program::print(std::string i, bool pl = false) {
