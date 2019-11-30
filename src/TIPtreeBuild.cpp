@@ -112,13 +112,15 @@ Any TIPtreeBuild::visitFunction(TIPParser::FunctionContext *ctx) {
    * over that vector.
    */
   bool firstId = true;
+  std::vector<std::string> fParamsNames;
   for (auto id : ctx->IDENTIFIER()) {
     if (firstId) {
       firstId = !firstId;
       fName = id->getText();
       fLine = id->getSymbol()->getLine();
     } else {
-      fParams.push_back(std::move(id->getText()));
+      //fParams.push_back(std::move(id->getText()));
+      fParamsNames.push_back(std:make_shared<DeclStmt>(std:move(id->getText()), fLine))
     }
   }
 
