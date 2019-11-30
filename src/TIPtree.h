@@ -31,6 +31,26 @@ public:
   virtual std::string get_type();
   virtual void accept(TIPAstVisitor& visitor) = 0;
 };
+/******************* Declaration AST Nodes *********************/
+class Declaration: public Node
+{
+public:
+  ~Declaration() = default;
+};
+
+class IdentifierDeclaration: public Declaration, public std::enable_shared_from_this<IdentifierDeclaration>
+{
+public:
+  std::string value;
+  int line;
+  IdentifierDeclaration(std::string value,int line);
+  ~IdentifierDeclaration() = default;
+  static std::string type();
+  std::string get_type() override;
+  void accept(TIPAstVisitor& visitor) override;
+};
+
+
 
 /******************* Expression AST Nodes *********************/
 
@@ -421,6 +441,7 @@ public:
   virtual void  visitErrorStmt(std::shared_ptr<ErrorStmt> root);
   virtual void  visitReturnStmt(std::shared_ptr<ReturnStmt> root);
   virtual void  visitFunction(std::shared_ptr<Function> root);
+  virtual void  visitIdentifier(std::shared_ptr<IdentifierDeclaration> root);
   virtual void  visit(std::shared_ptr<Node> root);
 protected:
   void  visitChildren(std::shared_ptr<Node> root);
