@@ -100,7 +100,7 @@ TIPtreeBuild::build(TIPParser::ProgramContext *ctx) {
 
 Any TIPtreeBuild::visitFunction(TIPParser::FunctionContext *ctx) {
   std::string fName; // always initialized in the "count == 0" case
-  std::vector<std::shared_ptr<DeclStmt>> fParams;
+  std::vector<std::string> fParams;
   std::vector<std::shared_ptr<DeclStmt>> fDecls;
   std::vector<std::shared_ptr<Stmt>> fBody;
   int fLine;
@@ -112,16 +112,13 @@ Any TIPtreeBuild::visitFunction(TIPParser::FunctionContext *ctx) {
    * over that vector.
    */
   bool firstId = true;
-  std::vector<std::string> fParamsNames;
   for (auto id : ctx->IDENTIFIER()) {
     if (firstId) {
       firstId = !firstId;
       fName = id->getText();
       fLine = id->getSymbol()->getLine();
     } else {
-      std::vector<std::string> vec;
-      vec.push_back(id->getText());
-      fParams.push_back(std::make_shared<DeclStmt>(std::move(vec), fLine));
+      fParams.push_back(std::move(id->getText()));
     }
   }
 

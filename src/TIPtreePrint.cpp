@@ -383,12 +383,12 @@ std::string Function::print() {
 
   // comma separated parameter name list
   bool skip = true;
-  for (auto const &param : FORMALS) {
+  for (auto param : FORMALS) {
     if (skip) {
       skip = false;
-      pp += param->print();
+      pp += param;
     } else {
-      pp += ", " + param->print();
+      pp += ", " + param;
     }
   }
   pp += ")";

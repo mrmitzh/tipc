@@ -35,7 +35,7 @@ static IRBuilder<> Builder(TheContext);
  * type, so we don't need to indicate the type explicitly.  Ultimately, we will
  * want * to record pairs of formals and types here.
  */
-static std::map<std::string, std::pair<int, std::vector<std::shared_ptr<DeclStmt>>>>
+static std::map<std::string, std::pair<int, std::vector<std::string>>>
     FunctionDecls;
 
 /*
@@ -129,7 +129,7 @@ static llvm::Function *getFunction(std::string Name) {
     // assign names to args for readability of generated code
     unsigned i = 0;
     for (auto &param : F->args()) {
-      param.setName(idx_formals.second[i++]->VARS[0]);
+      param.setName(idx_formals.second[i++]);
     }
 
     return F;
@@ -178,7 +178,7 @@ std::unique_ptr<llvm::Module> Program::codegen(std::string programName) {
      */
     int funIndex = 0;
     for (auto const &fn : FUNCTIONS) {
-      std::pair<int, std::vector<std::shared_ptr<DeclStmt>>> thePair(funIndex++,
+      std::pair<int, std::vector<std::string>> thePair(funIndex++,
                                                        fn->getFormals());
       FunctionDecls[fn->getName()] = thePair;
     }
@@ -309,7 +309,7 @@ llvm::Function *Function::codegen() {
     // formals
     for (auto &argName : getFormals()) {
       // Create an alloca for this argument and store its value
-      AllocaInst *argAlloc = CreateEntryBlockAlloca(TheFunction, argName->VARS[0]);
+      AllocaInst *argAlloc = CreateEntryBlockAlloca(TheFunction, argName);
 
       // Emit the GEP instruction to index into input array
       std::vector<Value *> indices;
@@ -323,7 +323,7 @@ llvm::Function *Function::codegen() {
       Builder.CreateStore(inVal, argAlloc);
 
       // Record name binding to alloca
-      NamedValues[argName->VARS[0]] = argAlloc;
+      NamedValues[argName] = argAlloc;
     }
   } else {
     for (auto &arg : TheFunction->args()) {
