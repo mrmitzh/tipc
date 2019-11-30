@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -21,6 +22,8 @@
 namespace TIPtree {
 
 class TIPAstVisitor;
+class TIPAstVisitorWithEnv;
+class Declaration;
 
 // Node - this is a base class for all tree nodes
 class Node {
@@ -30,6 +33,7 @@ public:
   virtual std::string print() = 0;
   virtual std::string get_type();
   virtual void accept(TIPAstVisitor& visitor) = 0;
+  virtual void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) = 0;
 };
 /******************* Declaration AST Nodes *********************/
 class Declaration: public Node
@@ -50,6 +54,7 @@ public:
   llvm::Value *codegen() override {};
   std::string print() override {};
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /******************* Expression AST Nodes *********************/
@@ -73,6 +78,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /// VariableExpr - class for referencing a variable
@@ -89,6 +95,7 @@ public:
   // Getter to distinguish LHS of assigment for codegen
   std::string getName() { return NAME; };
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /// BinaryExpr - class for a binary operator.
@@ -106,6 +113,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /// FunAppExpr - class for function calls.
@@ -123,6 +131,7 @@ public:
   llvm::Value *codegen() override;
   std::string print() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /// InputExpr - class for input expression
@@ -136,6 +145,8 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 // AllocExpr - class for alloc expression
@@ -150,6 +161,8 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 // RefExpr - class for referencing the address of a variable
@@ -165,6 +178,8 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 // DeRefExpr - class for dereferencing a pointer expression
@@ -179,6 +194,8 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 /// NullExpr - class for a null expression
@@ -192,6 +209,8 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 // FieldExpr - class for the field of a structure
@@ -208,6 +227,8 @@ public:
   std::string get_type() override;
   std::string print() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 // RecordExpr - class for defining a record
@@ -223,6 +244,8 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 // AccessExpr - class for a record field access
@@ -239,6 +262,8 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 // Identifier
@@ -254,6 +279,8 @@ public:
   llvm::Value *codegen() override {};
   std::string print() override {};
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 /******************* Statement AST Nodes *********************/
@@ -285,6 +312,8 @@ public:
   std::string get_type() override;
   std::string print() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 // BlockStmt - class for block of statements
@@ -300,6 +329,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 // AssignStmt - class for assignment
@@ -315,6 +345,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 // WhileStmt - class for a while loop
@@ -331,6 +362,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /// IfStmt - class for if-then-else
@@ -348,6 +380,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /// OutputStmt - class for a output statement
@@ -362,6 +395,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /// ErrorStmt - class for a error statement
@@ -376,6 +410,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /// ReturnStmt - class for a return statement
@@ -390,6 +425,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
 
 /******************* Program and Function Nodes *********************/
@@ -422,6 +458,7 @@ public:
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 
   /*
    * These getters are needed because we perform two passes over
@@ -477,6 +514,35 @@ protected:
   void  visitChildren(std::shared_ptr<Node> root);
 };
 
+class TIPAstVisitorWithEnv
+{
+public:
+  void  visitNumExpr(std::shared_ptr<NumberExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitVarExpr(std::shared_ptr<VariableExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitBinaryExpr(std::shared_ptr<BinaryExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitFunAppExpr(std::shared_ptr<FunAppExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitInputExpr(std::shared_ptr<InputExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitAllocExpr(std::shared_ptr<AllocExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitRefExpr(std::shared_ptr<RefExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitDeRefExpr(std::shared_ptr<DeRefExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitNullExpr(std::shared_ptr<NullExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitFieldExpr(std::shared_ptr<FieldExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitRecordExpr(std::shared_ptr<RecordExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitAccessExpr(std::shared_ptr<AccessExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitDeclaration(std::shared_ptr<DeclStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitBlockStmt(std::shared_ptr<BlockStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitAssignmentStmt(std::shared_ptr<AssignStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitWhileStmt(std::shared_ptr<WhileStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitIfStmt(std::shared_ptr<IfStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitOutputStmt(std::shared_ptr<OutputStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitErrorStmt(std::shared_ptr<ErrorStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitReturnStmt(std::shared_ptr<ReturnStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitFunction(std::shared_ptr<Function> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitIdentifier(std::shared_ptr<Identifier> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visit(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+  void  visitChildren(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+};
 
 
 } // namespace TIPtree

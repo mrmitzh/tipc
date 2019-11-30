@@ -1,5 +1,228 @@
 #include "TypeAnalysis.h"
 
+void  TIPAstVisitorWithEnv::visitNumExpr(std::shared_ptr<NumberExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitVarExpr(std::shared_ptr<VariableExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitBinaryExpr(std::shared_ptr<BinaryExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitFunAppExpr(std::shared_ptr<FunAppExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitInputExpr(std::shared_ptr<InputExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitAllocExpr(std::shared_ptr<AllocExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitRefExpr(std::shared_ptr<RefExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitDeRefExpr(std::shared_ptr<DeRefExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitNullExpr(std::shared_ptr<NullExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitFieldExpr(std::shared_ptr<FieldExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitRecordExpr(std::shared_ptr<RecordExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitAccessExpr(std::shared_ptr<AccessExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitDeclaration(std::shared_ptr<DeclStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitBlockStmt(std::shared_ptr<BlockStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitAssignmentStmt(std::shared_ptr<AssignStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitWhileStmt(std::shared_ptr<WhileStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitIfStmt(std::shared_ptr<IfStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitOutputStmt(std::shared_ptr<OutputStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitErrorStmt(std::shared_ptr<ErrorStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitReturnStmt(std::shared_ptr<ReturnStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitFunction(std::shared_ptr<Function> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visitIdentifier(std::shared_ptr<Identifier> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitChildren(root,env);
+}
+
+void  TIPAstVisitorWithEnv::visit(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  root->accept(*this,env); 
+}
+
+void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+   if(root->get_type() == NumberExpr::type() || 
+    root->get_type() == VariableExpr::type() || 
+    root->get_type() == InputExpr::type() ||
+    root->get_type() == NullExpr::type() ||
+    root->get_type() == DeclStmt::type() ||
+    root->get_type() == IdentifierDeclaration::type() ||
+    root->get_type() == Identifier::type())
+  {
+    //EMPTY
+  }else if(root->get_type() == BinaryExpr::type())
+  {
+    auto binaryExpr = std::dynamic_pointer_cast<BinaryExpr>(root);
+    visit(binaryExpr->LHS,env);
+    visit(binaryExpr->RHS,env);
+  }else if(root->get_type() == FunAppExpr::type())
+  {
+    auto funApp = std::dynamic_pointer_cast<FunAppExpr>(root);
+    visit(funApp->FUN,env);
+    for(auto actual:funApp->ACTUALS)
+    {
+        visit(actual,env);
+    }
+  }else if(root->get_type() == AllocExpr::type())
+  {
+    auto alloc = std::dynamic_pointer_cast<AllocExpr>(root);
+    visit(alloc->ARG,env);
+  }else if(root->get_type() == RefExpr::type())
+  {
+    auto refExpr = std::dynamic_pointer_cast<RefExpr>(root);
+    visit(refExpr->ARG,env);
+  }else if(root->get_type() == DeRefExpr::type())
+  {
+    auto deRef = std::dynamic_pointer_cast<DeRefExpr>(root);
+    visit(deRef->ARG,env);
+  }else if(root->get_type() == FieldExpr::type())
+  {
+    auto fieldExpr = std::dynamic_pointer_cast<FieldExpr>(root);
+    visit(fieldExpr->INIT,env);
+  }else if(root->get_type() == RecordExpr::type())
+  {
+    auto recordExpr = std::dynamic_pointer_cast<RecordExpr>(root);
+    for(auto field:recordExpr->FIELDS)
+    {
+      visit(field,env);
+    }
+  }else if(root->get_type() == AccessExpr::type())
+  {
+    auto accessExpr = std::dynamic_pointer_cast<AccessExpr>(root);
+    visit(accessExpr->RECORD,env);
+  }else if(root->get_type() == BlockStmt::type())
+  {
+    auto blockStmt = std::dynamic_pointer_cast<BlockStmt>(root);
+    for(auto statement:blockStmt->STMTS)
+    {
+      visit(statement,env);
+    }
+  }else if(root->get_type() == AssignStmt::type())
+  {
+    auto assignStmt = std::dynamic_pointer_cast<AssignStmt>(root);
+    visit(assignStmt->RHS,env);
+    visit(assignStmt->LHS,env);
+  }else if(root->get_type() == WhileStmt::type())
+  {
+    auto whileStmt = std::dynamic_pointer_cast<WhileStmt>(root);
+    visit(whileStmt->COND,env);
+    visit(whileStmt->BODY,env);
+  }else if(root->get_type() == IfStmt::type())
+  {
+    auto ifStmt = std::dynamic_pointer_cast<IfStmt>(root);
+    visit(ifStmt->COND,env);
+    visit(ifStmt->THEN,env);
+    visit(ifStmt->ELSE,env);
+  }else if(root->get_type() == OutputStmt::type())
+  {
+    auto outputStmt = std::dynamic_pointer_cast<OutputStmt>(root);
+    visit(outputStmt->ARG,env);
+  }else if(root->get_type() == ErrorStmt::type())
+  {
+    auto errorStmt = std::dynamic_pointer_cast<ErrorStmt>(root);
+    visit(errorStmt->ARG,env);
+  }else if(root->get_type() == ReturnStmt::type())
+  {
+    auto returnStmt = std::dynamic_pointer_cast<ReturnStmt>(root);
+    visit(returnStmt->ARG,env);
+  }else if(root->get_type() == TIPtree::Function::type())
+  {
+    auto function = std::dynamic_pointer_cast<TIPtree::Function>(root);
+    for(auto decl:function->DECLS)
+    {
+      visit(decl,env);
+    }
+    for(auto statement:function->BODY)
+    {
+      visit(statement,env);
+    }
+  }
+}
+
+
+
 void CollectAppearingFields::calculateResult(std::shared_ptr<TIPtree::Program> program)
 {
   for(auto function:program->FUNCTIONS)

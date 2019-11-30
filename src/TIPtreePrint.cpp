@@ -367,6 +367,121 @@ void Identifier::accept(TIPAstVisitor& visitor)
   visitor.visitIdentifier(shared_from_this());
 }
 
+void NumberExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env) 
+{
+  visitor.visitNumExpr(shared_from_this(),env);
+}
+
+void VariableExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitVarExpr(shared_from_this(),env);
+}
+
+void BinaryExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitBinaryExpr(shared_from_this(),env);
+}
+
+void FunAppExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitFunAppExpr(shared_from_this(),env);
+}
+
+void InputExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitInputExpr(shared_from_this(),env);
+}
+
+void AllocExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitAllocExpr(shared_from_this(),env);
+}
+
+void RefExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitRefExpr(shared_from_this(),env);
+}
+
+void DeRefExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitDeRefExpr(shared_from_this(),env);
+}
+
+void NullExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitNullExpr(shared_from_this(),env);
+}
+
+void FieldExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitFieldExpr(shared_from_this(),env);
+}
+
+void RecordExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitRecordExpr(shared_from_this(),env);
+}
+
+void AccessExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitAccessExpr(shared_from_this(),env);
+}
+
+void DeclStmt::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitDeclaration(shared_from_this(),env);
+}
+
+void BlockStmt::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitBlockStmt(shared_from_this(),env);
+}
+
+void AssignStmt::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitAssignmentStmt(shared_from_this(),env);
+}
+
+void WhileStmt::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitWhileStmt(shared_from_this(),env);
+}
+
+void IfStmt::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitIfStmt(shared_from_this(),env);
+}
+
+void OutputStmt::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitOutputStmt(shared_from_this(),env);
+}
+
+void ErrorStmt::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitErrorStmt(shared_from_this(),env);
+}
+
+void ReturnStmt::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitReturnStmt(shared_from_this(),env);
+}
+
+void Function::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitFunction(shared_from_this(),env);
+}
+
+void IdentifierDeclaration::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitIdentifierDeclaration(shared_from_this(),env);
+}
+
+void Identifier::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+{
+  visitor.visitIdentifier(shared_from_this(),env);
+}
+
 
 std::string Program::print(std::string i, bool pl = false) {
   indent = i;      // initialize namespace global for indent stride
