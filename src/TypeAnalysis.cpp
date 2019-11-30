@@ -69,8 +69,12 @@ void  TypeAnalysis::visitBinaryExpr(std::shared_ptr<BinaryExpr> root)
 
 void  TypeAnalysis::visitFunAppExpr(std::shared_ptr<FunAppExpr> root)
 {
-
-
+    std::vector<std::shared_ptr<Term>> params;
+    for(auto arg:root->ACTUALS)
+    {
+      params.push_back(ast2typevar(arg));
+    }
+    solver.unify(ast2typevar(root->FUN),std::make_shared<TipFunction>(params,ast2typevar(root)));
   // visit children
   visitChildren(root);
 }
@@ -209,9 +213,19 @@ void  TypeAnalysis::visitFunction(std::shared_ptr<Function> root)
     {
       auto retStmt = root->BODY.back();
       solver.unify(ast2typevar(retStmt),std::make_shared<TipInt>());
-      // TODO: add type for argument
+      for(auto arg:root->dummyFORMALS)
+      {
+        solver.unify(ast2typevar(arg),std::make_shared<TipInt>());
+      }
     }
   }
+  auto retStmt = root->BODY.back();
+  std::vector<std::shared_ptr<Term>> params;
+  for(auto arg:root->dummyFORMALS)
+  {
+    params.push_back(ast2typevar(arg));
+  }
+  solver.unify(ast2typevar(root),std::make_shared<TipFunction>(params,ast2typevar(retStmt)));
   visitChildren(root);
 }
 

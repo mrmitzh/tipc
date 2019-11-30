@@ -270,10 +270,16 @@ class DeclStmt : public Stmt, public std::enable_shared_from_this<DeclStmt>
 {
 public:
   std::vector<std::string> VARS;
+  std::vector<std::shared_ptr<IdentifierDeclaration>> dummyVars;
   int LINE; // line on which decl statement occurs
 
   DeclStmt(std::vector<std::string> VARS, int LINE)
-      : VARS(std::move(VARS)), LINE(LINE) {}
+      : VARS(std::move(VARS)), LINE(LINE) {
+        for(const auto& arg:VARS)
+        {
+          dummyVars.push_back(std::make_shared<IdentifierDeclaration>(arg,LINE));
+        }
+      }
   llvm::Value *codegen() override;
   static std::string type();
   std::string get_type() override;
@@ -393,6 +399,8 @@ class Function: public Expr, public std::enable_shared_from_this<Function>
 {
 public:
   std::string NAME;
+  // dummy version of FORMALS
+  std::vector<std::shared_ptr<IdentifierDeclaration>> dummyFORMALS;
   std::vector<std::string> FORMALS;
   std::vector<std::shared_ptr<DeclStmt>> DECLS;
   std::vector<std::shared_ptr<Stmt>> BODY;
@@ -402,7 +410,13 @@ public:
            std::vector<std::shared_ptr<DeclStmt>> DECLS,
            std::vector<std::shared_ptr<Stmt>> BODY, int LINE)
       : NAME(NAME), FORMALS(std::move(FORMALS)), DECLS(std::move(DECLS)),
-        BODY(std::move(BODY)), LINE(LINE) {}
+        BODY(std::move(BODY)), LINE(LINE) 
+        {
+          for(const auto& arg:FORMALS)
+          {
+            dummyFORMALS.push_back(std::make_shared<IdentifierDeclaration>(arg,LINE));
+          }
+        }
   llvm::Function *codegen() override;
   std::string print() override;
   static std::string type();
