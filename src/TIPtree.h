@@ -137,7 +137,7 @@ class RefExpr : public Expr, public std::enable_shared_from_this<RefExpr>
 {
 public:
   std::string NAME;
-  std::shared_ptr<Node> ARG;
+  std::shared_ptr<Expr> ARG;
 
   RefExpr(const std::string &NAME, std::shared_ptr<Expr> ARG) : NAME(NAME),ARG(std::move(ARG)) {}
   llvm::Value *codegen() override;
