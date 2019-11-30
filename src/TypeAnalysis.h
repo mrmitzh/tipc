@@ -28,6 +28,7 @@ private:
   UnionFindSolver solver;
   bool visitingFromMain = false;
   std::vector<std::string> allFieldNames;
+  std::unordered_map<std::shared_ptr<Identifier>, std::shared_ptr<Declaration>> declData;
 public:
   TypeAnalysis() = default;
   ~TypeAnalysis() = default;

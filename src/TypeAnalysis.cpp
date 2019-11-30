@@ -255,5 +255,12 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
 
 std::shared_ptr<Var> TypeAnalysis::ast2typevar(std::shared_ptr<Node> root)
 {
-  return std::make_shared<TipVar>(root);
+  if(root->get_type() == Identifier::type())
+  {
+    auto id = std::dynamic_pointer_cast<Identifier>(root);
+    return std::make_shared<TipVar>(declData[id]);
+  }else
+  {
+    return std::make_shared<TipVar>(root);
+  }
 }
