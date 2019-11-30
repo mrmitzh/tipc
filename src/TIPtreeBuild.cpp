@@ -119,8 +119,9 @@ Any TIPtreeBuild::visitFunction(TIPParser::FunctionContext *ctx) {
       fName = id->getText();
       fLine = id->getSymbol()->getLine();
     } else {
-      //fParams.push_back(std::move(id->getText()));
-      fParams.push_back(std::make_shared<DeclStmt>(std::move(id->getText()), fLine))
+      std::vector<std::string> vec;
+      vec.push_back(id->getText());
+      fParams.push_back(std::make_shared<DeclStmt>(std::move(vec), fLine));
     }
   }
 
