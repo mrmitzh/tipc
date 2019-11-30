@@ -120,7 +120,7 @@ Any TIPtreeBuild::visitFunction(TIPParser::FunctionContext *ctx) {
       fLine = id->getSymbol()->getLine();
     } else {
       //fParams.push_back(std::move(id->getText()));
-      fParamsNames.push_back(std:make_shared<DeclStmt>(std:move(id->getText()), fLine))
+      fParams.push_back(std::make_shared<DeclStmt>(std::move(id->getText()), fLine))
     }
   }
 
