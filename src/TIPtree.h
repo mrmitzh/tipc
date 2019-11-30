@@ -43,14 +43,14 @@ class IdentifierDeclaration: public Declaration, public std::enable_shared_from_
 public:
   std::string value;
   int line;
-  IdentifierDeclaration(std::string value,int line);
+  IdentifierDeclaration(std::string value,int line):value(value),line(line){};
   ~IdentifierDeclaration() = default;
   static std::string type();
   std::string get_type() override;
+  llvm::Value *codegen() override {};
+  std::string print() override {};
   void accept(TIPAstVisitor& visitor) override;
 };
-
-
 
 /******************* Expression AST Nodes *********************/
 
@@ -238,6 +238,21 @@ public:
   std::string print() override;
   static std::string type();
   std::string get_type() override;
+  void accept(TIPAstVisitor& visitor) override;
+};
+
+// Identifier
+class Identifier: public Expr, public std::enable_shared_from_this<Identifier>
+{
+public:
+  std::string value;
+  int line;
+  Identifier(std::string value,int line):value(value),line(line){};
+  ~Identifier() = default;
+  static std::string type();
+  std::string get_type() override;
+  llvm::Value *codegen() override {};
+  std::string print() override {};
   void accept(TIPAstVisitor& visitor) override;
 };
 
@@ -441,7 +456,8 @@ public:
   virtual void  visitErrorStmt(std::shared_ptr<ErrorStmt> root);
   virtual void  visitReturnStmt(std::shared_ptr<ReturnStmt> root);
   virtual void  visitFunction(std::shared_ptr<Function> root);
-  virtual void  visitIdentifier(std::shared_ptr<IdentifierDeclaration> root);
+  virtual void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root);
+  virtual void  visitIdentifier(std::shared_ptr<Identifier> root);
   virtual void  visit(std::shared_ptr<Node> root);
 protected:
   void  visitChildren(std::shared_ptr<Node> root);

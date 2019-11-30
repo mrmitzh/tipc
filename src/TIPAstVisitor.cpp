@@ -107,7 +107,12 @@ void  TIPAstVisitor::visitFunction(std::shared_ptr<Function> root)
     visitChildren(root);
 }
 
-void  TIPAstVisitor::visitIdentifier(std::shared_ptr<IdentifierDeclaration> root)
+void  TIPAstVisitor::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root)
+{
+    visitChildren(root);
+}
+
+void  TIPAstVisitor::visitIdentifier(std::shared_ptr<Identifier> root)
 {
     visitChildren(root);
 }
@@ -125,7 +130,8 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
     root->get_type() == InputExpr::type() ||
     root->get_type() == NullExpr::type() ||
     root->get_type() == DeclStmt::type() ||
-    root->get_type() == IdentifierDeclaration::type())
+    root->get_type() == IdentifierDeclaration::type() ||
+    root->get_type() == Identifier::type())
   {
     //EMPTY
   }else if(root->get_type() == BinaryExpr::type())

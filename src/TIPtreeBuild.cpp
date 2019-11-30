@@ -272,7 +272,8 @@ Any TIPtreeBuild::visitAllocExpr(TIPParser::AllocExprContext *ctx) {
 
 Any TIPtreeBuild::visitRefExpr(TIPParser::RefExprContext *ctx) {
   std::string vName = ctx->IDENTIFIER()->getText();
-  visitedExpr = std::make_shared<RefExpr>(vName,std::make_shared<VariableExpr>(vName));
+  int line = ctx->IDENTIFIER()->getSymbol()->getLine();
+  visitedExpr = std::make_shared<RefExpr>(vName,std::make_shared<Identifier>(vName,line));
   return "";
 }
 
