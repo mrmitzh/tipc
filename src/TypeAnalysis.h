@@ -48,6 +48,9 @@ public:
   void  visitFieldExpr(std::shared_ptr<FieldExpr> root) override;
   void  visitRecordExpr(std::shared_ptr<RecordExpr> root) override;
   void  visitAccessExpr(std::shared_ptr<AccessExpr> root) override;
+
+  void collectResult(std::shared_ptr<TIPtree::Program> program);
+  std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> getCollectedResult();  
 };
 
 class TypeAnalysis:public TIPAstVisitor
