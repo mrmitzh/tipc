@@ -88,8 +88,7 @@ static std::shared_ptr<Function> visitedFunction = nullptr;
  * that interact with LLVM and are thus constrained to C++ 11.
  */
 
-std::shared_ptr<TIPtree::Program>
-TIPtreeBuild::build(TIPParser::ProgramContext *ctx) {
+std::shared_ptr<TIPtree::Program> TIPtreeBuild::build(TIPParser::ProgramContext *ctx) {
   std::vector<std::shared_ptr<Function>> pFunctions;
   for (auto fn : ctx->function()) {
     visit(fn);

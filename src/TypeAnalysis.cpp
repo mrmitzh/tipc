@@ -552,7 +552,18 @@ void  CollectSolution::visitAccessExpr(std::shared_ptr<AccessExpr> root)
   visitChildren(root);
 }
 
+void CollectSolution::collectResult(std::shared_ptr<TIPtree::Program> program)
+{
+  for(auto function:program->FUNCTIONS)
+  {
+    visit(function);
+  }
+}
 
+std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> CollectSolution::getCollectedResult()
+{
+  return ret;
+}
 
 // Type Analysis
 void TypeAnalysis::visitNumExpr(std::shared_ptr<NumberExpr> root)
@@ -763,10 +774,17 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
     visit(function);
   }
 
-  // TODO: collect constains 
+  auto solution = solver.solution();
+  // collect solution
+  CollectSolution collectSolution(solution);
+  collectSolution.collectResult(program);
+  std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> ret = collectSolution.getCollectedResult();
 
-
-
+  std::cout << "Inferred types are:" << std::endl;
+  for(auto const& pair: ret){
+    std::cout << "[[" << pair.first->print() << "]] = " << pair.second->toString() << std::endl;
+  }
+  return ret;
 }
 
 
