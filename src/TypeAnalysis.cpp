@@ -130,8 +130,7 @@ void  TIPAstVisitorWithEnv::visitFunction(std::shared_ptr<Function> root,std::un
   std::unordered_map<std::string,std::shared_ptr<Declaration>> acc;
   for(auto arg:root->dummyFORMALS)
   {
-    std::unordered_map<std::string,std::shared_ptr<Declaration>> temp;
-    temp[arg->value] = arg;
+    auto temp = std::make_pair(arg->value,arg);
     acc = extendEnv(acc,temp);
   }
   std::unordered_map<std::string,std::shared_ptr<Declaration>> extendedEnv = extendEnv(env,acc);
@@ -188,12 +187,19 @@ void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unorde
     root->get_type() == VariableExpr::type() || 
     root->get_type() == InputExpr::type() ||
     root->get_type() == NullExpr::type() ||
-    root->get_type() == DeclStmt::type() ||
     root->get_type() == IdentifierDeclaration::type() ||
     root->get_type() == Identifier::type())
   {
     //EMPTY
-  }else if(root->get_type() == BinaryExpr::type())
+  }else if(root->get_type() == DeclStmt::type())
+  {
+    auto decl = std::dynamic_pointer_cast<DeclStmt>(root);
+    for(auto dummyVar:decl->dummyVars)
+    {
+      visit(dummyVar);
+    }
+  }
+  else if(root->get_type() == BinaryExpr::type())
   {
     auto binaryExpr = std::dynamic_pointer_cast<BinaryExpr>(root);
     visit(binaryExpr->LHS,env);
@@ -271,6 +277,10 @@ void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unorde
   }else if(root->get_type() == TIPtree::Function::type())
   {
     auto function = std::dynamic_pointer_cast<TIPtree::Function>(root);
+    for(auto formal:function->dummyFORMALS)
+    {
+      visit(formal);
+    }
     for(auto decl:function->DECLS)
     {
       visit(decl,env);
@@ -287,8 +297,6 @@ std::unordered_map<std::string,std::shared_ptr<Declaration>> TIPAstVisitorWithEn
   bool conflicts = false;
   for(const auto& first_pair:env)
   {
-    if(conflicts)
-      break;
     for(const auto& second_pair:ext)
     {
       if(first_pair.first == second_pair.first)
@@ -297,6 +305,8 @@ std::unordered_map<std::string,std::shared_ptr<Declaration>> TIPAstVisitorWithEn
         break;
       }
     }
+    if(conflicts)
+      break;
   }
   if(conflicts)
   {
@@ -561,12 +571,12 @@ void  TypeAnalysis::visitBinaryExpr(std::shared_ptr<BinaryExpr> root)
 
 void  TypeAnalysis::visitFunAppExpr(std::shared_ptr<FunAppExpr> root)
 {
-    std::vector<std::shared_ptr<Term>> params;
-    for(auto arg:root->ACTUALS)
-    {
-      params.push_back(ast2typevar(arg));
-    }
-    solver.unify(ast2typevar(root->FUN),std::make_shared<TipFunction>(params,ast2typevar(root)));
+  std::vector<std::shared_ptr<Term>> params;
+  for(auto arg:root->ACTUALS)
+  {
+    params.push_back(ast2typevar(arg));
+  }
+  solver.unify(ast2typevar(root->FUN),std::make_shared<TipFunction>(params,ast2typevar(root)));
   // visit children
   visitChildren(root);
 }
