@@ -129,12 +129,19 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
     root->get_type() == VariableExpr::type() || 
     root->get_type() == InputExpr::type() ||
     root->get_type() == NullExpr::type() ||
-    root->get_type() == DeclStmt::type() ||
     root->get_type() == IdentifierDeclaration::type() ||
     root->get_type() == Identifier::type())
   {
     //EMPTY
-  }else if(root->get_type() == BinaryExpr::type())
+  }else if(root->get_type() == DeclStmt::type())
+  {
+    auto decl = std::dynamic_pointer_cast<DeclStmt>(root);
+    for(auto dummyVar:decl->dummyVars)
+    {
+      visit(dummyVar);
+    }
+  }
+  else if(root->get_type() == BinaryExpr::type())
   {
     auto binaryExpr = std::dynamic_pointer_cast<BinaryExpr>(root);
     visit(binaryExpr->LHS);
@@ -212,6 +219,10 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
   }else if(root->get_type() == TIPtree::Function::type())
   {
     auto function = std::dynamic_pointer_cast<TIPtree::Function>(root);
+    for(auto formal:function->dummyFORMALS)
+    {
+      visit(formal);
+    }
     for(auto decl:function->DECLS)
     {
       visit(decl);

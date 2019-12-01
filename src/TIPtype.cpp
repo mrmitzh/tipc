@@ -153,7 +153,7 @@ std::shared_ptr<Mu> TipTypeOps::makeMu(std::shared_ptr<Var> v,std::shared_ptr<Te
 
 TipInt::TipInt()
 {
-    args.clear();
+    
 }
 
 std::shared_ptr<Term> TipInt::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
@@ -182,8 +182,7 @@ std::shared_ptr<Term> TipFunction::subst(std::shared_ptr<Var> v,std::shared_ptr<
 TipRef::TipRef(std::shared_ptr<Term> of)
     :of(of)
 {
-    args.clear();
-    args.push_back(of);
+    args = {of};
 }
 
 std::shared_ptr<Term> TipRef::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)

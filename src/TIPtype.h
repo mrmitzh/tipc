@@ -114,6 +114,7 @@ private:
     std::shared_ptr<Term> t;
 public:
     TipMu(std::shared_ptr<Var> v,std::shared_ptr<Term> t);
+    ~TipMu() = default;
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
     static std::string type();
     std::string getType() override;
