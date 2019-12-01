@@ -33,13 +33,13 @@ void  TIPAstVisitorWithEnv::visitAllocExpr(std::shared_ptr<AllocExpr> root,std::
 
 void  TIPAstVisitorWithEnv::visitRefExpr(std::shared_ptr<RefExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
-  if(root->ARG->get_type() == Identifier::type())
+  if(std::dynamic_pointer_cast<Identifier>(root->ARG))
   {
     auto id = std::dynamic_pointer_cast<Identifier>(root->ARG);
     if(env.find(id->value) != env.end())
     {
       auto decl = env[id->value];
-      if(decl->get_type() == Function::type())
+      if(std::dynamic_pointer_cast<Function>(decl))
       {
         std::cerr << "Cannot take address of function " << "\n";
       }
@@ -85,13 +85,13 @@ void  TIPAstVisitorWithEnv::visitBlockStmt(std::shared_ptr<BlockStmt> root,std::
 
 void  TIPAstVisitorWithEnv::visitAssignmentStmt(std::shared_ptr<AssignStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
-  if(root->LHS->get_type() == Identifier::type())
+  if(std::dynamic_pointer_cast<Identifier>(root->LHS))
   {
     auto id = std::dynamic_pointer_cast<Identifier>(root->LHS);
     if(env.find(id->value) != env.end())
     {
       auto decl = env[id->value];
-      if(decl->get_type() == Function::type())
+      if(std::dynamic_pointer_cast<Function>(decl))
       {
         std::cerr << "Function identifier cannot appears on the leaf-hand side of an assignment " << "\n";
       }
@@ -183,15 +183,15 @@ void  TIPAstVisitorWithEnv::visit(std::shared_ptr<Node> root,std::unordered_map<
 
 void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
-   if(root->get_type() == NumberExpr::type() || 
-    root->get_type() == VariableExpr::type() || 
-    root->get_type() == InputExpr::type() ||
-    root->get_type() == NullExpr::type() ||
-    root->get_type() == IdentifierDeclaration::type() ||
-    root->get_type() == Identifier::type())
+   if(std::dynamic_pointer_cast<NumberExpr>(root) || 
+    std::dynamic_pointer_cast<VariableExpr>(root) || 
+    std::dynamic_pointer_cast<InputExpr>(root) ||
+    std::dynamic_pointer_cast<NullExpr>(root) ||
+    std::dynamic_pointer_cast<IdentifierDeclaration>(root) ||
+    std::dynamic_pointer_cast<Identifier>(root) )
   {
     //EMPTY
-  }else if(root->get_type() == DeclStmt::type())
+  }else if(std::dynamic_pointer_cast<DeclStmt>(root))
   {
     auto decl = std::dynamic_pointer_cast<DeclStmt>(root);
     for(auto dummyVar:decl->dummyVars)
@@ -199,12 +199,12 @@ void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unorde
       visit(dummyVar,env);
     }
   }
-  else if(root->get_type() == BinaryExpr::type())
+  else if(std::dynamic_pointer_cast<BinaryExpr>(root))
   {
     auto binaryExpr = std::dynamic_pointer_cast<BinaryExpr>(root);
     visit(binaryExpr->LHS,env);
     visit(binaryExpr->RHS,env);
-  }else if(root->get_type() == FunAppExpr::type())
+  }else if(std::dynamic_pointer_cast<FunAppExpr>(root))
   {
     auto funApp = std::dynamic_pointer_cast<FunAppExpr>(root);
     visit(funApp->FUN,env);
@@ -212,69 +212,69 @@ void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unorde
     {
         visit(actual,env);
     }
-  }else if(root->get_type() == AllocExpr::type())
+  }else if(std::dynamic_pointer_cast<AllocExpr>(root))
   {
     auto alloc = std::dynamic_pointer_cast<AllocExpr>(root);
     visit(alloc->ARG,env);
-  }else if(root->get_type() == RefExpr::type())
+  }else if(std::dynamic_pointer_cast<RefExpr>(root))
   {
     auto refExpr = std::dynamic_pointer_cast<RefExpr>(root);
     visit(refExpr->ARG,env);
-  }else if(root->get_type() == DeRefExpr::type())
+  }else if(std::dynamic_pointer_cast<DeRefExpr>(root))
   {
     auto deRef = std::dynamic_pointer_cast<DeRefExpr>(root);
     visit(deRef->ARG,env);
-  }else if(root->get_type() == FieldExpr::type())
+  }else if(std::dynamic_pointer_cast<FieldExpr>(root))
   {
     auto fieldExpr = std::dynamic_pointer_cast<FieldExpr>(root);
     visit(fieldExpr->INIT,env);
-  }else if(root->get_type() == RecordExpr::type())
+  }else if(std::dynamic_pointer_cast<RecordExpr>(root))
   {
     auto recordExpr = std::dynamic_pointer_cast<RecordExpr>(root);
     for(auto field:recordExpr->FIELDS)
     {
       visit(field,env);
     }
-  }else if(root->get_type() == AccessExpr::type())
+  }else if(std::dynamic_pointer_cast<AccessExpr>(root))
   {
     auto accessExpr = std::dynamic_pointer_cast<AccessExpr>(root);
     visit(accessExpr->RECORD,env);
-  }else if(root->get_type() == BlockStmt::type())
+  }else if(std::dynamic_pointer_cast<BlockStmt>(root))
   {
     auto blockStmt = std::dynamic_pointer_cast<BlockStmt>(root);
     for(auto statement:blockStmt->STMTS)
     {
       visit(statement,env);
     }
-  }else if(root->get_type() == AssignStmt::type())
+  }else if(std::dynamic_pointer_cast<AssignStmt>(root))
   {
     auto assignStmt = std::dynamic_pointer_cast<AssignStmt>(root);
     visit(assignStmt->RHS,env);
     visit(assignStmt->LHS,env);
-  }else if(root->get_type() == WhileStmt::type())
+  }else if(std::dynamic_pointer_cast<WhileStmt>(root))
   {
     auto whileStmt = std::dynamic_pointer_cast<WhileStmt>(root);
     visit(whileStmt->COND,env);
     visit(whileStmt->BODY,env);
-  }else if(root->get_type() == IfStmt::type())
+  }else if(std::dynamic_pointer_cast<IfStmt>(root))
   {
     auto ifStmt = std::dynamic_pointer_cast<IfStmt>(root);
     visit(ifStmt->COND,env);
     visit(ifStmt->THEN,env);
     visit(ifStmt->ELSE,env);
-  }else if(root->get_type() == OutputStmt::type())
+  }else if(std::dynamic_pointer_cast<OutputStmt>(root))
   {
     auto outputStmt = std::dynamic_pointer_cast<OutputStmt>(root);
     visit(outputStmt->ARG,env);
-  }else if(root->get_type() == ErrorStmt::type())
+  }else if(std::dynamic_pointer_cast<ErrorStmt>(root))
   {
     auto errorStmt = std::dynamic_pointer_cast<ErrorStmt>(root);
     visit(errorStmt->ARG,env);
-  }else if(root->get_type() == ReturnStmt::type())
+  }else if(std::dynamic_pointer_cast<ReturnStmt>(root))
   {
     auto returnStmt = std::dynamic_pointer_cast<ReturnStmt>(root);
     visit(returnStmt->ARG,env);
-  }else if(root->get_type() == TIPtree::Function::type())
+  }else if(std::dynamic_pointer_cast<TIPtree::Function>(root))
   {
     auto function = std::dynamic_pointer_cast<TIPtree::Function>(root);
     for(auto formal:function->dummyFORMALS)
@@ -790,7 +790,7 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
 
 std::shared_ptr<Var> TypeAnalysis::ast2typevar(std::shared_ptr<Node> root)
 {
-  if(root->get_type() == Identifier::type())
+  if(std::dynamic_pointer_cast<Identifier>(root))
   {
     auto id = std::dynamic_pointer_cast<Identifier>(root);
     return std::make_shared<TipVar>(declData[id]);
