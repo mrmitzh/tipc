@@ -542,6 +542,14 @@ public:
   void  visitIdentifier(std::shared_ptr<Identifier> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
   void  visit(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
   void  visitChildren(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
+
+  std::unordered_map<std::shared_ptr<Identifier>,std::shared_ptr<Declaration>>  analysis(std::shared_ptr<Program> root);
+
+private:
+  std::unordered_map<std::string,std::shared_ptr<Declaration>> extendEnv(std::unordered_map<std::string,std::shared_ptr<Declaration>> env, std::unordered_map<std::string,std::shared_ptr<Declaration>> ext);
+  std::unordered_map<std::string,std::shared_ptr<Declaration>> extendEnv(std::unordered_map<std::string,std::shared_ptr<Declaration>> env, std::pair<std::string,std::shared_ptr<Declaration>> ext);
+  std::unordered_map<std::string,std::shared_ptr<Declaration>> peekDecl(std::vector<std::shared_ptr<DeclStmt>> decls);
+  std::unordered_map<std::shared_ptr<Identifier>,std::shared_ptr<Declaration>> declResult;
 };
 
 

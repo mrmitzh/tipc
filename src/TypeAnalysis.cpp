@@ -33,6 +33,18 @@ void  TIPAstVisitorWithEnv::visitAllocExpr(std::shared_ptr<AllocExpr> root,std::
 
 void  TIPAstVisitorWithEnv::visitRefExpr(std::shared_ptr<RefExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
+  if(root->ARG->get_type() == Identifier::type())
+  {
+    auto id = std::dynamic_pointer_cast<Identifier>(root->ARG);
+    if(env.find(id->value) != env.end())
+    {
+      auto decl = env[id->value];
+      if(decl->get_type() == Function::type())
+      {
+        std::cerr << "Cannot take address of function " << "\n";
+      }
+    }
+  }
   visitChildren(root,env);
 }
 
@@ -73,6 +85,18 @@ void  TIPAstVisitorWithEnv::visitBlockStmt(std::shared_ptr<BlockStmt> root,std::
 
 void  TIPAstVisitorWithEnv::visitAssignmentStmt(std::shared_ptr<AssignStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
+  if(root->LHS->get_type() == Identifier::type())
+  {
+    auto id = std::dynamic_pointer_cast<Identifier>(root->LHS);
+    if(env.find(id->value) != env.end())
+    {
+      auto decl = env[id->value];
+      if(decl->get_type() == Function::type())
+      {
+        std::cerr << "Function identifier cannot appears on the leaf-hand side of an assignment " << "\n";
+      }
+    }
+  }
   visitChildren(root,env);
 }
 
@@ -103,7 +127,21 @@ void  TIPAstVisitorWithEnv::visitReturnStmt(std::shared_ptr<ReturnStmt> root,std
 
 void  TIPAstVisitorWithEnv::visitFunction(std::shared_ptr<Function> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
-  visitChildren(root,env);
+  std::unordered_map<std::string,std::shared_ptr<Declaration>> acc;
+  for(auto arg:root->dummyFORMALS)
+  {
+    std::unordered_map<std::string,std::shared_ptr<Declaration>> temp;
+    temp[arg->value] = arg;
+    acc = extendEnv(acc,temp);
+  }
+  std::unordered_map<std::string,std::shared_ptr<Declaration>> extendedEnv = extendEnv(env,acc);
+
+  auto ext = peekDecl(root->DECLS);
+  extendedEnv = extendEnv(extendedEnv,ext);
+  for(auto statement:root->BODY)
+  {
+    visit(statement,extendedEnv);
+  }
 }
 
 void  TIPAstVisitorWithEnv::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
@@ -113,7 +151,30 @@ void  TIPAstVisitorWithEnv::visitIdentifierDeclaration(std::shared_ptr<Identifie
 
 void  TIPAstVisitorWithEnv::visitIdentifier(std::shared_ptr<Identifier> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
+  if(env.find(root->value) != env.end())
+  {
+    declResult[root] = env[root->value];
+  }else
+  {
+    std::cerr << "Identifier not declared" << "\n";
+  }
   visitChildren(root,env);
+}
+
+std::unordered_map<std::shared_ptr<Identifier>,std::shared_ptr<Declaration>>  TIPAstVisitorWithEnv::analysis(std::shared_ptr<Program> root)
+{
+  std::unordered_map<std::string,std::shared_ptr<Declaration>> env;
+  for(auto function:root->FUNCTIONS)
+  {
+    std::unordered_map<std::string,std::shared_ptr<Declaration>> ext;
+    ext[function->NAME] = function;
+    env = extendEnv(env,ext);
+  }
+  for(auto function:root->FUNCTIONS)
+  {
+    visit(function,env);
+  }
+  return declResult;
 }
 
 void  TIPAstVisitorWithEnv::visit(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
@@ -221,6 +282,59 @@ void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unorde
   }
 }
 
+std::unordered_map<std::string,std::shared_ptr<Declaration>> TIPAstVisitorWithEnv::extendEnv(std::unordered_map<std::string,std::shared_ptr<Declaration>> env, std::unordered_map<std::string,std::shared_ptr<Declaration>> ext)
+{
+  bool conflicts = false;
+  for(const auto& first_pair:env)
+  {
+    if(conflicts)
+      break;
+    for(const auto& second_pair:ext)
+    {
+      if(first_pair.first == second_pair.first)
+      {
+        conflicts = true;
+        break;
+      }
+    }
+  }
+  if(conflicts)
+  {
+    std::cerr << "Redefination Error" << "\n";
+    exit(-1); 
+  }
+  std::unordered_map<std::string,std::shared_ptr<Declaration>> result = env;
+  result.insert(ext.begin(),ext.end());
+  return result;
+}
+
+std::unordered_map<std::string,std::shared_ptr<Declaration>> TIPAstVisitorWithEnv::extendEnv(std::unordered_map<std::string,std::shared_ptr<Declaration>> env, std::pair<std::string,std::shared_ptr<Declaration>> par)
+{
+  if(env.find(par.first) != env.end())
+  {
+    std::cerr << "Redefinition" << "\n";
+  }
+  env[par.first] = par.second;
+  return env;
+}
+
+std::unordered_map<std::string,std::shared_ptr<Declaration>> TIPAstVisitorWithEnv::peekDecl(std::vector<std::shared_ptr<DeclStmt>> decls)
+{
+  std::vector<std::pair<std::string,std::shared_ptr<Declaration>>> allDecls;
+  for(auto decl:decls)
+  {
+    for(auto dummyVar:decl->dummyVars)
+    {
+      allDecls.push_back({dummyVar->value,dummyVar});
+    }
+  }
+  std::unordered_map<std::string,std::shared_ptr<Declaration>> result;
+  for(auto decl:allDecls)
+  {
+    result = extendEnv(result,decl);
+  }
+  return result;
+}
 
 
 void CollectAppearingFields::calculateResult(std::shared_ptr<TIPtree::Program> program)
@@ -261,6 +375,161 @@ void CollectAppearingFields::visitRecordExpr(std::shared_ptr<RecordExpr> root)
   }
   visitChildren(root);
 }
+
+void  CollectSolution::visitDeclaration(std::shared_ptr<DeclStmt> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitNumExpr(std::shared_ptr<NumberExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitVarExpr(std::shared_ptr<VariableExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitBinaryExpr(std::shared_ptr<BinaryExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitFunAppExpr(std::shared_ptr<FunAppExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitInputExpr(std::shared_ptr<InputExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitAllocExpr(std::shared_ptr<AllocExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitRefExpr(std::shared_ptr<RefExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitDeRefExpr(std::shared_ptr<DeRefExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitNullExpr(std::shared_ptr<NullExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitFieldExpr(std::shared_ptr<FieldExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitRecordExpr(std::shared_ptr<RecordExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitAccessExpr(std::shared_ptr<AccessExpr> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitIdentifier(std::shared_ptr<Identifier> root)
+{
+  auto typeOps = std::make_shared<TipTypeOps>();
+  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+  if(result->isValid)
+  {
+//    ret[root] = std::static_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
 
 
 // Type Analysis
@@ -462,6 +731,9 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
   CollectAppearingFields collectAppearingFields;
   collectAppearingFields.calculateResult(program);
   allFieldNames = collectAppearingFields.getCalculatedResult();
+
+  TIPAstVisitorWithEnv visitor;
+  declData = visitor.analysis(program);
 
   // dfs to generate constrains
   for(auto function:program->FUNCTIONS)

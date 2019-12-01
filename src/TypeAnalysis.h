@@ -22,6 +22,33 @@ public:
   std::vector<std::string> getCalculatedResult();
 };
 
+class CollectSolution: public TIPAstVisitor
+{
+private:
+  std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> ret;
+  std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> sol;
+public:
+  CollectSolution(std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> sol)
+    :sol(sol)
+  {}
+  ~CollectSolution() = default;
+
+  void  visitDeclaration(std::shared_ptr<DeclStmt> root) override;
+  void  visitNumExpr(std::shared_ptr<NumberExpr> root) override;
+  void  visitVarExpr(std::shared_ptr<VariableExpr> root) override;
+  void  visitBinaryExpr(std::shared_ptr<BinaryExpr> root) override;
+  void  visitFunAppExpr(std::shared_ptr<FunAppExpr> root) override;
+  void  visitInputExpr(std::shared_ptr<InputExpr> root) override;
+  void  visitAllocExpr(std::shared_ptr<AllocExpr> root) override;
+  void  visitRefExpr(std::shared_ptr<RefExpr> root) override;
+  void  visitDeRefExpr(std::shared_ptr<DeRefExpr> root) override;
+  void  visitNullExpr(std::shared_ptr<NullExpr> root) override;
+  void  visitFieldExpr(std::shared_ptr<FieldExpr> root) override;
+  void  visitRecordExpr(std::shared_ptr<RecordExpr> root) override;
+  void  visitAccessExpr(std::shared_ptr<AccessExpr> root) override;
+  void  visitIdentifier(std::shared_ptr<Identifier> root) override;
+};
+
 class TypeAnalysis:public TIPAstVisitor
 {
 private:
