@@ -100,7 +100,12 @@ std::set<std::shared_ptr<Var>> Cons::fv()
 
 bool Cons::doMatch(std::shared_ptr<Term> t)
 {    
-    return getType() == t->getType() && arity() == std::dynamic_pointer_cast<Cons>(t)->arity();
+    auto cast_type = std::dynamic_pointer_cast<Cons>(t);
+    if(cast_type){
+        return arity() == cast_type->arity(); 
+    } else {
+        return false;
+    }
 }
 
 
@@ -120,7 +125,7 @@ std::shared_ptr<Term> TermOps::close(std::shared_ptr<Term> t,std::unordered_map<
 
 std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> env, std::unordered_set<std::shared_ptr<Var>>& visited)
 {
-    if(t->getType() == Var::type())
+    if(std::dynamic_pointer_cast<Var>(t))
     {
         auto v = std::dynamic_pointer_cast<Var>(t);
         if(visited.find(v) == visited.end() && env[v] != v)
@@ -142,7 +147,7 @@ std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_m
         {
             return makeAlpha(v);
         }
-    }else if(t->getType() == Cons::type())
+    }else if(std::dynamic_pointer_cast<Cons>(t))
     {
         auto c = std::dynamic_pointer_cast<Cons>(t);
         auto c_fv = c->fv();
@@ -152,7 +157,7 @@ std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_m
             acc->subst(v,closeRec(v,env,visited));
         }
         return acc;
-    }else if(t->getType() == Mu::type())
+    }else if(std::dynamic_pointer_cast<Mu>(t))
     {
         auto m = std::dynamic_pointer_cast<Mu>(t);
         return makeMu(m->v,closeRec(m->t,env,visited));
