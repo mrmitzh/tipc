@@ -33,7 +33,9 @@ public:
   {}
   ~CollectSolution() = default;
 
-  void  visitDeclaration(std::shared_ptr<DeclStmt> root) override;
+  void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) override;
+  void  visitIdentifier(std::shared_ptr<Identifier> root) override;
+  void  visitFunction(std::shared_ptr<Function> root) override;
   void  visitNumExpr(std::shared_ptr<NumberExpr> root) override;
   void  visitVarExpr(std::shared_ptr<VariableExpr> root) override;
   void  visitBinaryExpr(std::shared_ptr<BinaryExpr> root) override;
@@ -46,7 +48,6 @@ public:
   void  visitFieldExpr(std::shared_ptr<FieldExpr> root) override;
   void  visitRecordExpr(std::shared_ptr<RecordExpr> root) override;
   void  visitAccessExpr(std::shared_ptr<AccessExpr> root) override;
-  void  visitIdentifier(std::shared_ptr<Identifier> root) override;
 };
 
 class TypeAnalysis:public TIPAstVisitor
