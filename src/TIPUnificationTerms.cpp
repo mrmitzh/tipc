@@ -125,8 +125,6 @@ std::shared_ptr<Term> TermOps::close(std::shared_ptr<Term> t,std::unordered_map<
 
 std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> env, std::unordered_set<std::shared_ptr<Var>>& visited)
 {
-    if(!t)
-        return t;
     if(std::dynamic_pointer_cast<Var>(t))
     {
         auto v = std::dynamic_pointer_cast<Var>(t);
@@ -158,11 +156,15 @@ std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_m
         {
             acc->subst(v,closeRec(v,env,visited));
         }
+        std::cout << "---------------" << "\n";
+        std::cout << acc->getType() << "\n";
+        std::cout << "---------------" << "\n";
         return acc;
     }else if(std::dynamic_pointer_cast<Mu>(t))
     {
         auto m = std::dynamic_pointer_cast<Mu>(t);
         return makeMu(m->v,closeRec(m->t,env,visited));
     }
-    return std::shared_ptr<Term>(nullptr);
+    std::cout << "UnMatch" << "\n";
+    return std::make_shared<Term>();
 }

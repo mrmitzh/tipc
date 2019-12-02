@@ -144,7 +144,7 @@ std::shared_ptr<Var> TipTypeOps::makeAlpha(std::shared_ptr<Var> x)
     {
        return std::dynamic_pointer_cast<TipAlpha>(x); 
     }
-    //TODO
+    return std::make_shared<Var>();
 }
 
 std::shared_ptr<Mu> TipTypeOps::makeMu(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
