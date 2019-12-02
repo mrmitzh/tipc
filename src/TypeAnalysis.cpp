@@ -127,20 +127,30 @@ void  TIPAstVisitorWithEnv::visitReturnStmt(std::shared_ptr<ReturnStmt> root,std
 
 void  TIPAstVisitorWithEnv::visitFunction(std::shared_ptr<Function> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
+  std::cout << "entering visit Function" << "\n";
+  std::cout << env.size() << "\n";
   std::unordered_map<std::string,std::shared_ptr<Declaration>> acc;
   for(auto arg:root->dummyFORMALS)
   {
+    std::cout << arg->value << "\n";
     auto temp = std::make_pair(arg->value,arg);
     acc = extendEnv(acc,temp);
   }
   std::unordered_map<std::string,std::shared_ptr<Declaration>> extendedEnv = extendEnv(env,acc);
+  std::cout << extendedEnv.size() << "\n";
+
 
   auto ext = peekDecl(root->DECLS);
   extendedEnv = extendEnv(extendedEnv,ext);
+
+  std::cout << "After extend: " << extendedEnv.size() << "\n";
+
   for(auto statement:root->BODY)
   {
     visit(statement,extendedEnv);
   }
+
+  std::cout << "exiting visit Function" << "\n";
 }
 
 void  TIPAstVisitorWithEnv::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
@@ -150,6 +160,7 @@ void  TIPAstVisitorWithEnv::visitIdentifierDeclaration(std::shared_ptr<Identifie
 
 void  TIPAstVisitorWithEnv::visitIdentifier(std::shared_ptr<Identifier> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
+  std::cout << "Entering visitIdentifier" << "\n";
   if(env.find(root->value) != env.end())
   {
     declResult[root] = env[root->value];
@@ -158,6 +169,7 @@ void  TIPAstVisitorWithEnv::visitIdentifier(std::shared_ptr<Identifier> root,std
     std::cerr << "Identifier not declared" << "\n";
   }
   visitChildren(root,env);
+  std::cout << "Existing visitIdentifier" << "\n";
 }
 
 std::unordered_map<std::shared_ptr<Identifier>,std::shared_ptr<Declaration>>  TIPAstVisitorWithEnv::analysis(std::shared_ptr<Program> root)
@@ -165,9 +177,11 @@ std::unordered_map<std::shared_ptr<Identifier>,std::shared_ptr<Declaration>>  TI
   std::unordered_map<std::string,std::shared_ptr<Declaration>> env;
   for(auto function:root->FUNCTIONS)
   {
+    std::cout << function->NAME << "\n";
     std::unordered_map<std::string,std::shared_ptr<Declaration>> ext;
     ext[function->NAME] = function;
     env = extendEnv(env,ext);
+    std::cout << env.size() << "\n";
   }
   for(auto function:root->FUNCTIONS)
   {
@@ -227,6 +241,7 @@ void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unorde
   }else if(std::dynamic_pointer_cast<FieldExpr>(root))
   {
     auto fieldExpr = std::dynamic_pointer_cast<FieldExpr>(root);
+    visit(fieldExpr->dummyFIELD,env);
     visit(fieldExpr->INIT,env);
   }else if(std::dynamic_pointer_cast<RecordExpr>(root))
   {
@@ -238,6 +253,7 @@ void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unorde
   }else if(std::dynamic_pointer_cast<AccessExpr>(root))
   {
     auto accessExpr = std::dynamic_pointer_cast<AccessExpr>(root);
+    visit(accessExpr->dummyFIELD,env);
     visit(accessExpr->RECORD,env);
   }else if(std::dynamic_pointer_cast<BlockStmt>(root))
   {
@@ -277,6 +293,7 @@ void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unorde
   }else if(std::dynamic_pointer_cast<TIPtree::Function>(root))
   {
     auto function = std::dynamic_pointer_cast<TIPtree::Function>(root);
+    visit(function->dummyNAME,env);
     for(auto formal:function->dummyFORMALS)
     {
       visit(formal,env);
@@ -386,171 +403,259 @@ void CollectAppearingFields::visitRecordExpr(std::shared_ptr<RecordExpr> root)
   visitChildren(root);
 }
 
-//
-void  CollectSolution::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root)
+void  CollectSolution::visitNumExpr(std::shared_ptr<NumberExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitIdentifier(std::shared_ptr<Identifier> root)
+void  CollectSolution::visitVarExpr(std::shared_ptr<VariableExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitFunction(std::shared_ptr<Function> root)
+void  CollectSolution::visitBinaryExpr(std::shared_ptr<BinaryExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitNumExpr(std::shared_ptr<NumberExpr> root)
+void  CollectSolution::visitFunAppExpr(std::shared_ptr<FunAppExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitVarExpr(std::shared_ptr<VariableExpr> root)
+void  CollectSolution::visitInputExpr(std::shared_ptr<InputExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitBinaryExpr(std::shared_ptr<BinaryExpr> root)
+void  CollectSolution::visitAllocExpr(std::shared_ptr<AllocExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitFunAppExpr(std::shared_ptr<FunAppExpr> root)
+void  CollectSolution::visitRefExpr(std::shared_ptr<RefExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitInputExpr(std::shared_ptr<InputExpr> root)
+void  CollectSolution::visitDeRefExpr(std::shared_ptr<DeRefExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitAllocExpr(std::shared_ptr<AllocExpr> root)
+void  CollectSolution::visitNullExpr(std::shared_ptr<NullExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitRefExpr(std::shared_ptr<RefExpr> root)
+void  CollectSolution::visitFieldExpr(std::shared_ptr<FieldExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitDeRefExpr(std::shared_ptr<DeRefExpr> root)
+void  CollectSolution::visitRecordExpr(std::shared_ptr<RecordExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitNullExpr(std::shared_ptr<NullExpr> root)
+void  CollectSolution::visitAccessExpr(std::shared_ptr<AccessExpr> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitFieldExpr(std::shared_ptr<FieldExpr> root)
+void  CollectSolution::visitDeclaration(std::shared_ptr<DeclStmt> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitRecordExpr(std::shared_ptr<RecordExpr> root)
+void  CollectSolution::visitBlockStmt(std::shared_ptr<BlockStmt> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
 
-void  CollectSolution::visitAccessExpr(std::shared_ptr<AccessExpr> root)
+void  CollectSolution::visitAssignmentStmt(std::shared_ptr<AssignStmt> root) 
 {
-  auto typeOps = std::make_shared<TipTypeOps>();
-  auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-  if(result->isValid)
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
     ret[root] = std::dynamic_pointer_cast<TipType>(result);
   }
   visitChildren(root);
 }
+
+void  CollectSolution::visitWhileStmt(std::shared_ptr<WhileStmt> root) 
+{
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    ret[root] = std::dynamic_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitIfStmt(std::shared_ptr<IfStmt> root) 
+{
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    ret[root] = std::dynamic_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitOutputStmt(std::shared_ptr<OutputStmt> root) 
+{
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    ret[root] = std::dynamic_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitErrorStmt(std::shared_ptr<ErrorStmt> root) 
+{
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    ret[root] = std::dynamic_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitReturnStmt(std::shared_ptr<ReturnStmt> root) 
+{
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    ret[root] = std::dynamic_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitFunction(std::shared_ptr<Function> root) 
+{
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    ret[root] = std::dynamic_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) 
+{
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    ret[root] = std::dynamic_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
+void  CollectSolution::visitIdentifier(std::shared_ptr<Identifier> root) 
+{
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    ret[root] = std::dynamic_pointer_cast<TipType>(result);
+  }
+  visitChildren(root);
+}
+
 
 void CollectSolution::collectResult(std::shared_ptr<TIPtree::Program> program)
 {
@@ -773,8 +878,11 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
   {
     visit(function);
   }
+  
+  std::cout << declData.size() << "\n";
 
   auto solution = solver.solution();
+  std::cout << "solution size: " << solution.size() << "\n";
   // collect solution
   CollectSolution collectSolution(solution);
   collectSolution.collectResult(program);

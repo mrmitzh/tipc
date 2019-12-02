@@ -168,6 +168,7 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
   }else if(std::dynamic_pointer_cast<FieldExpr>(root))
   {
     auto fieldExpr = std::dynamic_pointer_cast<FieldExpr>(root);
+    visit(fieldExpr->dummyFIELD);
     visit(fieldExpr->INIT);
   }else if(std::dynamic_pointer_cast<RecordExpr>(root))
   {
@@ -179,6 +180,7 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
   }else if(std::dynamic_pointer_cast<AccessExpr>(root))
   {
     auto accessExpr = std::dynamic_pointer_cast<AccessExpr>(root);
+    visit(accessExpr->dummyFIELD);
     visit(accessExpr->RECORD);
   }else if(std::dynamic_pointer_cast<BlockStmt>(root))
   {
@@ -218,6 +220,7 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
   }else if(std::dynamic_pointer_cast<TIPtree::Function>(root))
   {
     auto function = std::dynamic_pointer_cast<TIPtree::Function>(root);
+    visit(function->dummyNAME);
     for(auto formal:function->dummyFORMALS)
     {
       visit(formal);

@@ -33,9 +33,6 @@ public:
   {}
   ~CollectSolution() = default;
 
-  void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) override;
-  void  visitIdentifier(std::shared_ptr<Identifier> root) override;
-  void  visitFunction(std::shared_ptr<Function> root) override;
   void  visitNumExpr(std::shared_ptr<NumberExpr> root) override;
   void  visitVarExpr(std::shared_ptr<VariableExpr> root) override;
   void  visitBinaryExpr(std::shared_ptr<BinaryExpr> root) override;
@@ -48,6 +45,18 @@ public:
   void  visitFieldExpr(std::shared_ptr<FieldExpr> root) override;
   void  visitRecordExpr(std::shared_ptr<RecordExpr> root) override;
   void  visitAccessExpr(std::shared_ptr<AccessExpr> root) override;
+  void  visitDeclaration(std::shared_ptr<DeclStmt> root) override;
+  void  visitBlockStmt(std::shared_ptr<BlockStmt> root) override;
+  void  visitAssignmentStmt(std::shared_ptr<AssignStmt> root) override;
+  void  visitWhileStmt(std::shared_ptr<WhileStmt> root) override;
+  void  visitIfStmt(std::shared_ptr<IfStmt> root) override;
+  void  visitOutputStmt(std::shared_ptr<OutputStmt> root) override;
+  void  visitErrorStmt(std::shared_ptr<ErrorStmt> root) override;
+  void  visitReturnStmt(std::shared_ptr<ReturnStmt> root) override;
+  void  visitFunction(std::shared_ptr<Function> root) override;
+  void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) override;
+  void  visitIdentifier(std::shared_ptr<Identifier> root) override;
+
   void collectResult(std::shared_ptr<TIPtree::Program> program);
   std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> getCollectedResult();  
 };

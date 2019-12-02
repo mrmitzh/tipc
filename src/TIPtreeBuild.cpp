@@ -353,6 +353,13 @@ Any TIPtreeBuild::visitDeclaration(TIPParser::DeclarationContext *ctx) {
     dLine = id->getSymbol()->getLine();
     dVars.push_back(std::move(id->getText()));
   }
+  std::cout << "-----" << "\n";
+  std::cout << dLine << "\n";
+  for (auto text:dVars)
+  {
+    std::cout << text << "\n";
+  }
+  std::cout << "-----" << "\n";
   visitedDeclStmt = std::make_shared<DeclStmt>(std::move(dVars), dLine);
   return "";
 }

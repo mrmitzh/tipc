@@ -12,6 +12,7 @@
 #include <map>
 #include <unordered_map>
 #include <memory>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -64,6 +65,23 @@ class Expr : public Node {
 public:
   ~Expr() = default;
   // delegating the obligation to override the functions
+};
+
+// Identifier
+class Identifier: public Expr, public std::enable_shared_from_this<Identifier>
+{
+public:
+  std::string value;
+  int line;
+  Identifier(std::string value,int line):value(value),line(line){};
+  ~Identifier() = default;
+  static std::string type();
+  std::string get_type() override;
+  llvm::Value *codegen() override {};
+  std::string print() override {};
+  void accept(TIPAstVisitor& visitor) override;
+  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
+
 };
 
 // NumberExpr - Expression class for numeric literals
@@ -218,10 +236,13 @@ class FieldExpr : public Expr, public std::enable_shared_from_this<FieldExpr>
 {
 public:
   std::string FIELD;
+  std::shared_ptr<Identifier> dummyFIELD;
   std::shared_ptr<Expr> INIT;
 
   FieldExpr(const std::string &FIELD, std::shared_ptr<Expr> INIT)
-      : FIELD(FIELD), INIT(std::move(INIT)) {}
+      : FIELD(FIELD), INIT(std::move(INIT)) {
+        dummyFIELD = std::make_shared<Identifier>(FIELD, -1);
+      }
   llvm::Value *codegen() override;
   static std::string type();
   std::string get_type() override;
@@ -254,9 +275,13 @@ class AccessExpr : public Expr, public std::enable_shared_from_this<AccessExpr>
 public:
   std::shared_ptr<Expr> RECORD;
   std::string FIELD;
+  std::shared_ptr<Identifier> dummyFIELD;
 
   AccessExpr(std::shared_ptr<Expr> RECORD, const std::string &FIELD)
-      : RECORD(std::move(RECORD)), FIELD(FIELD) {}
+      : RECORD(std::move(RECORD)), FIELD(FIELD) 
+      {
+        dummyFIELD = std::make_shared<Identifier>(this->FIELD,-1);
+      }
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
@@ -266,22 +291,7 @@ public:
 
 };
 
-// Identifier
-class Identifier: public Expr, public std::enable_shared_from_this<Identifier>
-{
-public:
-  std::string value;
-  int line;
-  Identifier(std::string value,int line):value(value),line(line){};
-  ~Identifier() = default;
-  static std::string type();
-  std::string get_type() override;
-  llvm::Value *codegen() override {};
-  std::string print() override {};
-  void accept(TIPAstVisitor& visitor) override;
-  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 
-};
 
 /******************* Statement AST Nodes *********************/
 
@@ -302,7 +312,7 @@ public:
 
   DeclStmt(std::vector<std::string> VARS, int LINE)
       : VARS(std::move(VARS)), LINE(LINE) {
-        for(const auto& arg:VARS)
+        for(const auto& arg:this->VARS)
         {
           dummyVars.push_back(std::make_shared<IdentifierDeclaration>(arg,LINE));
         }
@@ -435,6 +445,7 @@ class Function: public Declaration, public std::enable_shared_from_this<Function
 {
 public:
   std::string NAME;
+  std::shared_ptr<Identifier> dummyNAME;
   // dummy version of FORMALS
   std::vector<std::shared_ptr<IdentifierDeclaration>> dummyFORMALS;
   std::vector<std::string> FORMALS;
@@ -448,7 +459,8 @@ public:
       : NAME(NAME), FORMALS(std::move(FORMALS)), DECLS(std::move(DECLS)),
         BODY(std::move(BODY)), LINE(LINE) 
         {
-          for(const auto& arg:FORMALS)
+          dummyNAME = std::make_shared<Identifier>(this->NAME,-1);
+          for(const auto& arg:this->FORMALS)
           {
             dummyFORMALS.push_back(std::make_shared<IdentifierDeclaration>(arg,LINE));
           }
