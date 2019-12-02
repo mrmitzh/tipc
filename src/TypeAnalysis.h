@@ -54,8 +54,7 @@ public:
   void  visitErrorStmt(std::shared_ptr<ErrorStmt> root) override;
   void  visitReturnStmt(std::shared_ptr<ReturnStmt> root) override;
   void  visitFunction(std::shared_ptr<Function> root) override;
-  void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) override;
-  void  visitIdentifier(std::shared_ptr<Identifier> root) override;
+  void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) override;\
 
   void collectResult(std::shared_ptr<TIPtree::Program> program);
   std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> getCollectedResult();  
@@ -67,7 +66,7 @@ private:
   UnionFindSolver solver;
   bool visitingFromMain = false;
   std::vector<std::string> allFieldNames;
-  std::unordered_map<std::shared_ptr<Identifier>, std::shared_ptr<Declaration>> declData;
+  std::unordered_map<std::shared_ptr<VariableExpr>, std::shared_ptr<Declaration>> declData;
 public:
   TypeAnalysis() = default;
   ~TypeAnalysis() = default;

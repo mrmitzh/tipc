@@ -33,12 +33,12 @@ void  TIPAstVisitorWithEnv::visitAllocExpr(std::shared_ptr<AllocExpr> root,std::
 
 void  TIPAstVisitorWithEnv::visitRefExpr(std::shared_ptr<RefExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
-  if(std::dynamic_pointer_cast<Identifier>(root->ARG))
+  if(std::dynamic_pointer_cast<VariableExpr>(root->ARG))
   {
-    auto id = std::dynamic_pointer_cast<Identifier>(root->ARG);
-    if(env.find(id->value) != env.end())
+    auto id = std::dynamic_pointer_cast<VariableExpr>(root->ARG);
+    if(env.find(id->NAME) != env.end())
     {
-      auto decl = env[id->value];
+      auto decl = env[id->NAME];
       if(std::dynamic_pointer_cast<Function>(decl))
       {
         std::cerr << "Cannot take address of function " << "\n";
@@ -85,15 +85,15 @@ void  TIPAstVisitorWithEnv::visitBlockStmt(std::shared_ptr<BlockStmt> root,std::
 
 void  TIPAstVisitorWithEnv::visitAssignmentStmt(std::shared_ptr<AssignStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
-  if(std::dynamic_pointer_cast<Identifier>(root->LHS))
+  if(std::dynamic_pointer_cast<VariableExpr>(root->LHS))
   {
-    auto id = std::dynamic_pointer_cast<Identifier>(root->LHS);
-    if(env.find(id->value) != env.end())
+    auto id = std::dynamic_pointer_cast<VariableExpr>(root->LHS);
+    if(env.find(id->NAME) != env.end())
     {
-      auto decl = env[id->value];
+      auto decl = env[id->NAME];
       if(std::dynamic_pointer_cast<Function>(decl))
       {
-        std::cerr << "Function identifier cannot appears on the leaf-hand side of an assignment " << "\n";
+        std::cerr << "Function VariableExpr cannot appears on the leaf-hand side of an assignment " << "\n";
       }
     }
   }
@@ -161,21 +161,22 @@ void  TIPAstVisitorWithEnv::visitIdentifierDeclaration(std::shared_ptr<Identifie
   visitChildren(root,env);
 }
 
-void  TIPAstVisitorWithEnv::visitIdentifier(std::shared_ptr<Identifier> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
-{
-  std::cout << "Entering visitIdentifier" << "\n";
-  if(env.find(root->value) != env.end())
-  {
-    declResult[root] = env[root->value];
-  }else
-  {
-    std::cerr << "Identifier not declared" << "\n";
-  }
-  visitChildren(root,env);
-  std::cout << "Existing visitIdentifier" << "\n";
-}
+// TODO: move to VariableExpr 
+// void  TIPAstVisitorWithEnv::visitIdentifier(std::shared_ptr<Identifier> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
+// {
+//   std::cout << "Entering visitIdentifier" << "\n";
+//   if(env.find(root->value) != env.end())
+//   {
+//     declResult[root] = env[root->value];
+//   }else
+//   {
+//     std::cerr << "Identifier not declared" << "\n";
+//   }
+//   visitChildren(root,env);
+//   std::cout << "Existing visitIdentifier" << "\n";
+// }
 
-std::unordered_map<std::shared_ptr<Identifier>,std::shared_ptr<Declaration>>  TIPAstVisitorWithEnv::analysis(std::shared_ptr<Program> root)
+std::unordered_map<std::shared_ptr<VariableExpr>,std::shared_ptr<Declaration>>  TIPAstVisitorWithEnv::analysis(std::shared_ptr<Program> root)
 {
   std::unordered_map<std::string,std::shared_ptr<Declaration>> env;
   for(auto function:root->FUNCTIONS)
@@ -204,8 +205,7 @@ void  TIPAstVisitorWithEnv::visitChildren(std::shared_ptr<Node> root,std::unorde
     std::dynamic_pointer_cast<VariableExpr>(root) || 
     std::dynamic_pointer_cast<InputExpr>(root) ||
     std::dynamic_pointer_cast<NullExpr>(root) ||
-    std::dynamic_pointer_cast<IdentifierDeclaration>(root) ||
-    std::dynamic_pointer_cast<Identifier>(root) )
+    std::dynamic_pointer_cast<IdentifierDeclaration>(root))
   {
     //EMPTY
   }else if(std::dynamic_pointer_cast<DeclStmt>(root))
@@ -1359,48 +1359,6 @@ void  CollectSolution::visitIdentifierDeclaration(std::shared_ptr<IdentifierDecl
   visitChildren(root);
 }
 
-void  CollectSolution::visitIdentifier(std::shared_ptr<Identifier> root) 
-{
-  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
-  {
-    auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-    std::cout << result->getType() << "\n";
-    std::cout << "Yes" << "\n";
-    std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
-    std::cout << ret.size() << "\n";
-  }
-  visitChildren(root);
-}
 
 
 
@@ -1623,7 +1581,7 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
   std::cout << "-----------------------------------" << "\n";
   for(auto decl:declData)
   {
-    std::cout << decl.first->value << " : " << decl.second->get_type()  << "\n";
+    std::cout << decl.first->NAME << " : " << decl.second->get_type()  << "\n";
   }
   std::cout << "-----------------------------------" << "\n";
 
@@ -1654,9 +1612,9 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
 
 std::shared_ptr<Var> TypeAnalysis::ast2typevar(std::shared_ptr<Node> root)
 {
-  if(std::dynamic_pointer_cast<Identifier>(root))
+  if(std::dynamic_pointer_cast<VariableExpr>(root))
   {
-    auto id = std::dynamic_pointer_cast<Identifier>(root);
+    auto id = std::dynamic_pointer_cast<VariableExpr>(root);
     return std::make_shared<TipVar>(declData[id]);
   }else
   {

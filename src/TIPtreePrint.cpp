@@ -241,17 +241,6 @@ std::string IdentifierDeclaration::get_type()
 }
 
 
-std::string Identifier::type()
-{
-  return "Identifier";
-}
-
-std::string Identifier::get_type()
-{
-  return Identifier::type();
-}
-
-
 void NumberExpr::accept(TIPAstVisitor& visitor) 
 {
   visitor.visitNumExpr(shared_from_this());
@@ -362,10 +351,6 @@ void IdentifierDeclaration::accept(TIPAstVisitor& visitor)
   visitor.visitIdentifierDeclaration(shared_from_this());
 }
 
-void Identifier::accept(TIPAstVisitor& visitor)
-{
-  visitor.visitIdentifier(shared_from_this());
-}
 
 void NumberExpr::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env) 
 {
@@ -477,10 +462,6 @@ void IdentifierDeclaration::accept(TIPAstVisitorWithEnv& visitor,std::unordered_
   visitor.visitIdentifierDeclaration(shared_from_this(),env);
 }
 
-void Identifier::accept(TIPAstVisitorWithEnv& visitor,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
-{
-  visitor.visitIdentifier(shared_from_this(),env);
-}
 
 
 std::string Program::print(std::string i, bool pl = false) {

@@ -112,11 +112,6 @@ void  TIPAstVisitor::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclar
     visitChildren(root);
 }
 
-void  TIPAstVisitor::visitIdentifier(std::shared_ptr<Identifier> root)
-{
-    visitChildren(root);
-}
-
 void  TIPAstVisitor::visit(std::shared_ptr<Node> root)
 {
     root->accept(*this);
@@ -129,8 +124,7 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
     std::dynamic_pointer_cast<VariableExpr>(root) ||
     std::dynamic_pointer_cast<InputExpr>(root) ||
     std::dynamic_pointer_cast<NullExpr>(root) ||
-    std::dynamic_pointer_cast<IdentifierDeclaration>(root) ||
-    std::dynamic_pointer_cast<Identifier>(root))
+    std::dynamic_pointer_cast<IdentifierDeclaration>(root))
   {
 
   }else if(std::dynamic_pointer_cast<DeclStmt>(root))

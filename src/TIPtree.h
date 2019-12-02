@@ -67,22 +67,6 @@ public:
   // delegating the obligation to override the functions
 };
 
-// Identifier
-class Identifier: public Expr, public std::enable_shared_from_this<Identifier>
-{
-public:
-  std::string value;
-  int line;
-  Identifier(std::string value,int line):value(value),line(line){};
-  ~Identifier() = default;
-  static std::string type();
-  std::string get_type() override;
-  llvm::Value *codegen() override {return nullptr;};
-  std::string print() override {return "";}
-  void accept(TIPAstVisitor& visitor) override;
-  void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
-
-};
 
 // NumberExpr - Expression class for numeric literals
 class NumberExpr : public Expr, public std::enable_shared_from_this<NumberExpr>
@@ -236,12 +220,12 @@ class FieldExpr : public Expr, public std::enable_shared_from_this<FieldExpr>
 {
 public:
   std::string FIELD;
-  std::shared_ptr<Identifier> dummyFIELD;
+  std::shared_ptr<VariableExpr> dummyFIELD;
   std::shared_ptr<Expr> INIT;
 
   FieldExpr(const std::string &FIELD, std::shared_ptr<Expr> INIT)
       : FIELD(FIELD), INIT(std::move(INIT)) {
-        dummyFIELD = std::make_shared<Identifier>(FIELD, -1);
+        dummyFIELD = std::make_shared<VariableExpr>(FIELD);
       }
   llvm::Value *codegen() override;
   static std::string type();
@@ -275,12 +259,12 @@ class AccessExpr : public Expr, public std::enable_shared_from_this<AccessExpr>
 public:
   std::shared_ptr<Expr> RECORD;
   std::string FIELD;
-  std::shared_ptr<Identifier> dummyFIELD;
+  std::shared_ptr<VariableExpr> dummyFIELD;
 
   AccessExpr(std::shared_ptr<Expr> RECORD, const std::string &FIELD)
       : RECORD(std::move(RECORD)), FIELD(FIELD) 
       {
-        dummyFIELD = std::make_shared<Identifier>(this->FIELD,-1);
+        dummyFIELD = std::make_shared<VariableExpr>(this->FIELD);
       }
   llvm::Value *codegen() override;
   std::string print() override;
@@ -445,7 +429,7 @@ class Function: public Declaration, public std::enable_shared_from_this<Function
 {
 public:
   std::string NAME;
-  std::shared_ptr<Identifier> dummyNAME;
+  std::shared_ptr<VariableExpr> dummyNAME;
   // dummy version of FORMALS
   std::vector<std::shared_ptr<IdentifierDeclaration>> dummyFORMALS;
   std::vector<std::string> FORMALS;
@@ -459,7 +443,7 @@ public:
       : NAME(NAME), FORMALS(std::move(FORMALS)), DECLS(std::move(DECLS)),
         BODY(std::move(BODY)), LINE(LINE) 
         {
-          dummyNAME = std::make_shared<Identifier>(this->NAME,-1);
+          dummyNAME = std::make_shared<VariableExpr>(this->NAME);
           for(const auto& arg:this->FORMALS)
           {
             dummyFORMALS.push_back(std::make_shared<IdentifierDeclaration>(arg,LINE));
@@ -520,7 +504,6 @@ public:
   virtual void  visitReturnStmt(std::shared_ptr<ReturnStmt> root);
   virtual void  visitFunction(std::shared_ptr<Function> root);
   virtual void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root);
-  virtual void  visitIdentifier(std::shared_ptr<Identifier> root);
   virtual void  visit(std::shared_ptr<Node> root);
 protected:
   void  visitChildren(std::shared_ptr<Node> root);
@@ -551,17 +534,16 @@ public:
   void  visitReturnStmt(std::shared_ptr<ReturnStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
   void  visitFunction(std::shared_ptr<Function> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
   void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
-  void  visitIdentifier(std::shared_ptr<Identifier> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
   void  visit(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
   void  visitChildren(std::shared_ptr<Node> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env);
 
-  std::unordered_map<std::shared_ptr<Identifier>,std::shared_ptr<Declaration>>  analysis(std::shared_ptr<Program> root);
+  std::unordered_map<std::shared_ptr<VariableExpr>,std::shared_ptr<Declaration>>  analysis(std::shared_ptr<Program> root);
 
 private:
   std::unordered_map<std::string,std::shared_ptr<Declaration>> extendEnv(std::unordered_map<std::string,std::shared_ptr<Declaration>> env, std::unordered_map<std::string,std::shared_ptr<Declaration>> ext);
   std::unordered_map<std::string,std::shared_ptr<Declaration>> extendEnv(std::unordered_map<std::string,std::shared_ptr<Declaration>> env, std::pair<std::string,std::shared_ptr<Declaration>> ext);
   std::unordered_map<std::string,std::shared_ptr<Declaration>> peekDecl(std::vector<std::shared_ptr<DeclStmt>> decls);
-  std::unordered_map<std::shared_ptr<Identifier>,std::shared_ptr<Declaration>> declResult;
+  std::unordered_map<std::shared_ptr<VariableExpr>,std::shared_ptr<Declaration>> declResult;
 };
 
 
