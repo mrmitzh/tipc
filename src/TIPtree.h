@@ -53,7 +53,7 @@ public:
   static std::string type();
   std::string get_type() override;
   llvm::Value *codegen() override {};
-  std::string print() override {};
+  std::string print() override { return "";}
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
@@ -78,7 +78,7 @@ public:
   static std::string type();
   std::string get_type() override;
   llvm::Value *codegen() override {};
-  std::string print() override {};
+  std::string print() override {return "";}
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 

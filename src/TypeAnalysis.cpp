@@ -883,6 +883,10 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
 
   auto solution = solver.solution();
   std::cout << "solution size: " << solution.size() << "\n";
+  for(const auto& pair: solution){
+    std::cout << "var: "<< pair.first->toString()  << " term: " <<pair.second->toString() << std::endl;
+  }
+
   // collect solution
   CollectSolution collectSolution(solution);
   collectSolution.collectResult(program);
