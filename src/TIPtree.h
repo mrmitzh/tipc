@@ -52,7 +52,7 @@ public:
   ~IdentifierDeclaration() = default;
   static std::string type();
   std::string get_type() override;
-  llvm::Value *codegen() override {};
+  llvm::Value *codegen() override { nullptr };
   std::string print() override { return "";}
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
@@ -77,7 +77,7 @@ public:
   ~Identifier() = default;
   static std::string type();
   std::string get_type() override;
-  llvm::Value *codegen() override {};
+  llvm::Value *codegen() override {return nullptr};
   std::string print() override {return "";}
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
