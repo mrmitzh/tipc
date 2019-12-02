@@ -8,7 +8,16 @@ void  TIPAstVisitorWithEnv::visitNumExpr(std::shared_ptr<NumberExpr> root,std::u
 
 void  TIPAstVisitorWithEnv::visitVarExpr(std::shared_ptr<VariableExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
+  std::cout << "Entering VariableExpr" << "\n";
+  if(env.find(root->NAME) != env.end())
+  {
+    declResult[root] = env[root->NAME];
+  }else
+  {
+    std::cerr << "Identifier not declared" << "\n";
+  }
   visitChildren(root,env);
+  std::cout << "Existing VariableExpr" << "\n";
 }
 
 void  TIPAstVisitorWithEnv::visitBinaryExpr(std::shared_ptr<BinaryExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
@@ -161,20 +170,6 @@ void  TIPAstVisitorWithEnv::visitIdentifierDeclaration(std::shared_ptr<Identifie
   visitChildren(root,env);
 }
 
-// TODO: move to VariableExpr 
-// void  TIPAstVisitorWithEnv::visitIdentifier(std::shared_ptr<Identifier> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
-// {
-//   std::cout << "Entering visitIdentifier" << "\n";
-//   if(env.find(root->value) != env.end())
-//   {
-//     declResult[root] = env[root->value];
-//   }else
-//   {
-//     std::cerr << "Identifier not declared" << "\n";
-//   }
-//   visitChildren(root,env);
-//   std::cout << "Existing visitIdentifier" << "\n";
-// }
 
 std::unordered_map<std::shared_ptr<VariableExpr>,std::shared_ptr<Declaration>>  TIPAstVisitorWithEnv::analysis(std::shared_ptr<Program> root)
 {
