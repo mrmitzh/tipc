@@ -1355,6 +1355,19 @@ void  CollectSolution::visitIdentifierDeclaration(std::shared_ptr<IdentifierDecl
 }
 
 
+void CollectSolution::collectResult(std::shared_ptr<TIPtree::Program> program)
+{
+  for(auto function:program->FUNCTIONS)
+  {
+    visit(function);
+  }
+}
+
+std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> CollectSolution::getCollectedResult()
+{
+  return ret;
+}
+
 
 
 
