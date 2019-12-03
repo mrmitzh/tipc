@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
+#include <iostream>
 #include <string>
 
 class Var;
@@ -14,11 +15,10 @@ class Term
 {
 public:
     bool isValid = true;
-    Term() {}
-    Term(bool isValid) :isValid(isValid) {}
+    Term() = default;
     virtual ~Term() = default;
-    virtual std::set<std::shared_ptr<Var>> fv() {};
-    virtual std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) {};
+    virtual std::set<std::shared_ptr<Var>> fv() { return std::set<std::shared_ptr<Var>>();};
+    virtual std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) {return std::make_shared<Term>();};
     static std::string type();
     virtual std::string getType();
     virtual std::string toString();

@@ -112,11 +112,6 @@ void  TIPAstVisitor::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclar
     visitChildren(root);
 }
 
-void  TIPAstVisitor::visitIdentifier(std::shared_ptr<Identifier> root)
-{
-    visitChildren(root);
-}
-
 void  TIPAstVisitor::visit(std::shared_ptr<Node> root)
 {
     root->accept(*this);
@@ -125,28 +120,26 @@ void  TIPAstVisitor::visit(std::shared_ptr<Node> root)
 
 void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
 {
-  if(root->get_type() == NumberExpr::type() || 
-    root->get_type() == VariableExpr::type() || 
-    root->get_type() == InputExpr::type() ||
-    root->get_type() == NullExpr::type() ||
-    root->get_type() == IdentifierDeclaration::type() ||
-    root->get_type() == Identifier::type())
+  if(std::dynamic_pointer_cast<NumberExpr>(root) ||
+    std::dynamic_pointer_cast<VariableExpr>(root) ||
+    std::dynamic_pointer_cast<InputExpr>(root) ||
+    std::dynamic_pointer_cast<NullExpr>(root) ||
+    std::dynamic_pointer_cast<IdentifierDeclaration>(root))
   {
-    //EMPTY
-  }else if(root->get_type() == DeclStmt::type())
+
+  }else if(std::dynamic_pointer_cast<DeclStmt>(root))
   {
     auto decl = std::dynamic_pointer_cast<DeclStmt>(root);
     for(auto dummyVar:decl->dummyVars)
     {
       visit(dummyVar);
     }
-  }
-  else if(root->get_type() == BinaryExpr::type())
+  }else if(std::dynamic_pointer_cast<BinaryExpr>(root))
   {
     auto binaryExpr = std::dynamic_pointer_cast<BinaryExpr>(root);
     visit(binaryExpr->LHS);
     visit(binaryExpr->RHS);
-  }else if(root->get_type() == FunAppExpr::type())
+  }else if(std::dynamic_pointer_cast<FunAppExpr>(root))
   {
     auto funApp = std::dynamic_pointer_cast<FunAppExpr>(root);
     visit(funApp->FUN);
@@ -154,71 +147,74 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
     {
         visit(actual);
     }
-  }else if(root->get_type() == AllocExpr::type())
+  }else if(std::dynamic_pointer_cast<AllocExpr>(root))
   {
     auto alloc = std::dynamic_pointer_cast<AllocExpr>(root);
     visit(alloc->ARG);
-  }else if(root->get_type() == RefExpr::type())
+  }else if(std::dynamic_pointer_cast<RefExpr>(root))
   {
     auto refExpr = std::dynamic_pointer_cast<RefExpr>(root);
     visit(refExpr->ARG);
-  }else if(root->get_type() == DeRefExpr::type())
+  }else if(std::dynamic_pointer_cast<DeRefExpr>(root))
   {
     auto deRef = std::dynamic_pointer_cast<DeRefExpr>(root);
     visit(deRef->ARG);
-  }else if(root->get_type() == FieldExpr::type())
+  }else if(std::dynamic_pointer_cast<FieldExpr>(root))
   {
     auto fieldExpr = std::dynamic_pointer_cast<FieldExpr>(root);
+    visit(fieldExpr->dummyFIELD);
     visit(fieldExpr->INIT);
-  }else if(root->get_type() == RecordExpr::type())
+  }else if(std::dynamic_pointer_cast<RecordExpr>(root))
   {
     auto recordExpr = std::dynamic_pointer_cast<RecordExpr>(root);
     for(auto field:recordExpr->FIELDS)
     {
       visit(field);
     }
-  }else if(root->get_type() == AccessExpr::type())
+  }else if(std::dynamic_pointer_cast<AccessExpr>(root))
   {
     auto accessExpr = std::dynamic_pointer_cast<AccessExpr>(root);
+    visit(accessExpr->dummyFIELD);
     visit(accessExpr->RECORD);
-  }else if(root->get_type() == BlockStmt::type())
+  }else if(std::dynamic_pointer_cast<BlockStmt>(root))
   {
     auto blockStmt = std::dynamic_pointer_cast<BlockStmt>(root);
     for(auto statement:blockStmt->STMTS)
     {
       visit(statement);
     }
-  }else if(root->get_type() == AssignStmt::type())
+  }else if(std::dynamic_pointer_cast<AssignStmt>(root))
   {
     auto assignStmt = std::dynamic_pointer_cast<AssignStmt>(root);
     visit(assignStmt->RHS);
     visit(assignStmt->LHS);
-  }else if(root->get_type() == WhileStmt::type())
+  }else if(std::dynamic_pointer_cast<WhileStmt>(root))
   {
     auto whileStmt = std::dynamic_pointer_cast<WhileStmt>(root);
     visit(whileStmt->COND);
     visit(whileStmt->BODY);
-  }else if(root->get_type() == IfStmt::type())
+  }else if(std::dynamic_pointer_cast<IfStmt>(root))
   {
     auto ifStmt = std::dynamic_pointer_cast<IfStmt>(root);
     visit(ifStmt->COND);
     visit(ifStmt->THEN);
     visit(ifStmt->ELSE);
-  }else if(root->get_type() == OutputStmt::type())
+  }else if(std::dynamic_pointer_cast<OutputStmt>(root))
   {
     auto outputStmt = std::dynamic_pointer_cast<OutputStmt>(root);
     visit(outputStmt->ARG);
-  }else if(root->get_type() == ErrorStmt::type())
+  }else if(std::dynamic_pointer_cast<ErrorStmt>(root))
   {
     auto errorStmt = std::dynamic_pointer_cast<ErrorStmt>(root);
     visit(errorStmt->ARG);
-  }else if(root->get_type() == ReturnStmt::type())
+  }else if(std::dynamic_pointer_cast<ReturnStmt>(root))
   {
     auto returnStmt = std::dynamic_pointer_cast<ReturnStmt>(root);
     visit(returnStmt->ARG);
-  }else if(root->get_type() == TIPtree::Function::type())
+  }else if(std::dynamic_pointer_cast<TIPtree::Function>(root))
   {
     auto function = std::dynamic_pointer_cast<TIPtree::Function>(root);
+    visit(function->dummyNAME);
     for(auto formal:function->dummyFORMALS)
     {
       visit(formal);

@@ -88,8 +88,7 @@ static std::shared_ptr<Function> visitedFunction = nullptr;
  * that interact with LLVM and are thus constrained to C++ 11.
  */
 
-std::shared_ptr<TIPtree::Program>
-TIPtreeBuild::build(TIPParser::ProgramContext *ctx) {
+std::shared_ptr<TIPtree::Program> TIPtreeBuild::build(TIPParser::ProgramContext *ctx) {
   std::vector<std::shared_ptr<Function>> pFunctions;
   for (auto fn : ctx->function()) {
     visit(fn);
@@ -273,7 +272,7 @@ Any TIPtreeBuild::visitAllocExpr(TIPParser::AllocExprContext *ctx) {
 Any TIPtreeBuild::visitRefExpr(TIPParser::RefExprContext *ctx) {
   std::string vName = ctx->IDENTIFIER()->getText();
   int line = ctx->IDENTIFIER()->getSymbol()->getLine();
-  visitedExpr = std::make_shared<RefExpr>(vName,std::make_shared<Identifier>(vName,line));
+  visitedExpr = std::make_shared<RefExpr>(vName,std::make_shared<VariableExpr>(vName));
   return "";
 }
 
@@ -354,6 +353,13 @@ Any TIPtreeBuild::visitDeclaration(TIPParser::DeclarationContext *ctx) {
     dLine = id->getSymbol()->getLine();
     dVars.push_back(std::move(id->getText()));
   }
+  std::cout << "-----" << "\n";
+  std::cout << dLine << "\n";
+  for (auto text:dVars)
+  {
+    std::cout << text << "\n";
+  }
+  std::cout << "-----" << "\n";
   visitedDeclStmt = std::make_shared<DeclStmt>(std::move(dVars), dLine);
   return "";
 }

@@ -12,25 +12,22 @@ void UnionFindSolver::unify(std::shared_ptr<Term> t1,std::shared_ptr<Term> t2)
     if(parent_t1 == parent_t2)
         return;
 
-    auto type_of_t1 = t1->getType();
-    auto type_of_t2 = t2->getType();
-
-    if(type_of_t1 == Var::type() && type_of_t2 == Var::type())
+    if(std::dynamic_pointer_cast<Var>(t1) && std::dynamic_pointer_cast<Var>(t2))
     {
         auto v1 = std::dynamic_pointer_cast<Var>(t1);
         auto v2 = std::dynamic_pointer_cast<Var>(t2);
         makeUnion(v1,v2);
-    }else if(type_of_t1 == Var::type() && type_of_t2 == Term::type())
+    }else if(std::dynamic_pointer_cast<Var>(t1) && std::dynamic_pointer_cast<Term>(t2))
     {
         auto v1 = std::dynamic_pointer_cast<Var>(t1);
         auto v2 = std::dynamic_pointer_cast<Term>(t2);
         makeUnion(v1,v2);
-    }else if(type_of_t1 == Term::type() && type_of_t2 == Var::type())
+    }else if(std::dynamic_pointer_cast<Term>(t1) && std::dynamic_pointer_cast<Var>(t2))
     {
         auto v1 = std::dynamic_pointer_cast<Term>(t1);
         auto v2 = std::dynamic_pointer_cast<Var>(t2);
         makeUnion(v2,v1);
-    }else if(type_of_t1 == Cons::type() && type_of_t2 == Cons::type())
+    }else if(std::dynamic_pointer_cast<Cons>(t1) && std::dynamic_pointer_cast<Cons>(t2))
     {
         auto f1 = std::dynamic_pointer_cast<Cons>(t1);
         auto f2 = std::dynamic_pointer_cast<Cons>(t2);
@@ -82,9 +79,9 @@ std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> UnionFindSolver::
     std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> ret;
     for(const auto& pair:parent)
     {
-        if(pair.first->getType() == Var::type())
+        auto var = std::dynamic_pointer_cast<Var>(pair.first);
+        if(var)
         {
-            auto var = std::dynamic_pointer_cast<Var>(pair.first);
             ret[var] = find(pair.first);
         }
     }
