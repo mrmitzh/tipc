@@ -1,8 +1,20 @@
 #include "UnionFindSolver.h"
 
+std::shared_ptr<Term> UnionFindSolver::getTypeOrDefault(std::shared_ptr<Term> type)
+{
+  if(typeMapping.find(type->toString()) != typeMapping.end())
+  {
+    return typeMapping[type->toString()];
+  }
+  typeMapping[type->toString()] = type;
+  return type;
+}
 
 void UnionFindSolver::unify(std::shared_ptr<Term> t1,std::shared_ptr<Term> t2)
 {
+    t1 = getTypeOrDefault(t1);
+    t2 = getTypeOrDefault(t2);
+
     makeSet(t1);
     makeSet(t2);
 

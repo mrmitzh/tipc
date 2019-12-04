@@ -67,9 +67,11 @@ private:
   bool visitingFromMain = false;
   std::vector<std::string> allFieldNames;
   std::unordered_map<std::shared_ptr<VariableExpr>, std::shared_ptr<Declaration>> declData;
+  std::unordered_map<std::string,std::shared_ptr<Term>> typeMapping;
 public:
   TypeAnalysis() = default;
   ~TypeAnalysis() = default;
+  std::shared_ptr<Term> getTypeOrDefault(std::shared_ptr<Term> type);
   void  visitNumExpr(std::shared_ptr<NumberExpr> root) override;
   void  visitVarExpr(std::shared_ptr<VariableExpr> root) override;
   void  visitBinaryExpr(std::shared_ptr<BinaryExpr> root) override;

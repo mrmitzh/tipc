@@ -7,7 +7,10 @@
 
 class UnionFindSolver
 {
+private:
+    std::unordered_map<std::string,std::shared_ptr<Term>> typeMapping;
 public:
+    std::shared_ptr<Term> getTypeOrDefault(std::shared_ptr<Term> type);
     std::unordered_map<std::shared_ptr<Term>,std::shared_ptr<Term>> parent;
     void unify(std::shared_ptr<Term> t1,std::shared_ptr<Term> t2);
     std::shared_ptr<Term> find(std::shared_ptr<Term> p);
