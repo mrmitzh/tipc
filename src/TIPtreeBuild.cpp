@@ -228,7 +228,8 @@ Any TIPtreeBuild::visitNumExpr(TIPParser::NumExprContext *ctx) {
 
 Any TIPtreeBuild::visitIdExpr(TIPParser::IdExprContext *ctx) {
   std::string name = ctx->IDENTIFIER()->getText();
-  visitedExpr = std::make_shared<VariableExpr>(name);
+  int line = ctx->IDENTIFIER()->getSymbol()->getLine();
+  visitedExpr = std::make_shared<VariableExpr>(name,line);
   return "";
 }
 
@@ -244,7 +245,8 @@ Any TIPtreeBuild::visitFunAppExpr(TIPParser::FunAppExprContext *ctx) {
   // function determined by name or computed expression
   if (ctx->IDENTIFIER() != nullptr) {
     std::string name = ctx->IDENTIFIER()->getText();
-    fExpr = std::make_shared<VariableExpr>(name);
+    int line = ctx->IDENTIFIER()->getSymbol()->getLine();
+    fExpr = std::make_shared<VariableExpr>(name,line);
   } else if (ctx->parenExpr() != nullptr) {
     visit(ctx->parenExpr());
     fExpr = std::move(visitedExpr);
@@ -272,7 +274,7 @@ Any TIPtreeBuild::visitAllocExpr(TIPParser::AllocExprContext *ctx) {
 Any TIPtreeBuild::visitRefExpr(TIPParser::RefExprContext *ctx) {
   std::string vName = ctx->IDENTIFIER()->getText();
   int line = ctx->IDENTIFIER()->getSymbol()->getLine();
-  visitedExpr = std::make_shared<RefExpr>(vName,std::make_shared<VariableExpr>(vName));
+  visitedExpr = std::make_shared<RefExpr>(vName,std::make_shared<VariableExpr>(vName,line));
   return "";
 }
 
@@ -314,7 +316,8 @@ Any TIPtreeBuild::visitAccessExpr(TIPParser::AccessExprContext *ctx) {
   // elements in the IDENTIFIER vector in this context.
   if (ctx->IDENTIFIER().size() == 2) {
     std::string rName = ctx->IDENTIFIER(0)->getText();
-    rExpr = std::make_shared<VariableExpr>(rName);
+    int line = ctx->IDENTIFIER(0)->getSymbol()->getLine();
+    rExpr = std::make_shared<VariableExpr>(rName,line);
   } else if (ctx->deRefExpr() != nullptr) {
     visit(ctx->deRefExpr());
     rExpr = std::move(visitedExpr);
@@ -335,7 +338,8 @@ Any TIPtreeBuild::visitAccessExpr(TIPParser::AccessExprContext *ctx) {
 Any TIPtreeBuild::visitAssignableExpr(TIPParser::AssignableExprContext *ctx) {
   if (ctx->IDENTIFIER() != nullptr) {
     std::string aName = ctx->IDENTIFIER()->getText();
-    visitedExpr = std::make_shared<VariableExpr>(aName);
+    int line = ctx->IDENTIFIER()->getSymbol()->getLine();
+    visitedExpr = std::make_shared<VariableExpr>(aName,line);
   } else if (ctx->deRefExpr() != nullptr) {
     visit(ctx->deRefExpr());
     // leave visitedExpr from deRefExpr unchanged

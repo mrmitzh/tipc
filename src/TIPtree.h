@@ -88,8 +88,8 @@ class VariableExpr : public Expr, public std::enable_shared_from_this<VariableEx
 {
 public:
   std::string NAME;
-
-  VariableExpr(const std::string &NAME) : NAME(NAME) {}
+  int line;
+  VariableExpr(const std::string &NAME,int line = -1) : NAME(NAME),line(line) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
