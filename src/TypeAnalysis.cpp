@@ -178,8 +178,11 @@ std::unordered_map<std::shared_ptr<VariableExpr>,std::shared_ptr<Declaration>>  
   {
     std::cout << function->NAME << "\n";
     std::unordered_map<std::string,std::shared_ptr<Declaration>> ext;
-    ext[function->NAME] = function;
-    env = extendEnv(env,ext);
+    if(function->NAME != "main")
+    {
+      ext[function->NAME] = function;
+      env = extendEnv(env,ext);
+    }
     std::cout << env.size() << "\n";
   }
   for(auto function:root->FUNCTIONS)
@@ -1574,7 +1577,7 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
   std::cout << "-----------------------------------" << "\n";
   for(auto decl:declData)
   {
-    std::cout << decl.first->NAME << " : " << decl.second->get_type()  << "\n";
+    std::cout << decl.first->NAME << " : " << decl.first->line << " -> " << decl.second->get_type()  << "\n";
   }
   std::cout << "-----------------------------------" << "\n";
 
