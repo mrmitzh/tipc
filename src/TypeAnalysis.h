@@ -28,6 +28,7 @@ class CollectSolution: public TIPAstVisitor
 private:
   std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> ret;
   std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> sol;
+  void storeResult(std::shared_ptr<Node> root,std::shared_ptr<Term> result);
 public:
   CollectSolution(std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> sol)
     :sol(sol)

@@ -1,4 +1,5 @@
 #include "TypeAnalysis.h"
+#include "TypeMapping.h"
 
 void  TIPAstVisitorWithEnv::visitNumExpr(std::shared_ptr<NumberExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
@@ -411,16 +412,16 @@ void CollectAppearingFields::visitRecordExpr(std::shared_ptr<RecordExpr> root)
   visitChildren(root);
 }
 
-void  CollectSolution::visitNumExpr(std::shared_ptr<NumberExpr> root) 
+void CollectSolution::storeResult(std::shared_ptr<Node> root,std::shared_ptr<Term> result)
 {
-  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  static std::unordered_set<std::string> set;
+  std::string key = "[[" + root->print() + "]] = " + " " + result->toString();
+  if(set.find(key) != set.end())
   {
-    auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
-    std::cout << result->getType() << "\n";
-    std::cout << "Yes" << "\n";
-    std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
+    return;
+  }
+  set.insert(key);
+  if(std::dynamic_pointer_cast<TipInt>(result))
     {
       auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
       ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
@@ -449,6 +450,18 @@ void  CollectSolution::visitNumExpr(std::shared_ptr<NumberExpr> root)
       auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
       ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
     }
+}
+
+void  CollectSolution::visitNumExpr(std::shared_ptr<NumberExpr> root) 
+{
+  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  {
+    auto typeOps = std::make_shared<TipTypeOps>();
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
+    std::cout << result->getType() << "\n";
+    std::cout << "Yes" << "\n";
+    std::cout << ret.size() << "\n";
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -459,39 +472,11 @@ void  CollectSolution::visitVarExpr(std::shared_ptr<VariableExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -502,39 +487,11 @@ void  CollectSolution::visitBinaryExpr(std::shared_ptr<BinaryExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -545,39 +502,11 @@ void  CollectSolution::visitFunAppExpr(std::shared_ptr<FunAppExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -588,39 +517,11 @@ void  CollectSolution::visitInputExpr(std::shared_ptr<InputExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -631,39 +532,11 @@ void  CollectSolution::visitAllocExpr(std::shared_ptr<AllocExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -674,39 +547,11 @@ void  CollectSolution::visitRefExpr(std::shared_ptr<RefExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -717,39 +562,11 @@ void  CollectSolution::visitDeRefExpr(std::shared_ptr<DeRefExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -760,39 +577,11 @@ void  CollectSolution::visitNullExpr(std::shared_ptr<NullExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -803,39 +592,11 @@ void  CollectSolution::visitFieldExpr(std::shared_ptr<FieldExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -846,39 +607,11 @@ void  CollectSolution::visitRecordExpr(std::shared_ptr<RecordExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -889,39 +622,11 @@ void  CollectSolution::visitAccessExpr(std::shared_ptr<AccessExpr> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -932,39 +637,11 @@ void  CollectSolution::visitDeclaration(std::shared_ptr<DeclStmt> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -975,39 +652,11 @@ void  CollectSolution::visitBlockStmt(std::shared_ptr<BlockStmt> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -1018,39 +667,11 @@ void  CollectSolution::visitAssignmentStmt(std::shared_ptr<AssignStmt> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -1061,39 +682,11 @@ void  CollectSolution::visitWhileStmt(std::shared_ptr<WhileStmt> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -1104,39 +697,11 @@ void  CollectSolution::visitIfStmt(std::shared_ptr<IfStmt> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -1147,39 +712,11 @@ void  CollectSolution::visitOutputStmt(std::shared_ptr<OutputStmt> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -1190,39 +727,11 @@ void  CollectSolution::visitErrorStmt(std::shared_ptr<ErrorStmt> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -1233,39 +742,11 @@ void  CollectSolution::visitReturnStmt(std::shared_ptr<ReturnStmt> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -1276,39 +757,11 @@ void  CollectSolution::visitFunction(std::shared_ptr<Function> root)
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);
@@ -1319,39 +772,11 @@ void  CollectSolution::visitIdentifierDeclaration(std::shared_ptr<IdentifierDecl
   if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
   {
     auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(std::make_shared<TipVar>(root),sol);
+    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     std::cout << result->getType() << "\n";
     std::cout << "Yes" << "\n";
     std::cout << ret.size() << "\n";
-    if(std::dynamic_pointer_cast<TipInt>(result))
-    {
-      auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
-    }else if(std::dynamic_pointer_cast<TipFunction>(result))
-    {
-      auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
-    }else if(std::dynamic_pointer_cast<TipType>(result))
-    {
-      auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
-    }else if(std::dynamic_pointer_cast<TipRecord>(result))
-    {
-      auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
-    }else if(std::dynamic_pointer_cast<TipVar>(result))
-    {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
-    }else if(std::dynamic_pointer_cast<TipAlpha>(result))
-    {
-      auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
-    }else if(std::dynamic_pointer_cast<TipMu>(result))
-    {
-      auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
-    }
+    storeResult(root,result);
     std::cout << ret.size() << "\n";
   }
   visitChildren(root);

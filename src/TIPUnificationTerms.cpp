@@ -121,11 +121,14 @@ std::set<std::shared_ptr<Var>> Mu::fv()
 std::shared_ptr<Term> TermOps::close(std::shared_ptr<Term> t,std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> env)
 {
     std::unordered_set<std::shared_ptr<Var>> visited;
-    return closeRec(TypeMapping::getTypeOrDefault(t),env,visited);
+    return closeRec(t,env,visited);
 }
 
 std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> env, std::unordered_set<std::shared_ptr<Var>>& visited)
 {
+    if(!t)
+        return std::make_shared<Term>();
+    t = TypeMapping::getTypeOrDefault(t);
     if(std::dynamic_pointer_cast<Var>(t))
     {
         auto v = std::dynamic_pointer_cast<Var>(t);
@@ -155,7 +158,7 @@ std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_m
         auto acc = t;
         for(auto& v:c_fv)
         {
-            acc->subst(v,closeRec(v,env,visited));
+            acc = acc->subst(v,closeRec(v,env,visited));
         }
         std::cout << "---------------" << "\n";
         std::cout << acc->getType() << "\n";

@@ -1,4 +1,6 @@
 #include "TIPtype.h"
+#include "TypeMapping.h"
+
 
 
 std::string TipType::type()
@@ -139,17 +141,18 @@ std::shared_ptr<Var> TipTypeOps::makeAlpha(std::shared_ptr<Var> x)
     if(std::dynamic_pointer_cast<TipVar>(x))
     {
         auto tipVar = std::dynamic_pointer_cast<TipVar>(x);
-        return std::make_shared<TipAlpha>(tipVar->astNode);
+        return TypeMapping::makeTipAlpha(tipVar->astNode);
     }else if(std::dynamic_pointer_cast<TipAlpha>(x))
     {
        return std::dynamic_pointer_cast<TipAlpha>(x); 
     }
+    std::cout << "Should not executed here" << "\n";
     return std::make_shared<Var>();
 }
 
 std::shared_ptr<Mu> TipTypeOps::makeMu(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
 {
-    return std::make_shared<TipMu>(v,t);
+    return TypeMapping::makeTipMu(v,t);
 }
 
 TipInt::TipInt()
@@ -177,7 +180,7 @@ std::shared_ptr<Term> TipFunction::subst(std::shared_ptr<Var> v,std::shared_ptr<
     {
         new_params.push_back(param->subst(v,t));
     }
-    return std::make_shared<TipFunction>(new_params,ret->subst(v,t));
+    return TypeMapping::makeTipFunction(new_params,ret->subst(v,t));
 }
 
 TipRef::TipRef(std::shared_ptr<Term> of)
@@ -188,7 +191,7 @@ TipRef::TipRef(std::shared_ptr<Term> of)
 
 std::shared_ptr<Term> TipRef::subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
 {
-    return std::make_shared<TipRef>(of->subst(v,t));
+    return TypeMapping::makeTipRef(of->subst(v,t));
 }
 
 TipRecord::TipRecord(std::vector<std::shared_ptr<Term>> args,std::vector<std::string> allFieldNames)
@@ -202,7 +205,7 @@ std::shared_ptr<Term> TipRecord::subst(std::shared_ptr<Var> v,std::shared_ptr<Te
     {
         new_args.push_back(arg->subst(v,t));
     }
-    return std::make_shared<TipRecord>(new_args,allFieldNames);
+    return TypeMapping::makeTipRecord(new_args,allFieldNames);
 }
 
 
@@ -225,6 +228,6 @@ std::shared_ptr<Term> TipMu::subst(std::shared_ptr<Var> sv,std::shared_ptr<Term>
         return shared_from_this();
     }else
     {
-        return std::make_shared<TipMu>(v,t->subst(sv,to));
+        return TypeMapping::makeTipMu(v,t->subst(sv,to));
     }
 }
