@@ -14,7 +14,6 @@ class Var;
 class Term
 {
 public:
-    bool isValid = true;
     Term() = default;
     virtual ~Term() = default;
     virtual std::set<std::shared_ptr<Var>> fv() { return std::set<std::shared_ptr<Var>>();};

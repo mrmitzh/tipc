@@ -132,6 +132,10 @@ std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_m
     if(std::dynamic_pointer_cast<Var>(t))
     {
         auto v = std::dynamic_pointer_cast<Var>(t);
+        if(env.find(v) == env.end())
+        {
+            return makeAlpha(v);
+        }
         if(visited.find(v) == visited.end() && env[v] != v)
         {
             visited.insert(v);
