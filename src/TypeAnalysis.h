@@ -1,9 +1,10 @@
-// #pragma once
+#pragma once
 
 #include <unordered_map>
 #include "TIPtree.h"
 #include "TIPtype.h"
 #include "UnionFindSolver.h"
+
 
 
 class CollectAppearingFields: public TIPAstVisitor
@@ -71,7 +72,6 @@ private:
 public:
   TypeAnalysis() = default;
   ~TypeAnalysis() = default;
-  std::shared_ptr<Term> getTypeOrDefault(std::shared_ptr<Term> type);
   void  visitNumExpr(std::shared_ptr<NumberExpr> root) override;
   void  visitVarExpr(std::shared_ptr<VariableExpr> root) override;
   void  visitBinaryExpr(std::shared_ptr<BinaryExpr> root) override;

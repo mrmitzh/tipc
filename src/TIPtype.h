@@ -97,8 +97,8 @@ class TipAlpha: public TipType, public Var
 {
 private:
     uint64_t address;
-    std::string fieldName;
     std::shared_ptr<Node> pointer;
+    std::string fieldName;
 public:
     TipAlpha(std::shared_ptr<Node> root,std::string fieldName = "");
     ~TipAlpha() = default;

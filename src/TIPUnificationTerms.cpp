@@ -1,3 +1,4 @@
+#include "TypeMapping.h"
 #include "TIPUnificationTerms.h"
 
 
@@ -120,7 +121,7 @@ std::set<std::shared_ptr<Var>> Mu::fv()
 std::shared_ptr<Term> TermOps::close(std::shared_ptr<Term> t,std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> env)
 {
     std::unordered_set<std::shared_ptr<Var>> visited;
-    return closeRec(t,env,visited);
+    return closeRec(TypeMapping::getTypeOrDefault(t),env,visited);
 }
 
 std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_map<std::shared_ptr<Var>,std::shared_ptr<Term>> env, std::unordered_set<std::shared_ptr<Var>>& visited)
