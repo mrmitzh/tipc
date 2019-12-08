@@ -5,6 +5,7 @@ namespace TIPtree {
 static std::string indent;
 static int indentLevel = 0;
 static bool printLines = false;
+static bool printType = false;
 
 // indentation is the contatenation of "level" indent strings
 std::string indentation() {
@@ -464,13 +465,57 @@ void IdentifierDeclaration::accept(TIPAstVisitorWithEnv& visitor,std::unordered_
 
 
 
-std::string Program::print(std::string i, bool pl = false) {
+std::string Program::print(std::string i, bool pl = false, bool pt = false) {
   indent = i;      // initialize namespace global for indent stride
   printLines = pl; // print line numbers
+  printType = pt;
   std::string pp;
   for (auto const &fn : FUNCTIONS) {
     pp += fn->print() + "\n";
   }
+  return pp;
+}
+
+std::string Program::printType(std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> typeData) {
+  for (auto const &fn : FUNCTIONS) {
+    pp += fn->printType(typeData) + "\n";
+  }
+  return pp;
+}
+
+std::string Function::printType(std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> typeData) {
+  std::string pp = NAME + "(";
+
+  // comma separated parameter name list
+  bool skip = true;
+  for (auto param : FORMALS) {
+    if (skip) {
+      skip = false;
+      pp += param;
+    } else {
+      pp += ", " + param;
+    }
+  }
+  pp += ")";
+  
+  pp += "\n";
+
+  indentLevel++;
+  pp += indentation() + "{\n";
+  indentLevel++;
+
+  for (auto const &decl : DECLS) {
+    pp += indentation() + decl->print() + "\n";
+  }
+
+  for (auto const &stmt : BODY) {
+    pp += indentation() + stmt->print() + "\n";
+  }
+
+  indentLevel--;
+  pp += indentation() + "}\n";
+  indentLevel--;
+
   return pp;
 }
 
@@ -490,6 +535,9 @@ std::string Function::print() {
   pp += ")";
   if (printLines) {
     pp += " // @" + std::to_string(LINE);
+  }
+  if (printType){
+    //TODO
   }
   pp += "\n";
 
