@@ -197,8 +197,10 @@ void  TIPAstVisitor::visitChildren(std::shared_ptr<Node> root)
   {
     auto ifStmt = std::dynamic_pointer_cast<IfStmt>(root);
     visit(ifStmt->COND);
-    visit(ifStmt->THEN);
-    visit(ifStmt->ELSE);
+    if(ifStmt->THEN)
+      visit(ifStmt->THEN);
+    if(ifStmt->ELSE)
+      visit(ifStmt->ELSE);
   }else if(std::dynamic_pointer_cast<OutputStmt>(root))
   {
     auto outputStmt = std::dynamic_pointer_cast<OutputStmt>(root);
