@@ -511,16 +511,26 @@ std::string Function::print() {
 
   return pp;
 }
+std::string Function::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string NumberExpr::print() { return std::to_string(VAL); }
+std::string NumberExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string VariableExpr::print() { return NAME; }
+std::string VariableExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string BinaryExpr::print() {
   return "(" + LHS->print() + " " + OP + " " + RHS->print() + ")";
 }
+std::string BinaryExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string InputExpr::print() { return "input"; }
+std::string InputExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string FunAppExpr::print() {
   std::string pp = FUN->print() + "(";
@@ -537,16 +547,31 @@ std::string FunAppExpr::print() {
   pp += ")";
   return pp;
 }
+std::string FunAppExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
+
+std::string IdentifierDeclaration::print() { return value; }
+std::string IdentifierDeclaration::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 std::string AllocExpr::print() { return "alloc " + ARG->print(); }
+std::string AllocExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string RefExpr::print() { return "&" + NAME; }
+std::string RefExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string DeRefExpr::print() { return "*" + ARG->print(); }
+std::string DeRefExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string NullExpr::print() { return "null"; }
+std::string NullExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string FieldExpr::print() { return FIELD + ":" + INIT->print(); }
+std::string FieldExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string RecordExpr::print() {
   std::string pp = "{";
@@ -563,8 +588,12 @@ std::string RecordExpr::print() {
   pp += "}";
   return pp;
 }
+std::string RecordExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string AccessExpr::print() { return RECORD->print() + "." + FIELD; }
+std::string AccessExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string DeclStmt::print() {
   std::string pp = "var ";
@@ -583,10 +612,14 @@ std::string DeclStmt::print() {
     pp += " // @" + std::to_string(LINE);
   return pp;
 }
+std::string DeclStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string AssignStmt::print() {
   return LHS->print() + " = " + RHS->print() + ";";
 }
+std::string AssignStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string BlockStmt::print() {
   std::string pp = "{\n";
@@ -598,6 +631,8 @@ std::string BlockStmt::print() {
   pp += indentation() + "}";
   return pp;
 }
+std::string BlockStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string WhileStmt::print() {
   std::string pp = "while (" + COND->print() + ") \n";
@@ -606,6 +641,8 @@ std::string WhileStmt::print() {
   indentLevel--;
   return pp;
 }
+std::string WhileStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string IfStmt::print() {
   std::string pp = "if (" + COND->print() + ") \n";
@@ -621,11 +658,19 @@ std::string IfStmt::print() {
   indentLevel--;
   return pp;
 }
+std::string IfStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string OutputStmt::print() { return "output " + ARG->print() + ";"; }
+std::string OutputStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string ErrorStmt::print() { return "error " + ARG->print() + ";"; }
+std::string ErrorStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 std::string ReturnStmt::print() { return "return " + ARG->print() + ";"; }
+std::string ReturnStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+
 
 } // namespace TIPtree

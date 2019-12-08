@@ -415,7 +415,7 @@ void CollectAppearingFields::visitRecordExpr(std::shared_ptr<RecordExpr> root)
 void CollectSolution::storeResult(std::shared_ptr<Node> root,std::shared_ptr<Term> result)
 {
   static std::unordered_set<std::string> set;
-  std::string key = "[[" + root->print() + "]] = " + " " + result->toString();
+  std::string key = "[[" + root->printWithLine() + "]] = " + " " + result->toString();
   if(set.find(key) != set.end())
   {
     return;
@@ -978,7 +978,7 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
   std::cout << "-----------------------------------" << "\n";
   for(auto decl:declData)
   {
-    std::cout << decl.first->NAME << " : " << decl.first->line << " -> " << decl.second->get_type()  << "\n";
+    std::cout << decl.first->NAME << " : " << decl.first->LINE << " -> " << decl.second->get_type()  << "\n";
   }
   std::cout << "-----------------------------------" << "\n";
 

@@ -143,7 +143,8 @@ Any TIPtreeBuild::visitFunction(TIPParser::FunctionContext *ctx) {
 Any TIPtreeBuild::visitNegNumber(TIPParser::NegNumberContext *ctx) {
   int val = std::stoi(ctx->NUMBER()->getText());
   val = -val;
-  visitedExpr = std::make_shared<NumberExpr>(val);
+  int line = ctx->NUMBER()->getSymbol()->getLine();
+  visitedExpr = std::make_shared<NumberExpr>(val,line);
   return "";
 }
 
@@ -159,7 +160,7 @@ Any TIPtreeBuild::visitNegNumber(TIPParser::NegNumberContext *ctx) {
  */
 Any TIPtreeBuild::visitAdditiveExpr(TIPParser::AdditiveExprContext *ctx) {
   std::string op = opString(ctx->op->getType());
-
+  int line = ctx->op->getLine();
   visit(ctx->expr(0));
   std::shared_ptr<Expr> lhs = std::move(visitedExpr);
 
@@ -167,12 +168,13 @@ Any TIPtreeBuild::visitAdditiveExpr(TIPParser::AdditiveExprContext *ctx) {
   std::shared_ptr<Expr> rhs = std::move(visitedExpr);
 
   visitedExpr =
-      std::make_shared<BinaryExpr>(op, std::move(lhs), std::move(rhs));
+      std::make_shared<BinaryExpr>(op, std::move(lhs), std::move(rhs),line);
   return "";
 }
 
 Any TIPtreeBuild::visitRelationalExpr(TIPParser::RelationalExprContext *ctx) {
   std::string op = opString(ctx->op->getType());
+  int line = ctx->op->getLine();
 
   visit(ctx->expr(0));
   std::shared_ptr<Expr> lhs = std::move(visitedExpr);
@@ -181,13 +183,14 @@ Any TIPtreeBuild::visitRelationalExpr(TIPParser::RelationalExprContext *ctx) {
   std::shared_ptr<Expr> rhs = std::move(visitedExpr);
 
   visitedExpr =
-      std::make_shared<BinaryExpr>(op, std::move(lhs), std::move(rhs));
+      std::make_shared<BinaryExpr>(op, std::move(lhs), std::move(rhs),line);
   return "";
 }
 
 Any TIPtreeBuild::visitMultiplicativeExpr(
     TIPParser::MultiplicativeExprContext *ctx) {
   std::string op = opString(ctx->op->getType());
+  int line = ctx->op->getLine();
 
   visit(ctx->expr(0));
   std::shared_ptr<Expr> lhs = std::move(visitedExpr);
@@ -196,12 +199,13 @@ Any TIPtreeBuild::visitMultiplicativeExpr(
   std::shared_ptr<Expr> rhs = std::move(visitedExpr);
 
   visitedExpr =
-      std::make_shared<BinaryExpr>(op, std::move(lhs), std::move(rhs));
+      std::make_shared<BinaryExpr>(op, std::move(lhs), std::move(rhs),line);
   return "";
 }
 
 Any TIPtreeBuild::visitEqualityExpr(TIPParser::EqualityExprContext *ctx) {
   std::string op = opString(ctx->op->getType());
+  int line = ctx->op->getLine();
 
   visit(ctx->expr(0));
   std::shared_ptr<Expr> lhs = std::move(visitedExpr);
@@ -210,7 +214,7 @@ Any TIPtreeBuild::visitEqualityExpr(TIPParser::EqualityExprContext *ctx) {
   std::shared_ptr<Expr> rhs = std::move(visitedExpr);
 
   visitedExpr =
-      std::make_shared<BinaryExpr>(op, std::move(lhs), std::move(rhs));
+      std::make_shared<BinaryExpr>(op, std::move(lhs), std::move(rhs),line);
   return "";
 }
 
@@ -222,7 +226,8 @@ Any TIPtreeBuild::visitParenExpr(TIPParser::ParenExprContext *ctx) {
 
 Any TIPtreeBuild::visitNumExpr(TIPParser::NumExprContext *ctx) {
   int val = std::stoi(ctx->NUMBER()->getText());
-  visitedExpr = std::make_shared<NumberExpr>(val);
+  int line = ctx->NUMBER()->getSymbol()->getLine();
+  visitedExpr = std::make_shared<NumberExpr>(val,line);
   return "";
 }
 
@@ -234,14 +239,15 @@ Any TIPtreeBuild::visitIdExpr(TIPParser::IdExprContext *ctx) {
 }
 
 Any TIPtreeBuild::visitInputExpr(TIPParser::InputExprContext *ctx) {
-  visitedExpr = std::make_shared<InputExpr>();
+  int line = ctx->getStart()->getLine();
+  visitedExpr = std::make_shared<InputExpr>(line);
   return "";
 }
 
 Any TIPtreeBuild::visitFunAppExpr(TIPParser::FunAppExprContext *ctx) {
   std::shared_ptr<Expr> fExpr = nullptr;
   std::vector<std::shared_ptr<Expr>> fArgs;
-
+  int line = ctx->getStart()->getLine();
   // function determined by name or computed expression
   if (ctx->IDENTIFIER() != nullptr) {
     std::string name = ctx->IDENTIFIER()->getText();
@@ -261,50 +267,55 @@ Any TIPtreeBuild::visitFunAppExpr(TIPParser::FunAppExprContext *ctx) {
   }
 
   visitedExpr =
-      std::make_shared<FunAppExpr>(std::move(fExpr), std::move(fArgs));
+      std::make_shared<FunAppExpr>(std::move(fExpr), std::move(fArgs),line);
   return "";
 }
 
 Any TIPtreeBuild::visitAllocExpr(TIPParser::AllocExprContext *ctx) {
+  int line = ctx->getStart()->getLine();
   visit(ctx->expr());
-  visitedExpr = std::make_shared<AllocExpr>(std::move(visitedExpr));
+  visitedExpr = std::make_shared<AllocExpr>(std::move(visitedExpr),line);
   return "";
 }
 
 Any TIPtreeBuild::visitRefExpr(TIPParser::RefExprContext *ctx) {
   std::string vName = ctx->IDENTIFIER()->getText();
   int line = ctx->IDENTIFIER()->getSymbol()->getLine();
-  visitedExpr = std::make_shared<RefExpr>(vName,std::make_shared<VariableExpr>(vName,line));
+  visitedExpr = std::make_shared<RefExpr>(vName,std::make_shared<VariableExpr>(vName,line),line);
   return "";
 }
 
 Any TIPtreeBuild::visitDeRefExpr(TIPParser::DeRefExprContext *ctx) {
+  int line = ctx->getStart()->getLine();
   visit(ctx->atom());
-  visitedExpr = std::make_shared<DeRefExpr>(std::move(visitedExpr));
+  visitedExpr = std::make_shared<DeRefExpr>(std::move(visitedExpr),line);
   return "";
 }
 
 Any TIPtreeBuild::visitNullExpr(TIPParser::NullExprContext *ctx) {
-  visitedExpr = std::make_shared<NullExpr>();
+  int line = ctx->getStart()->getLine();
+  visitedExpr = std::make_shared<NullExpr>(line);
   return "";
 }
 
 Any TIPtreeBuild::visitRecordExpr(TIPParser::RecordExprContext *ctx) {
+  int line = ctx->getStart()->getLine();
   std::vector<std::shared_ptr<FieldExpr>> rFields;
   for (auto fn : ctx->fieldExpr()) {
     visit(fn);
     rFields.push_back(std::move(visitedFieldExpr));
   }
 
-  visitedExpr = std::make_shared<RecordExpr>(std::move(rFields));
+  visitedExpr = std::make_shared<RecordExpr>(std::move(rFields),line);
   return "";
 }
 
 Any TIPtreeBuild::visitFieldExpr(TIPParser::FieldExprContext *ctx) {
+  int line = ctx->getStart()->getLine();
   std::string fName = ctx->IDENTIFIER()->getText();
   visit(ctx->expr());
   visitedFieldExpr =
-      std::make_shared<FieldExpr>(fName, std::move(visitedExpr));
+      std::make_shared<FieldExpr>(fName, std::move(visitedExpr),line);
   return "";
 }
 
@@ -330,8 +341,8 @@ Any TIPtreeBuild::visitAccessExpr(TIPParser::AccessExprContext *ctx) {
   }
 
   fName = ctx->IDENTIFIER(ctx->IDENTIFIER().size() - 1)->getText();
-
-  visitedExpr = std::make_shared<AccessExpr>(std::move(rExpr), fName);
+  int line = ctx->getStart()->getLine();
+  visitedExpr = std::make_shared<AccessExpr>(std::move(rExpr), fName,line);
   return "";
 }
 
@@ -369,36 +380,40 @@ Any TIPtreeBuild::visitDeclaration(TIPParser::DeclarationContext *ctx) {
 }
 
 Any TIPtreeBuild::visitAssignmentStmt(TIPParser::AssignmentStmtContext *ctx) {
+  int line = ctx->getStart()->getLine();
   visit(ctx->assignableExpr());
   std::shared_ptr<Expr> lhs = std::move(visitedExpr);
   visit(ctx->expr());
   std::shared_ptr<Expr> rhs = std::move(visitedExpr);
-  visitedStmt = std::make_shared<AssignStmt>(std::move(lhs), std::move(rhs));
+  visitedStmt = std::make_shared<AssignStmt>(std::move(lhs), std::move(rhs),line);
   return "";
 }
 
 Any TIPtreeBuild::visitBlockStmt(TIPParser::BlockStmtContext *ctx) {
+  int line = ctx->getStart()->getLine();
   std::vector<std::shared_ptr<Stmt>> bStmts;
   for (auto s : ctx->statement()) {
     visit(s);
     bStmts.push_back(std::move(visitedStmt));
   }
-  visitedStmt = std::make_shared<BlockStmt>(std::move(bStmts));
+  visitedStmt = std::make_shared<BlockStmt>(std::move(bStmts),line);
   return "";
 }
 
 Any TIPtreeBuild::visitWhileStmt(TIPParser::WhileStmtContext *ctx) {
+  int line = ctx->getStart()->getLine();
   visit(ctx->expr());
   std::shared_ptr<Expr> cond = std::move(visitedExpr);
 
   visit(ctx->statement());
   std::shared_ptr<Stmt> body = std::move(visitedStmt);
 
-  visitedStmt = std::make_shared<WhileStmt>(std::move(cond), std::move(body));
+  visitedStmt = std::make_shared<WhileStmt>(std::move(cond), std::move(body),line);
   return "";
 }
 
 Any TIPtreeBuild::visitIfStmt(TIPParser::IfStmtContext *ctx) {
+  int line = ctx->getStart()->getLine();
   visit(ctx->expr());
   std::shared_ptr<Expr> cond = std::move(visitedExpr);
 
@@ -413,24 +428,27 @@ Any TIPtreeBuild::visitIfStmt(TIPParser::IfStmtContext *ctx) {
   }
 
   visitedStmt = std::make_shared<IfStmt>(std::move(cond), std::move(thenBody),
-                                          std::move(elseBody));
+                                          std::move(elseBody),line);
   return "";
 }
 
 Any TIPtreeBuild::visitOutputStmt(TIPParser::OutputStmtContext *ctx) {
+  int line = ctx->getStart()->getLine();
   visit(ctx->expr());
-  visitedStmt = std::make_shared<OutputStmt>(std::move(visitedExpr));
+  visitedStmt = std::make_shared<OutputStmt>(std::move(visitedExpr),line);
   return "";
 }
 
 Any TIPtreeBuild::visitErrorStmt(TIPParser::ErrorStmtContext *ctx) {
+  int line = ctx->getStart()->getLine();
   visit(ctx->expr());
-  visitedStmt = std::make_shared<ErrorStmt>(std::move(visitedExpr));
+  visitedStmt = std::make_shared<ErrorStmt>(std::move(visitedExpr),line);
   return "";
 }
 
 Any TIPtreeBuild::visitReturnStmt(TIPParser::ReturnStmtContext *ctx) {
+  int line = ctx->getStart()->getLine();
   visit(ctx->expr());
-  visitedStmt = std::make_shared<ReturnStmt>(std::move(visitedExpr));
+  visitedStmt = std::make_shared<ReturnStmt>(std::move(visitedExpr),line);
   return "";
 }

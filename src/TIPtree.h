@@ -32,6 +32,7 @@ public:
   virtual ~Node() = default;
   virtual llvm::Value *codegen() = 0;
   virtual std::string print() = 0;
+  virtual std::string printWithLine() = 0;
   virtual std::string get_type();
   virtual void accept(TIPAstVisitor& visitor) = 0;
   virtual void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) = 0;
@@ -47,13 +48,14 @@ class IdentifierDeclaration: public Declaration, public std::enable_shared_from_
 {
 public:
   std::string value;
-  int line;
-  IdentifierDeclaration(std::string value,int line):value(value),line(line){};
+  int LINE;
+  IdentifierDeclaration(std::string value,int LINE):value(value),LINE(LINE){};
   ~IdentifierDeclaration() = default;
   static std::string type();
   std::string get_type() override;
   llvm::Value *codegen() override { return nullptr; };
-  std::string print() override { return value;};
+  std::string print() override;
+  std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
@@ -73,10 +75,11 @@ class NumberExpr : public Expr, public std::enable_shared_from_this<NumberExpr>
 {
 public:
   int VAL;
-
-  NumberExpr(int VAL) : VAL(VAL) {}
+  int LINE;
+  NumberExpr(int VAL,int LINE) : VAL(VAL),LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -88,10 +91,11 @@ class VariableExpr : public Expr, public std::enable_shared_from_this<VariableEx
 {
 public:
   std::string NAME;
-  int line;
-  VariableExpr(const std::string &NAME,int line = -1) : NAME(NAME),line(line) {}
+  int LINE;
+  VariableExpr(const std::string &NAME,int LINE ) : NAME(NAME),LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   // Getter to distinguish LHS of assigment for codegen
@@ -106,12 +110,13 @@ class BinaryExpr : public Expr, public std::enable_shared_from_this<BinaryExpr>
 public:
   std::string OP;
   std::shared_ptr<Expr> LHS, RHS;
-
+  int LINE;
   BinaryExpr(const std::string &OP, std::shared_ptr<Expr> LHS,
-             std::shared_ptr<Expr> RHS)
-      : OP(OP), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
+             std::shared_ptr<Expr> RHS,int LINE)
+      : OP(OP), LHS(std::move(LHS)), RHS(std::move(RHS)),LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -124,14 +129,16 @@ class FunAppExpr : public Expr, public std::enable_shared_from_this<FunAppExpr>
 public:
   std::shared_ptr<Expr> FUN;
   std::vector<std::shared_ptr<Expr>> ACTUALS;
-
+  int LINE;
   FunAppExpr(std::shared_ptr<Expr> FUN,
-             std::vector<std::shared_ptr<Expr>> ACTUALS)
-      : FUN(std::move(FUN)), ACTUALS(std::move(ACTUALS)) {}
+             std::vector<std::shared_ptr<Expr>> ACTUALS,
+             int LINE)
+      : FUN(std::move(FUN)), ACTUALS(std::move(ACTUALS)),LINE(LINE) {}
   static std::string type();
   std::string get_type() override;
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
@@ -139,11 +146,12 @@ public:
 /// InputExpr - class for input expression
 class InputExpr : public Expr, public std::enable_shared_from_this<InputExpr>
 {
-
 public:
-  InputExpr() {}
+  int LINE;
+  InputExpr(int LINE) : LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -156,10 +164,11 @@ class AllocExpr : public Expr, public std::enable_shared_from_this<AllocExpr>
 {
 public:
   std::shared_ptr<Expr> ARG;
-
-  AllocExpr(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  int LINE;
+  AllocExpr(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -173,10 +182,11 @@ class RefExpr : public Expr, public std::enable_shared_from_this<RefExpr>
 public:
   std::string NAME;
   std::shared_ptr<Expr> ARG;
-
-  RefExpr(const std::string &NAME, std::shared_ptr<Expr> ARG) : NAME(NAME),ARG(std::move(ARG)) {}
+  int LINE;
+  RefExpr(const std::string &NAME, std::shared_ptr<Expr> ARG,int LINE) : NAME(NAME),ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -189,10 +199,11 @@ class DeRefExpr : public Expr, public std::enable_shared_from_this<DeRefExpr>
 {
 public:
   std::shared_ptr<Expr> ARG;
-
-  DeRefExpr(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  int LINE;
+  DeRefExpr(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -203,11 +214,12 @@ public:
 /// NullExpr - class for a null expression
 class NullExpr : public Expr, public std::enable_shared_from_this<NullExpr>
 {
-
 public:
-  NullExpr() {}
+  int LINE;
+  NullExpr(int LINE) :LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -222,15 +234,16 @@ public:
   std::string FIELD;
   std::shared_ptr<VariableExpr> dummyFIELD;
   std::shared_ptr<Expr> INIT;
-
-  FieldExpr(const std::string &FIELD, std::shared_ptr<Expr> INIT)
-      : FIELD(FIELD), INIT(std::move(INIT)) {
-        dummyFIELD = std::make_shared<VariableExpr>(FIELD);
+  int LINE;
+  FieldExpr(const std::string &FIELD, std::shared_ptr<Expr> INIT,int LINE)
+      : FIELD(FIELD), INIT(std::move(INIT)), LINE(LINE) {
+        dummyFIELD = std::make_shared<VariableExpr>(FIELD,LINE);
       }
   llvm::Value *codegen() override;
   static std::string type();
   std::string get_type() override;
   std::string print() override;
+  std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 
@@ -241,11 +254,12 @@ class RecordExpr : public Expr, public std::enable_shared_from_this<RecordExpr>
 {
 public:
   std::vector<std::shared_ptr<FieldExpr>> FIELDS;
-
-  RecordExpr(std::vector<std::shared_ptr<FieldExpr>> FIELDS)
-      : FIELDS(std::move(FIELDS)) {}
+  int LINE;
+  RecordExpr(std::vector<std::shared_ptr<FieldExpr>> FIELDS,int LINE)
+      : FIELDS(std::move(FIELDS)),LINE(LINE)  {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -260,14 +274,15 @@ public:
   std::shared_ptr<Expr> RECORD;
   std::string FIELD;
   std::shared_ptr<VariableExpr> dummyFIELD;
-
-  AccessExpr(std::shared_ptr<Expr> RECORD, const std::string &FIELD)
-      : RECORD(std::move(RECORD)), FIELD(FIELD) 
+  int LINE;
+  AccessExpr(std::shared_ptr<Expr> RECORD, const std::string &FIELD,int LINE)
+      : RECORD(std::move(RECORD)), FIELD(FIELD), LINE(LINE) 
       {
-        dummyFIELD = std::make_shared<VariableExpr>(this->FIELD);
+        dummyFIELD = std::make_shared<VariableExpr>(this->FIELD,LINE);
       }
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -305,6 +320,7 @@ public:
   static std::string type();
   std::string get_type() override;
   std::string print() override;
+  std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 
@@ -315,13 +331,14 @@ class BlockStmt : public Stmt, public std::enable_shared_from_this<BlockStmt>
 {
 public:
   std::vector<std::shared_ptr<Stmt>> STMTS;
-
-  BlockStmt(std::vector<std::shared_ptr<Stmt>> STMTS)
-      : STMTS(std::move(STMTS)) {}
+  int LINE;
+  BlockStmt(std::vector<std::shared_ptr<Stmt>> STMTS, int LINE)
+      : STMTS(std::move(STMTS)), LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
   std::string get_type() override;
+  std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
@@ -331,13 +348,14 @@ class AssignStmt : public Stmt, public std::enable_shared_from_this<AssignStmt>
 {
 public:
   std::shared_ptr<Expr> LHS, RHS;
-
-  AssignStmt(std::shared_ptr<Expr> LHS, std::shared_ptr<Expr> RHS)
-      : LHS(std::move(LHS)), RHS(std::move(RHS)) {}
+  int LINE;
+  AssignStmt(std::shared_ptr<Expr> LHS, std::shared_ptr<Expr> RHS, int LINE)
+      : LHS(std::move(LHS)), RHS(std::move(RHS)), LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
   static std::string type();
   std::string get_type() override;
+  std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
 };
@@ -348,11 +366,12 @@ class WhileStmt : public Stmt, public std::enable_shared_from_this<WhileStmt>
 public:
   std::shared_ptr<Expr> COND;
   std::shared_ptr<Stmt> BODY;
-
-  WhileStmt(std::shared_ptr<Expr> COND, std::shared_ptr<Stmt> BODY)
-      : COND(std::move(COND)), BODY(std::move(BODY)) {}
+  int LINE;
+  WhileStmt(std::shared_ptr<Expr> COND, std::shared_ptr<Stmt> BODY,int LINE)
+      : COND(std::move(COND)), BODY(std::move(BODY)), LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -365,12 +384,13 @@ class IfStmt : public Stmt, public std::enable_shared_from_this<IfStmt>
 public:
   std::shared_ptr<Expr> COND;
   std::shared_ptr<Stmt> THEN, ELSE;
-
+  int LINE;
   IfStmt(std::shared_ptr<Expr> COND, std::shared_ptr<Stmt> THEN,
-         std::shared_ptr<Stmt> ELSE)
-      : COND(std::move(COND)), THEN(std::move(THEN)), ELSE(std::move(ELSE)) {}
+         std::shared_ptr<Stmt> ELSE, int LINE)
+      : COND(std::move(COND)), THEN(std::move(THEN)), ELSE(std::move(ELSE)), LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -382,10 +402,11 @@ class OutputStmt : public Stmt, public std::enable_shared_from_this<OutputStmt>
 {
 public:
   std::shared_ptr<Expr> ARG;
-
-  OutputStmt(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  int LINE;
+  OutputStmt(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -397,10 +418,11 @@ class ErrorStmt : public Stmt, public std::enable_shared_from_this<ErrorStmt>
 {
 public:
   std::shared_ptr<Expr> ARG;
-
-  ErrorStmt(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  int LINE;
+  ErrorStmt(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -412,10 +434,11 @@ class ReturnStmt : public Stmt, public std::enable_shared_from_this<ReturnStmt>
 {
 public:
   std::shared_ptr<Expr> ARG;
-
-  ReturnStmt(std::shared_ptr<Expr> ARG) : ARG(std::move(ARG)) {}
+  int LINE;
+  ReturnStmt(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
@@ -443,7 +466,7 @@ public:
       : NAME(NAME), FORMALS(std::move(FORMALS)), DECLS(std::move(DECLS)),
         BODY(std::move(BODY)), LINE(LINE) 
         {
-          dummyNAME = std::make_shared<VariableExpr>(this->NAME);
+          dummyNAME = std::make_shared<VariableExpr>(this->NAME,LINE);
           for(const auto& arg:this->FORMALS)
           {
             dummyFORMALS.push_back(std::make_shared<IdentifierDeclaration>(arg,LINE));
@@ -451,6 +474,7 @@ public:
         }
   llvm::Function *codegen() override;
   std::string print() override;
+  std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
   void accept(TIPAstVisitor& visitor) override;
