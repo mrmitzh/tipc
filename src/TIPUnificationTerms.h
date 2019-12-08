@@ -54,6 +54,10 @@ public:
     std::shared_ptr<Var> v;
     std::shared_ptr<Term> t;
 
+    Mu(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
+        :v(v),t(t)
+    {}
+
     virtual std::set<std::shared_ptr<Var>> fv() override;
 
     static std::string type();

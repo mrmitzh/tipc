@@ -218,7 +218,7 @@ TipAlpha::TipAlpha(std::shared_ptr<Node> root,std::string fieldName)
 
 
 TipMu::TipMu(std::shared_ptr<Var> v,std::shared_ptr<Term> t)
-    :v(v),t(t)
+    :Mu(v,t)
 {}
 
 std::shared_ptr<Term> TipMu::subst(std::shared_ptr<Var> sv,std::shared_ptr<Term> to)

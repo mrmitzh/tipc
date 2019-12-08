@@ -109,9 +109,6 @@ public:
 
 class TipMu:public TipType, public Mu, public std::enable_shared_from_this<TipMu>
 {
-private:
-    std::shared_ptr<Var> v;
-    std::shared_ptr<Term> t;
 public:
     TipMu(std::shared_ptr<Var> v,std::shared_ptr<Term> t);
     ~TipMu() = default;
