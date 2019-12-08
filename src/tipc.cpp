@@ -58,7 +58,7 @@ int main(int argc, const char *argv[]) {
     std::cout << "Type Analysis" << std::endl;
     TypeAnalysis typeAnalysis;
     auto TypeData = typeAnalysis.analysis(ast);
-    std::string TypeDataString = ast->printType(TypeData);
+    std::string TypeDataString = ast->printType();
     std::ofstream outfile;
     outfile.open(sourceFile+"_types.ttip");
     outfile << TypeDataString << endl;

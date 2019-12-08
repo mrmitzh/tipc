@@ -465,6 +465,7 @@ public:
    */
   std::string getName() { return NAME; };
   std::vector<std::string> getFormals() { return FORMALS; };
+  std::string printType();
 };
 
 // Program - just a list of functions
@@ -475,6 +476,7 @@ public:
       : FUNCTIONS(std::move(FUNCTIONS)) {}
   std::unique_ptr<llvm::Module> codegen(std::string programName);
   std::string print(std::string i, bool pl);
+  std::string printType();
 };
 
 
