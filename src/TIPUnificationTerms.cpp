@@ -164,9 +164,6 @@ std::shared_ptr<Term> TermOps::closeRec(std::shared_ptr<Term> t,std::unordered_m
         {
             acc = acc->subst(v,closeRec(v,env,visited));
         }
-        std::cout << "---------------" << "\n";
-        std::cout << acc->getType() << "\n";
-        std::cout << "---------------" << "\n";
         return acc;
     }else if(std::dynamic_pointer_cast<Mu>(t))
     {

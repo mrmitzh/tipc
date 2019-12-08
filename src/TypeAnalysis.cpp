@@ -9,7 +9,6 @@ void  TIPAstVisitorWithEnv::visitNumExpr(std::shared_ptr<NumberExpr> root,std::u
 
 void  TIPAstVisitorWithEnv::visitVarExpr(std::shared_ptr<VariableExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
-  std::cout << "Entering VariableExpr" << "\n";
   if(env.find(root->NAME) != env.end())
   {
     declResult[root] = env[root->NAME];
@@ -18,7 +17,6 @@ void  TIPAstVisitorWithEnv::visitVarExpr(std::shared_ptr<VariableExpr> root,std:
     std::cerr << "Identifier not declared" << "\n";
   }
   visitChildren(root,env);
-  std::cout << "Existing VariableExpr" << "\n";
 }
 
 void  TIPAstVisitorWithEnv::visitBinaryExpr(std::shared_ptr<BinaryExpr> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
@@ -122,9 +120,7 @@ void  TIPAstVisitorWithEnv::visitIfStmt(std::shared_ptr<IfStmt> root,std::unorde
 
 void  TIPAstVisitorWithEnv::visitOutputStmt(std::shared_ptr<OutputStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
-  std::cout << "Entering visit Output" << "\n";
   visitChildren(root,env);
-  std::cout << "Quiting visit Output" << "\n";
 }
 
 void  TIPAstVisitorWithEnv::visitErrorStmt(std::shared_ptr<ErrorStmt> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
@@ -139,31 +135,24 @@ void  TIPAstVisitorWithEnv::visitReturnStmt(std::shared_ptr<ReturnStmt> root,std
 
 void  TIPAstVisitorWithEnv::visitFunction(std::shared_ptr<Function> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
 {
-  std::cout << "entering visit Function" << "\n";
-  std::cout << env.size() << "\n";
   std::unordered_map<std::string,std::shared_ptr<Declaration>> acc;
   for(auto arg:root->dummyFORMALS)
   {
-    std::cout << arg->value << "\n";
     auto temp = std::make_pair(arg->value,arg);
     acc = extendEnv(acc,temp);
   }
   std::unordered_map<std::string,std::shared_ptr<Declaration>> extendedEnv = extendEnv(env,acc);
-  std::cout << extendedEnv.size() << "\n";
 
 
   auto ext = peekDecl(root->DECLS);
   extendedEnv = extendEnv(extendedEnv,ext);
 
-  std::cout << "After extend: " << extendedEnv.size() << "\n";
 
   visitChildren(root,extendedEnv);
   // for(auto statement:root->BODY)
   // {
   //   visit(statement,extendedEnv);
   // }
-
-  std::cout << "exiting visit Function" << "\n";
 }
 
 void  TIPAstVisitorWithEnv::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root,std::unordered_map<std::string, std::shared_ptr<Declaration>> env)
@@ -177,14 +166,12 @@ std::unordered_map<std::shared_ptr<VariableExpr>,std::shared_ptr<Declaration>>  
   std::unordered_map<std::string,std::shared_ptr<Declaration>> env;
   for(auto function:root->FUNCTIONS)
   {
-    std::cout << function->NAME << "\n";
     std::unordered_map<std::string,std::shared_ptr<Declaration>> ext;
     if(function->NAME != "main")
     {
       ext[function->NAME] = function;
       env = extendEnv(env,ext);
     }
-    std::cout << env.size() << "\n";
   }
   for(auto function:root->FUNCTIONS)
   {
@@ -336,10 +323,6 @@ std::unordered_map<std::string,std::shared_ptr<Declaration>> TIPAstVisitorWithEn
   }
   std::unordered_map<std::string,std::shared_ptr<Declaration>> result = env;
   result.insert(ext.begin(),ext.end());
-  for(auto pair:result)
-  {
-    std::cout << "Inserting --> " << pair.first << "\n";
-  }
   return result;
 }
 
@@ -349,7 +332,6 @@ std::unordered_map<std::string,std::shared_ptr<Declaration>> TIPAstVisitorWithEn
   {
     std::cerr << "Redefinition" << "\n";
   }
-  std::cout << "Inserting --> " << par.first << "\n";
   env[par.first] = par.second;
   return env;
 }
@@ -421,6 +403,7 @@ void CollectSolution::storeResult(std::shared_ptr<Node> root,std::shared_ptr<Ter
     return;
   }
   set.insert(key);
+  auto str = root->printWithLine();
   if(std::dynamic_pointer_cast<TipInt>(result))
     {
       auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
@@ -458,7 +441,7 @@ void  CollectSolution::visitNumExpr(std::shared_ptr<NumberExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -468,15 +451,15 @@ void  CollectSolution::visitNumExpr(std::shared_ptr<NumberExpr> root)
 
 void  CollectSolution::visitVarExpr(std::shared_ptr<VariableExpr> root) 
 {
-  if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
-  {
-    auto typeOps = std::make_shared<TipTypeOps>();
-    auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+  // if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
+  // {
+  //   auto typeOps = std::make_shared<TipTypeOps>();
+  //   auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
     
-    storeResult(root,result);
+    
+  //   storeResult(root,result);
 
-  }
+  // }
   visitChildren(root);
 }
 
@@ -486,7 +469,7 @@ void  CollectSolution::visitBinaryExpr(std::shared_ptr<BinaryExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -500,7 +483,7 @@ void  CollectSolution::visitFunAppExpr(std::shared_ptr<FunAppExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -514,7 +497,7 @@ void  CollectSolution::visitInputExpr(std::shared_ptr<InputExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -528,7 +511,7 @@ void  CollectSolution::visitAllocExpr(std::shared_ptr<AllocExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -542,7 +525,7 @@ void  CollectSolution::visitRefExpr(std::shared_ptr<RefExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -556,7 +539,7 @@ void  CollectSolution::visitDeRefExpr(std::shared_ptr<DeRefExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -570,7 +553,7 @@ void  CollectSolution::visitNullExpr(std::shared_ptr<NullExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -584,7 +567,7 @@ void  CollectSolution::visitFieldExpr(std::shared_ptr<FieldExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -598,7 +581,7 @@ void  CollectSolution::visitRecordExpr(std::shared_ptr<RecordExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -612,7 +595,7 @@ void  CollectSolution::visitAccessExpr(std::shared_ptr<AccessExpr> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -626,7 +609,7 @@ void  CollectSolution::visitDeclaration(std::shared_ptr<DeclStmt> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -640,7 +623,7 @@ void  CollectSolution::visitBlockStmt(std::shared_ptr<BlockStmt> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -654,7 +637,7 @@ void  CollectSolution::visitAssignmentStmt(std::shared_ptr<AssignStmt> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -668,7 +651,7 @@ void  CollectSolution::visitWhileStmt(std::shared_ptr<WhileStmt> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -682,7 +665,7 @@ void  CollectSolution::visitIfStmt(std::shared_ptr<IfStmt> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -696,7 +679,7 @@ void  CollectSolution::visitOutputStmt(std::shared_ptr<OutputStmt> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -710,7 +693,7 @@ void  CollectSolution::visitErrorStmt(std::shared_ptr<ErrorStmt> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -724,7 +707,7 @@ void  CollectSolution::visitReturnStmt(std::shared_ptr<ReturnStmt> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -738,7 +721,7 @@ void  CollectSolution::visitFunction(std::shared_ptr<Function> root)
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     storeResult(root,result);
   }
   visitChildren(root);
@@ -750,7 +733,7 @@ void  CollectSolution::visitIdentifierDeclaration(std::shared_ptr<IdentifierDecl
   {
     auto typeOps = std::make_shared<TipTypeOps>();
     auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    std::cout << result->getType() << "\n";
+    
     
     storeResult(root,result);
 
@@ -978,8 +961,9 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
   std::cout << "-----------------------------------" << "\n";
   for(auto decl:declData)
   {
-    std::cout << decl.first->NAME << " : " << decl.first->LINE << " -> " << decl.second->get_type()  << "\n";
+    std::cout << decl.first->NAME << " : " << decl.first->LINE << " -> " << decl.second->printWithLine()  << "\n";
   }
+  std::cout << "decl size: " << declData.size() << "\n";
   std::cout << "-----------------------------------" << "\n";
 
   // dfs to generate constrains
