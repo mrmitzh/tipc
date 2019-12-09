@@ -15,25 +15,25 @@ void UnionFindSolver::unify(std::shared_ptr<Term> t1,std::shared_ptr<Term> t2)
     if(parent_t1 == parent_t2)
         return;
 
-    if(std::dynamic_pointer_cast<Var>(t1) && std::dynamic_pointer_cast<Var>(t2))
+    if(std::dynamic_pointer_cast<Var>(parent_t1) && std::dynamic_pointer_cast<Var>(parent_t2))
     {
-        auto v1 = std::dynamic_pointer_cast<Var>(t1);
-        auto v2 = std::dynamic_pointer_cast<Var>(t2);
+        auto v1 = std::dynamic_pointer_cast<Var>(parent_t1);
+        auto v2 = std::dynamic_pointer_cast<Var>(parent_t2);
         makeUnion(v1,v2);
-    }else if(std::dynamic_pointer_cast<Var>(t1) && std::dynamic_pointer_cast<Term>(t2))
+    }else if(std::dynamic_pointer_cast<Var>(parent_t1) && std::dynamic_pointer_cast<Term>(parent_t2))
     {
-        auto v1 = std::dynamic_pointer_cast<Var>(t1);
-        auto v2 = std::dynamic_pointer_cast<Term>(t2);
+        auto v1 = std::dynamic_pointer_cast<Var>(parent_t1);
+        auto v2 = std::dynamic_pointer_cast<Term>(parent_t2);
         makeUnion(v1,v2);
-    }else if(std::dynamic_pointer_cast<Term>(t1) && std::dynamic_pointer_cast<Var>(t2))
+    }else if(std::dynamic_pointer_cast<Term>(parent_t1) && std::dynamic_pointer_cast<Var>(parent_t2))
     {
-        auto v1 = std::dynamic_pointer_cast<Term>(t1);
-        auto v2 = std::dynamic_pointer_cast<Var>(t2);
+        auto v1 = std::dynamic_pointer_cast<Term>(parent_t1);
+        auto v2 = std::dynamic_pointer_cast<Var>(parent_t2);
         makeUnion(v2,v1);
-    }else if(std::dynamic_pointer_cast<Cons>(t1) && std::dynamic_pointer_cast<Cons>(t2))
+    }else if(std::dynamic_pointer_cast<Cons>(parent_t1) && std::dynamic_pointer_cast<Cons>(parent_t2))
     {
-        auto f1 = std::dynamic_pointer_cast<Cons>(t1);
-        auto f2 = std::dynamic_pointer_cast<Cons>(t2);
+        auto f1 = std::dynamic_pointer_cast<Cons>(parent_t1);
+        auto f2 = std::dynamic_pointer_cast<Cons>(parent_t2);
         if(f1->doMatch(f2))
         {
             makeUnion(f1,f2);
