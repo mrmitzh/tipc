@@ -919,8 +919,10 @@ void  TypeAnalysis::visitFunction(std::shared_ptr<Function> root)
   {
     if(!root->BODY.empty())
     {
-      auto retStmt = root->BODY.back();
+      auto retStmt = std::dynamic_pointer_cast<ReturnStmt>(root->BODY.back());
       solver.unify(ast2typevar(retStmt),std::make_shared<TipInt>());
+      solver.unify(ast2typevar(retStmt->ARG),std::make_shared<TipInt>());
+
       for(auto arg:root->dummyFORMALS)
       {
         solver.unify(ast2typevar(arg),std::make_shared<TipInt>());
