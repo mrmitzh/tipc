@@ -68,7 +68,8 @@ int main(int argc, const char *argv[]) {
     {
       std::string fileName = value.substr(0,pos);
       ofstream of;
-      of.open(fileName + ".ttip");
+      of.open(fileName + "_types.ttip");
+      std::cout << "Results of type analysis of " + fileName + " written to " + fileName + "_types.ttip"<< std::endl;
       of << printWithType;
       of.close();
     }
