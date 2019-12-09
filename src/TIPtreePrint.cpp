@@ -515,7 +515,20 @@ std::string Function::print(bool withType) {
 
   return pp;
 }
-std::string Function::printWithLine() { return print() + " : " +  std::to_string(LINE); }
+  std::string Function::printWithLine() { 
+  std::string pp = NAME + "(";
+  // comma separated parameter name list
+  bool skip = true;
+  for (auto param : FORMALS) {
+    if (skip) {
+      skip = false;
+      pp += param;
+    } else {
+      pp += ", " + param;
+    }
+  }
+  pp += "){...}";
+  return pp + " : " +  std::to_string(LINE); }
 
 
 std::string NumberExpr::print(bool withType) { return std::to_string(VAL); }
