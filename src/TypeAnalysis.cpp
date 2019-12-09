@@ -405,35 +405,34 @@ void CollectSolution::storeResult(std::shared_ptr<Node> root,std::shared_ptr<Ter
     return;
   }
   set.insert(key);
-  auto str = root->printWithLine();
   if(std::dynamic_pointer_cast<TipInt>(result))
     {
       auto tipInt = std::dynamic_pointer_cast<TipInt>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipInt);
+      ret[root] = tipInt;
     }else if(std::dynamic_pointer_cast<TipFunction>(result))
     {
       auto tipFunction = std::dynamic_pointer_cast<TipFunction>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipFunction);
+      ret[root] = tipFunction;
     }else if(std::dynamic_pointer_cast<TipRef>(result))
     {
       auto tipRef = std::dynamic_pointer_cast<TipRef>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRef);
+      ret[root] = tipRef;
     }else if(std::dynamic_pointer_cast<TipRecord>(result))
     {
       auto tipRecord = std::dynamic_pointer_cast<TipRecord>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipRecord);
+      ret[root] = tipRecord;
     }else if(std::dynamic_pointer_cast<TipVar>(result))
     {
-      auto tipResult = std::dynamic_pointer_cast<TipVar>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipResult);
+      auto tipVar = std::dynamic_pointer_cast<TipVar>(result);
+      ret[root] = tipVar;
     }else if(std::dynamic_pointer_cast<TipAlpha>(result))
     {
       auto tipAlpha = std::dynamic_pointer_cast<TipAlpha>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipAlpha);
+      ret[root] = tipAlpha;
     }else if(std::dynamic_pointer_cast<TipMu>(result))
     {
       auto tipMu = std::dynamic_pointer_cast<TipMu>(result);
-      ret[root] = std::dynamic_pointer_cast<TipType>(tipMu);
+      ret[root] = tipMu;
     }
 }
 
@@ -453,15 +452,6 @@ void  CollectSolution::visitNumExpr(std::shared_ptr<NumberExpr> root)
 
 void  CollectSolution::visitVarExpr(std::shared_ptr<VariableExpr> root) 
 {
-  // if(std::dynamic_pointer_cast<Expr>(root) || std::dynamic_pointer_cast<Declaration>(root))
-  // {
-  //   auto typeOps = std::make_shared<TipTypeOps>();
-  //   auto result = typeOps->close(TypeMapping::makeTipVar(root),sol);
-    
-    
-  //   storeResult(root,result);
-
-  // }
   visitChildren(root);
 }
 
@@ -1003,4 +993,132 @@ std::shared_ptr<Var> TypeAnalysis::ast2typevar(std::shared_ptr<Node> root)
   {
     return std::make_shared<TipVar>(root);
   }
+}
+
+
+void  PutTypeToAst::visitNumExpr(std::shared_ptr<NumberExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitVarExpr(std::shared_ptr<VariableExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitBinaryExpr(std::shared_ptr<BinaryExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitFunAppExpr(std::shared_ptr<FunAppExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitInputExpr(std::shared_ptr<InputExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitAllocExpr(std::shared_ptr<AllocExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitRefExpr(std::shared_ptr<RefExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitDeRefExpr(std::shared_ptr<DeRefExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitNullExpr(std::shared_ptr<NullExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitFieldExpr(std::shared_ptr<FieldExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitRecordExpr(std::shared_ptr<RecordExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitAccessExpr(std::shared_ptr<AccessExpr> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+void  PutTypeToAst::visitFunction(std::shared_ptr<Function> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
+}
+
+
+void  PutTypeToAst::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) 
+{
+  if(result.find(root) != result.end())
+  {
+    root->inferredType = result[root];
+  }
+  visitChildren(root);
 }

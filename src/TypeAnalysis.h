@@ -56,10 +56,33 @@ public:
   void  visitErrorStmt(std::shared_ptr<ErrorStmt> root) override;
   void  visitReturnStmt(std::shared_ptr<ReturnStmt> root) override;
   void  visitFunction(std::shared_ptr<Function> root) override;
-  void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) override;\
+  void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) override;
 
   void collectResult(std::shared_ptr<TIPtree::Program> program);
   std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> getCollectedResult();  
+};
+
+class PutTypeToAst:public TIPAstVisitor
+{
+private:
+  std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> result;
+public:
+  PutTypeToAst(std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> result) :result(result) {};
+  ~PutTypeToAst() = default;
+  void  visitNumExpr(std::shared_ptr<NumberExpr> root) override;
+  void  visitVarExpr(std::shared_ptr<VariableExpr> root) override;
+  void  visitBinaryExpr(std::shared_ptr<BinaryExpr> root) override;
+  void  visitFunAppExpr(std::shared_ptr<FunAppExpr> root) override;
+  void  visitInputExpr(std::shared_ptr<InputExpr> root) override;
+  void  visitAllocExpr(std::shared_ptr<AllocExpr> root) override;
+  void  visitRefExpr(std::shared_ptr<RefExpr> root) override;
+  void  visitDeRefExpr(std::shared_ptr<DeRefExpr> root) override;
+  void  visitNullExpr(std::shared_ptr<NullExpr> root) override;
+  void  visitFieldExpr(std::shared_ptr<FieldExpr> root) override;
+  void  visitRecordExpr(std::shared_ptr<RecordExpr> root) override;
+  void  visitAccessExpr(std::shared_ptr<AccessExpr> root) override;
+  void  visitFunction(std::shared_ptr<Function> root) override;
+  void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) override;
 };
 
 class TypeAnalysis:public TIPAstVisitor

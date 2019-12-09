@@ -26,9 +26,20 @@ class TIPAstVisitor;
 class TIPAstVisitorWithEnv;
 class Declaration;
 
+class TipType
+{
+public:
+    TipType() = default;
+    virtual ~TipType() = default;
+    static std::string type();
+    virtual std::string getType() = 0;
+    virtual std::string toString();
+};
+
 // Node - this is a base class for all tree nodes
 class Node {
 public:
+  std::shared_ptr<TipType> inferredType;
   virtual ~Node() = default;
   virtual llvm::Value *codegen() = 0;
   virtual std::string print() = 0;

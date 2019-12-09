@@ -6,15 +6,6 @@
 
 using namespace TIPtree;
 
-class TipType
-{
-public:
-    TipType() = default;
-    virtual ~TipType() = default;
-    static std::string type();
-    virtual std::string getType() = 0;
-    virtual std::string toString();
-};
 
 class TipMu;
 
