@@ -968,6 +968,24 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
   
   auto solution = solver.solution();
   std::cout << "solution size: " << solution.size() << "\n";
+  for(auto pair:solution)
+  {
+    if(std::dynamic_pointer_cast<TipVar>(pair.first))
+    {
+      auto tipVar = std::dynamic_pointer_cast<TipVar>(pair.first);
+      std::cout << tipVar->toString() << "(" << pair.first.get() << ")" << " = ";
+    }
+    if(std::dynamic_pointer_cast<TipVar>(pair.second))
+    {
+      auto tipVar = std::dynamic_pointer_cast<TipVar>(pair.second);
+      std::cout << tipVar->toString() <<  "(" << pair.second.get() << ")" << " ";
+    }else if(std::dynamic_pointer_cast<TipType>(pair.second))
+    {
+      auto tipType = std::dynamic_pointer_cast<TipType>(pair.second);
+      std::cout << tipType->toString() <<  "(" << pair.second.get() << ")" <<  " ";
+    }
+    std::cout << "\n";
+  }
 
   // collect solution
   CollectSolution collectSolution(solution);
@@ -987,10 +1005,10 @@ std::shared_ptr<Var> TypeAnalysis::ast2typevar(std::shared_ptr<Node> root)
   if(std::dynamic_pointer_cast<VariableExpr>(root))
   {
     auto id = std::dynamic_pointer_cast<VariableExpr>(root);
-    return std::make_shared<TipVar>(declData[id]);
+    return TypeMapping::makeTipVar(declData[id]);
   }else
   {
-    return std::make_shared<TipVar>(root);
+    return TypeMapping::makeTipVar(root);
   }
 }
 
