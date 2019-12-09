@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
+#include <fstream>
 
 #include "TIPLexer.h"
 #include "TIPParser.h"
@@ -57,11 +58,24 @@ int main(int argc, const char *argv[]) {
   if(ta){
     std::cout << "Type Analysis" << std::endl;
     TypeAnalysis typeAnalysis;
-    auto TypeData = typeAnalysis.analysis(ast);
+    auto typeData = typeAnalysis.analysis(ast);
+    PutTypeToAst putTypeToAst(typeData);
+    putTypeToAst.put(ast);
+    auto printWithType = ast->print("  ", ppWlines,true);
+    std::string value = sourceFile.getValue();
+    size_t pos = value.find_last_of('.');
+    if(pos != std::string::npos)
+    {
+      std::string fileName = value.substr(0,pos);
+      ofstream of;
+      of.open(fileName + ".ttip");
+      of << printWithType;
+      of.close();
+    }
   }
 
   if (pp || ppWlines) {
-    std::cout << ast->print("  ", ppWlines);
+    std::cout << ast->print("  ", ppWlines,false);
   } else {
     auto theModule = ast->codegen(sourceFile);
     if (!noOpt) {

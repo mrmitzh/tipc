@@ -464,17 +464,17 @@ void IdentifierDeclaration::accept(TIPAstVisitorWithEnv& visitor,std::unordered_
 
 
 
-std::string Program::print(std::string i, bool pl = false) {
+std::string Program::print(std::string i, bool pl = false,bool withType = false) {
   indent = i;      // initialize namespace global for indent stride
   printLines = pl; // print line numbers
   std::string pp;
   for (auto const &fn : FUNCTIONS) {
-    pp += fn->print() + "\n";
+    pp += fn->print(withType) + "\n";
   }
   return pp;
 }
 
-std::string Function::print() {
+std::string Function::print(bool withType) {
   std::string pp = NAME + "(";
 
   // comma separated parameter name list
@@ -488,6 +488,10 @@ std::string Function::print() {
     }
   }
   pp += ")";
+  if (withType && inferredType)
+  {
+    pp += ": " + inferredType->toString();
+  }
   if (printLines) {
     pp += " // @" + std::to_string(LINE);
   }
@@ -498,11 +502,11 @@ std::string Function::print() {
   indentLevel++;
 
   for (auto const &decl : DECLS) {
-    pp += indentation() + decl->print() + "\n";
+    pp += indentation() + decl->print(withType) + "\n";
   }
 
   for (auto const &stmt : BODY) {
-    pp += indentation() + stmt->print() + "\n";
+    pp += indentation() + stmt->print(withType) + "\n";
   }
 
   indentLevel--;
@@ -514,34 +518,34 @@ std::string Function::print() {
 std::string Function::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string NumberExpr::print() { return std::to_string(VAL); }
+std::string NumberExpr::print(bool withType) { return std::to_string(VAL); }
 std::string NumberExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string VariableExpr::print() { return NAME; }
+std::string VariableExpr::print(bool withType) { return NAME; }
 std::string VariableExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string BinaryExpr::print() {
-  return "(" + LHS->print() + " " + OP + " " + RHS->print() + ")";
+std::string BinaryExpr::print(bool withType) {
+  return "(" + LHS->print(withType) + " " + OP + " " + RHS->print(withType) + ")";
 }
 std::string BinaryExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string InputExpr::print() { return "input"; }
+std::string InputExpr::print(bool withType) { return "input"; }
 std::string InputExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string FunAppExpr::print() {
-  std::string pp = FUN->print() + "(";
+std::string FunAppExpr::print(bool withType) {
+  std::string pp = FUN->print(withType) + "(";
   // comma separated argument list
   bool skip = true;
   for (auto const &arg : ACTUALS) {
     if (skip) {
       skip = false;
-      pp += arg->print();
+      pp += arg->print(withType);
     } else {
-      pp += ", " + arg->print();
+      pp += ", " + arg->print(withType);
     }
   }
   pp += ")";
@@ -550,39 +554,50 @@ std::string FunAppExpr::print() {
 std::string FunAppExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string IdentifierDeclaration::print() { return value; }
+std::string IdentifierDeclaration::print(bool withType) 
+{ 
+  std::string pp = value;
+  if(withType)
+  {
+    if(inferredType)
+    {
+      pp += ": " + inferredType->toString();
+    }
+  } 
+  return pp;
+}
 std::string IdentifierDeclaration::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
-std::string AllocExpr::print() { return "alloc " + ARG->print(); }
+std::string AllocExpr::print(bool withType) { return "alloc " + ARG->print(withType); }
 std::string AllocExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string RefExpr::print() { return "&" + NAME; }
+std::string RefExpr::print(bool withType) { return "&" + NAME; }
 std::string RefExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string DeRefExpr::print() { return "*" + ARG->print(); }
+std::string DeRefExpr::print(bool withType) { return "*" + ARG->print(withType); }
 std::string DeRefExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string NullExpr::print() { return "null"; }
+std::string NullExpr::print(bool withType) { return "null"; }
 std::string NullExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string FieldExpr::print() { return FIELD + ":" + INIT->print(); }
+std::string FieldExpr::print(bool withType) { return FIELD + ":" + INIT->print(withType); }
 std::string FieldExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string RecordExpr::print() {
+std::string RecordExpr::print(bool withType) {
   std::string pp = "{";
   // comma separated argument list
   bool skip = true;
   for (auto const &field : FIELDS) {
     if (skip) {
       skip = false;
-      pp += field->print();
+      pp += field->print(withType);
     } else {
-      pp += ", " + field->print();
+      pp += ", " + field->print(withType);
     }
   }
   pp += "}";
@@ -591,20 +606,20 @@ std::string RecordExpr::print() {
 std::string RecordExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string AccessExpr::print() { return RECORD->print() + "." + FIELD; }
+std::string AccessExpr::print(bool withType) { return RECORD->print(withType) + "." + FIELD; }
 std::string AccessExpr::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string DeclStmt::print() {
+std::string DeclStmt::print(bool withType) {
   std::string pp = "var ";
   // comma separated variable names list
   bool skip = true;
-  for (auto id : VARS) {
+  for (auto dummyId : dummyVars) {
     if (skip) {
       skip = false;
-      pp += id;
+      pp += dummyId->print(withType);
     } else {
-      pp += ", " + id;
+      pp += ", " + dummyId->print(withType);
     }
   }
   pp += ";";
@@ -615,17 +630,17 @@ std::string DeclStmt::print() {
 std::string DeclStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string AssignStmt::print() {
-  return LHS->print() + " = " + RHS->print() + ";";
+std::string AssignStmt::print(bool withType) {
+  return LHS->print(withType) + " = " + RHS->print(withType) + ";";
 }
 std::string AssignStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string BlockStmt::print() {
+std::string BlockStmt::print(bool withType) {
   std::string pp = "{\n";
   indentLevel++;
   for (auto const &s : STMTS) {
-    pp += indentation() + s->print() + "\n";
+    pp += indentation() + s->print(withType) + "\n";
   }
   indentLevel--;
   pp += indentation() + "}";
@@ -634,26 +649,26 @@ std::string BlockStmt::print() {
 std::string BlockStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string WhileStmt::print() {
-  std::string pp = "while (" + COND->print() + ") \n";
+std::string WhileStmt::print(bool withType) {
+  std::string pp = "while (" + COND->print(withType) + ") \n";
   indentLevel++;
-  pp += indentation() + BODY->print();
+  pp += indentation() + BODY->print(withType);
   indentLevel--;
   return pp;
 }
 std::string WhileStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string IfStmt::print() {
-  std::string pp = "if (" + COND->print() + ") \n";
+std::string IfStmt::print(bool withType) {
+  std::string pp = "if (" + COND->print(withType) + ") \n";
   indentLevel++;
-  pp += indentation() + THEN->print();
+  pp += indentation() + THEN->print(withType);
 
   if (ELSE != nullptr) {
     indentLevel--;
     pp += "\n" + indentation() + "else\n";
     indentLevel++;
-    pp += indentation() + ELSE->print();
+    pp += indentation() + ELSE->print(withType);
   }
   indentLevel--;
   return pp;
@@ -661,15 +676,15 @@ std::string IfStmt::print() {
 std::string IfStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string OutputStmt::print() { return "output " + ARG->print() + ";"; }
+std::string OutputStmt::print(bool withType) { return "output " + ARG->print(withType) + ";"; }
 std::string OutputStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string ErrorStmt::print() { return "error " + ARG->print() + ";"; }
+std::string ErrorStmt::print(bool withType) { return "error " + ARG->print(withType) + ";"; }
 std::string ErrorStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
-std::string ReturnStmt::print() { return "return " + ARG->print() + ";"; }
+std::string ReturnStmt::print(bool withType) { return "return " + ARG->print(withType) + ";"; }
 std::string ReturnStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 

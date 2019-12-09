@@ -1122,3 +1122,11 @@ void  PutTypeToAst::visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclara
   }
   visitChildren(root);
 }
+
+void  PutTypeToAst::put(std::shared_ptr<TIPtree::Program> program)
+{
+  for(auto function:program->FUNCTIONS)
+  {
+    visit(function);
+  }
+}

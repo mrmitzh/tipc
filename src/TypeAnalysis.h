@@ -83,6 +83,8 @@ public:
   void  visitAccessExpr(std::shared_ptr<AccessExpr> root) override;
   void  visitFunction(std::shared_ptr<Function> root) override;
   void  visitIdentifierDeclaration(std::shared_ptr<IdentifierDeclaration> root) override;
+
+  void  put(std::shared_ptr<TIPtree::Program> program);
 };
 
 class TypeAnalysis:public TIPAstVisitor

@@ -42,7 +42,7 @@ public:
   std::shared_ptr<TipType> inferredType;
   virtual ~Node() = default;
   virtual llvm::Value *codegen() = 0;
-  virtual std::string print() = 0;
+  virtual std::string print(bool withType = false) = 0;
   virtual std::string printWithLine() = 0;
   virtual std::string get_type();
   virtual void accept(TIPAstVisitor& visitor) = 0;
@@ -65,7 +65,7 @@ public:
   static std::string type();
   std::string get_type() override;
   llvm::Value *codegen() override { return nullptr; };
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
@@ -89,7 +89,7 @@ public:
   int LINE;
   NumberExpr(int VAL,int LINE) : VAL(VAL),LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -105,7 +105,7 @@ public:
   int LINE;
   VariableExpr(const std::string &NAME,int LINE ) : NAME(NAME),LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -126,7 +126,7 @@ public:
              std::shared_ptr<Expr> RHS,int LINE)
       : OP(OP), LHS(std::move(LHS)), RHS(std::move(RHS)),LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -148,7 +148,7 @@ public:
   static std::string type();
   std::string get_type() override;
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
@@ -161,7 +161,7 @@ public:
   int LINE;
   InputExpr(int LINE) : LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -178,7 +178,7 @@ public:
   int LINE;
   AllocExpr(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -196,7 +196,7 @@ public:
   int LINE;
   RefExpr(const std::string &NAME, std::shared_ptr<Expr> ARG,int LINE) : NAME(NAME),ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -213,7 +213,7 @@ public:
   int LINE;
   DeRefExpr(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -229,7 +229,7 @@ public:
   int LINE;
   NullExpr(int LINE) :LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -253,7 +253,7 @@ public:
   llvm::Value *codegen() override;
   static std::string type();
   std::string get_type() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
@@ -269,7 +269,7 @@ public:
   RecordExpr(std::vector<std::shared_ptr<FieldExpr>> FIELDS,int LINE)
       : FIELDS(std::move(FIELDS)),LINE(LINE)  {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -292,7 +292,7 @@ public:
         dummyFIELD = std::make_shared<VariableExpr>(this->FIELD,LINE);
       }
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -330,7 +330,7 @@ public:
   llvm::Value *codegen() override;
   static std::string type();
   std::string get_type() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   void accept(TIPAstVisitor& visitor) override;
   void accept(TIPAstVisitorWithEnv& visitor, std::unordered_map<std::string, std::shared_ptr<Declaration>> env) override;
@@ -346,7 +346,7 @@ public:
   BlockStmt(std::vector<std::shared_ptr<Stmt>> STMTS, int LINE)
       : STMTS(std::move(STMTS)), LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   static std::string type();
   std::string get_type() override;
   std::string printWithLine() override;
@@ -363,7 +363,7 @@ public:
   AssignStmt(std::shared_ptr<Expr> LHS, std::shared_ptr<Expr> RHS, int LINE)
       : LHS(std::move(LHS)), RHS(std::move(RHS)), LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   static std::string type();
   std::string get_type() override;
   std::string printWithLine() override;
@@ -381,7 +381,7 @@ public:
   WhileStmt(std::shared_ptr<Expr> COND, std::shared_ptr<Stmt> BODY,int LINE)
       : COND(std::move(COND)), BODY(std::move(BODY)), LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -400,7 +400,7 @@ public:
          std::shared_ptr<Stmt> ELSE, int LINE)
       : COND(std::move(COND)), THEN(std::move(THEN)), ELSE(std::move(ELSE)), LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -416,7 +416,7 @@ public:
   int LINE;
   OutputStmt(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -432,7 +432,7 @@ public:
   int LINE;
   ErrorStmt(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -448,7 +448,7 @@ public:
   int LINE;
   ReturnStmt(std::shared_ptr<Expr> ARG,int LINE) : ARG(std::move(ARG)),LINE(LINE) {}
   llvm::Value *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -484,7 +484,7 @@ public:
           }
         }
   llvm::Function *codegen() override;
-  std::string print() override;
+  std::string print(bool withType = false) override;
   std::string printWithLine() override;
   static std::string type();
   std::string get_type() override;
@@ -509,7 +509,7 @@ public:
   Program(std::vector<std::shared_ptr<Function>> FUNCTIONS)
       : FUNCTIONS(std::move(FUNCTIONS)) {}
   std::unique_ptr<llvm::Module> codegen(std::string programName);
-  std::string print(std::string i, bool pl);
+  std::string print(std::string i, bool pl, bool withType);
 };
 
 
