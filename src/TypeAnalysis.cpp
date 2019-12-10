@@ -815,7 +815,7 @@ void  TypeAnalysis::visitDeRefExpr(std::shared_ptr<DeRefExpr> root)
 
 void  TypeAnalysis::visitNullExpr(std::shared_ptr<NullExpr> root)
 {
-  solver.unify(ast2typevar(root),std::make_shared<TipRef>(std::make_shared<TipAlpha>(root)));  
+  solver.unify(ast2typevar(root),std::make_shared<TipRef>(TypeMapping::makeTipAlpha(root)));  
   visitChildren(root);
 }
 
