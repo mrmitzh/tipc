@@ -698,7 +698,7 @@ std::string IfStmt::print(bool withType) {
     pp += THEN->print(withType);
     if (ELSE != nullptr) {
       pp += "else ";
-      ELSE->print(withType);
+      pp += ELSE->print(withType);
     }
   } else{
     indentLevel++;
