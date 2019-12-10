@@ -497,21 +497,30 @@ std::string Function::print(bool withType) {
   }
   pp += "\n";
 
-  indentLevel++;
-  pp += indentation() + "{\n";
-  indentLevel++;
-
-  for (auto const &decl : DECLS) {
-    pp += indentation() + decl->print(withType) + "\n";
+  if(withType){
+    pp += "{\n";
+    for (auto const &decl : DECLS) {
+      pp += decl->print(withType) + "\n";
+    }
+    for (auto const &stmt : BODY) {
+      pp += stmt->print(withType) + "\n";
+    }
+    pp += "}\n";
+  } else{
+    indentLevel++;
+    pp += indentation() + "{\n";
+    indentLevel++;
+    for (auto const &decl : DECLS) {
+      pp += indentation() + decl->print(withType) + "\n";
+    }
+    for (auto const &stmt : BODY) {
+      pp += indentation() + stmt->print(withType) + "\n";
+    }
+    indentLevel--;
+    pp += indentation() + "}\n";
+    indentLevel--;
   }
 
-  for (auto const &stmt : BODY) {
-    pp += indentation() + stmt->print(withType) + "\n";
-  }
-
-  indentLevel--;
-  pp += indentation() + "}\n";
-  indentLevel--;
 
   return pp;
 }
@@ -651,12 +660,19 @@ std::string AssignStmt::printWithLine() { return print() + " : " +  std::to_stri
 
 std::string BlockStmt::print(bool withType) {
   std::string pp = "{\n";
-  indentLevel++;
-  for (auto const &s : STMTS) {
-    pp += indentation() + s->print(withType) + "\n";
+  if(withType){
+    for (auto const &s : STMTS) {
+      pp += s->print(withType) + "  \n";
+    }
+  } else{
+    indentLevel++;
+    for (auto const &s : STMTS) {
+      pp += indentation() + s->print(withType) + "\n";
+    }
+    indentLevel--;
+    pp += indentation();
   }
-  indentLevel--;
-  pp += indentation() + "}";
+  pp += "}";
   return pp;
 }
 std::string BlockStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
@@ -664,26 +680,37 @@ std::string BlockStmt::printWithLine() { return print() + " : " +  std::to_strin
 
 std::string WhileStmt::print(bool withType) {
   std::string pp = "while (" + COND->print(withType) + ") \n";
-  indentLevel++;
-  pp += indentation() + BODY->print(withType);
-  indentLevel--;
+  if(withType){
+    pp += BODY->print(withType);
+  } else{
+    indentLevel++;
+    pp += indentation() + BODY->print(withType);
+    indentLevel--;
+  }
   return pp;
 }
 std::string WhileStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
 
 
 std::string IfStmt::print(bool withType) {
-  std::string pp = "if (" + COND->print(withType) + ") \n";
-  indentLevel++;
-  pp += indentation() + THEN->print(withType);
-
-  if (ELSE != nullptr) {
-    indentLevel--;
-    pp += "\n" + indentation() + "else\n";
+  std::string pp = "if (" + COND->print(withType) + ") ";
+  if(withType){
+    pp += THEN->print(withType);
+    if (ELSE != nullptr) {
+      pp += "else ";
+      ELSE->print(withType);
+    }
+  } else{
     indentLevel++;
-    pp += indentation() + ELSE->print(withType);
+    pp += indentation() + THEN->print(withType);
+    if (ELSE != nullptr) {
+      indentLevel--;
+      pp += "\n" + indentation() + " else ";
+      indentLevel++;
+      pp += indentation() + ELSE->print(withType);
+    }
+    indentLevel--;
   }
-  indentLevel--;
   return pp;
 }
 std::string IfStmt::printWithLine() { return print() + " : " +  std::to_string(LINE); }
