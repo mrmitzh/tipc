@@ -51,16 +51,12 @@ void UnionFindSolver::unify(std::shared_ptr<Term> t1,std::shared_ptr<Term> t2)
 }
 
 
-std::shared_ptr<Term> UnionFindSolver::find(std::shared_ptr<Term> p)
+std::shared_ptr<Term> UnionFindSolver::find(std::shared_ptr<Term> t)
 {
-    makeSet(p);
-    auto copy = p;
-    while(parent[p] != p)
-    {
-        p = parent[p];
-    }
-    parent[copy] = p;
-    return p;
+    makeSet(t);
+    if (parent[t] != t)
+      parent[t] = find(parent[t]);
+    return parent[t];
 }
 
 void UnionFindSolver::makeUnion(std::shared_ptr<Term> t1,std::shared_ptr<Term> t2)
