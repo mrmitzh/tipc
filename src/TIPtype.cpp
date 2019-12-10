@@ -81,6 +81,11 @@ std::string TipMu::getType()
     return TipMu::type();
 }
 
+std::string TipMu::toString()
+{
+    return "\u03bc"+v->toString()+"."+t->toString();
+}
+
 std::string TipVar::type()
 {
     return "TipVar";

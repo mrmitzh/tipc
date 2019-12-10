@@ -106,6 +106,7 @@ public:
     std::shared_ptr<Term> subst(std::shared_ptr<Var> v,std::shared_ptr<Term> t) override;
     static std::string type();
     std::string getType() override;
+    std::string toString() override;
 };
 
 

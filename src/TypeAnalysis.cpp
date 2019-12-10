@@ -994,7 +994,7 @@ std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> TypeAnalysis:
   std::unordered_map<std::shared_ptr<Node>,std::shared_ptr<TipType>> ret = collectSolution.getCollectedResult();
 
   std::cout << "Inferred types are:" << std::endl;
-  for(auto const& pair: ret){
+  for(auto pair: ret){
     std::cout << "[[" << pair.first->printWithLine() << "]] = " << pair.second->toString() << std::endl;
   }
   return ret;
