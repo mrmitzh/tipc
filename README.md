@@ -46,13 +46,15 @@ During development you need only run steps 1 and 2 a single time, unless you mod
 
 Note that the `tipg4` directory has a standalone ANTLR4 grammar.  It's README describes how to build it and run it using `grun`.
 
+## New Features
+TIP supports type checking now. To have the result of type checking, one can simple run `./tipc -t` and use the file with the `.tip` to get the type checking result shown on the screen. Note that this process will also emit type annotations for functions and declared variables. So, one can further use the type annotations to support extionsions of TIP like adding floats.
+
 ## Limitations
 
-TIP does not perform type checking.  Instead it relies on running the Scala TIP system to perform this check.  `tipc` relies on the fact that the types are correct and it casts values based on the operators, e.g., an operator that expects a pointer has its operand cast to a pointer.  This can work because TIP has a limited set of types and all of them can be represented as an `int64_t`.  This results in sub-optimal code because there are lots of `inttoptr` and `ptrtoint` casts in the generated LLVM bitcode.
+ `tipc` casts values based on the operators, e.g., an operator that expects a pointer has its operand cast to a pointer.  This can work because TIP has a limited set of types and all of them can be represented as an `int64_t`.  This results in sub-optimal code because there are lots of `inttoptr` and `ptrtoint` casts in the generated LLVM bitcode.
 
 TIP records are not implemented (yet).  Extending `tipc` to support records can still use the above scheme since operators that access records are not overloaded with any other type and records are always heap allocated in TIP and, thus, that address can be represented as a pointer/`int64_t`.
 
-Note that other extensions of TIP, e.g., adding floats, would require having type annotations in `tipc`.  These could be constructed in a simple type annotation pass, as opposed to TIP Scala's type inference analysis, if the types of functions and declared variables were known.   Conveniently, the Scala TIP compiler can emit type annotations for functions and declared variables; run `./tip -types` and use the file with the `.ttip` suffix that is written to the `out` directory.
 
 ## Tests
 
