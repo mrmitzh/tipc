@@ -910,6 +910,7 @@ void  TypeAnalysis::visitErrorStmt(std::shared_ptr<ErrorStmt> root)
 void  TypeAnalysis::visitReturnStmt(std::shared_ptr<ReturnStmt> root)
 {
   // visit children
+  solver.unify(ast2typevar(root),ast2typevar(root->ARG));
   visitChildren(root);
 }
 
