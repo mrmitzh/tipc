@@ -93,7 +93,7 @@ std::string TipVar::getType()
 
 std::string TipVar::toString()
 {
-    return "[["+astNode->print()+"]]";
+    return "[["+astNode->printWithLine()+"]]";
 }
 
 std::string TipRecord::type()
